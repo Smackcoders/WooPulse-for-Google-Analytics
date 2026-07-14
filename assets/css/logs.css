@@ -1,0 +1,202 @@
+#logs-filter-form select.StorePulse-clean-select {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    background-color: #fff !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 14px center !important;
+    border: 1px solid #e2e8f0 !important;
+    height: 42px !important;
+    border-radius: 10px !important;
+    padding: 0 35px 0 14px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: #475569 !important;
+    outline: none !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    cursor: pointer !important;
+    transition: all 0.2s !important;
+}
+
+#logs-filter-form select.StorePulse-clean-select:focus {
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+}
+
+#logs-filter-form .StorePulse-clean-input {
+    background-color: #fff !important;
+    border: 1px solid #e2e8f0 !important;
+    height: 42px !important;
+    border-radius: 10px !important;
+    padding-left: 42px !important;
+    padding-right: 14px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: #1e293b !important;
+    outline: none !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    transition: all 0.2s !important;
+}
+
+#logs-filter-form .StorePulse-clean-input:focus {
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+}
+
+.StorePulse-search-icon-wrap {
+    position: absolute;
+    left: 14px;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    color: #94a3b8;
+}
+
+#logs-filter-form .StorePulse-date-box {
+    background: #fff !important;
+    border: 1px solid #e2e8f0 !important;
+    height: 42px !important;
+    border-radius: 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 14px !important;
+    cursor: pointer !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    transition: all 0.2s !important;
+}
+
+#logs-filter-form .StorePulse-date-box:hover {
+    border-color: #cbd5e1 !important;
+}
+
+#logs-filter-form .StorePulse-date-box input {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: 100% !important;
+    width: 100% !important;
+    box-shadow: none !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: #475569 !important;
+    cursor: pointer !important;
+    outline: none !important;
+}
+
+/* 🎨 MODERN PILL STYLE SYSTEM */
+.StorePulse-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: capitalize;
+    white-space: nowrap;
+}
+
+.pill-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 8px;
+    display: inline-block;
+}
+
+/* Action Colors */
+.pill-purchase {
+    background: #ecfdf5 !important;
+    color: #059669 !important;
+}
+
+.pill-purchase .pill-dot {
+    background: #10b981 !important;
+}
+
+.pill-pageview {
+    background: #f5f3ff !important;
+    color: #7c3aed !important;
+}
+
+.pill-pageview .pill-dot {
+    background: #8b5cf6 !important;
+}
+
+.pill-login {
+    background: #f0fdf4 !important;
+    color: #16a34a !important;
+}
+
+.pill-login .pill-dot {
+    background: #22c55e !important;
+}
+
+.pill-logout {
+    background: #f8fafc !important;
+    color: #64748b !important;
+}
+
+.pill-logout .pill-dot {
+    background: #94a3b8 !important;
+}
+
+.pill-submit {
+    background: #fffbeb !important;
+    color: #d97706 !important;
+}
+
+.pill-submit .pill-dot {
+    background: #f59e0b !important;
+}
+
+.pill-error {
+    background: #fef2f2 !important;
+    color: #dc2626 !important;
+}
+
+.pill-error .pill-dot {
+    background: #ef4444 !important;
+}
+
+.pill-settings {
+    background: #fdf2ff !important;
+    color: #9333ea !important;
+}
+
+.pill-settings .pill-dot {
+    background: #a855f7 !important;
+}
+
+.pill-default {
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+}
+
+.pill-default .pill-dot {
+    background: #94a3b8 !important;
+}
+
+/* Table Fixes */
+#logs-table-body tr {
+    border-bottom: 1px solid #f1f5f9;
+    transition: all 0.2s;
+}
+
+#logs-table-body tr:hover {
+    background-color: #f8fafc;
+}
+
+#logs-table-body td {
+    vertical-align: middle;
+}
+
+#logs-apply-btn {
+    height: 42px !important;
+    border-radius: 10px !important;
+}

@@ -1,0 +1,1179 @@
+/* Premium font stack (matches Audie Data Migrator's Inter Tight / Inter pairing) */
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+/* Base Styles */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  background: #f0f0f1;
+}
+
+/* Card Section */
+.card-section {
+  background: #fff;
+  padding: 20px;
+  border: 1px solid #c3c4c7;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, .04);
+  margin-top: 10px;
+  border-radius: 4px;
+  margin-bottom: 25px;
+}
+
+/* Prevent horizontal scroll globally on our pages (T-26) */
+#wpbody-content,
+.wrap[id^="StorePulse-"] {
+  overflow-x: hidden !important;
+}
+
+.section-header {
+  margin-top: 30px;
+  font-size: 1.3em;
+  font-weight: 600;
+  color: #23282d;
+}
+
+/* Knowledge Block Styling */
+.knowledge-block {
+  background: #f0f6fb;
+  border-left: 4px solid #72aee6;
+  padding: 15px 20px;
+  margin: 20px 0;
+  border-radius: 0 4px 4px 0;
+}
+
+.knowledge-block h4 {
+  margin: 0 0 10px 0;
+  color: #2271b1;
+  font-size: 1.1em;
+}
+
+.knowledge-block p {
+  margin: 0;
+  line-height: 1.5;
+  color: #50575e;
+}
+
+/* Sub-tabs Styling */
+.StorePulse-sub-tabs {
+  margin-top: 15px;
+}
+
+.subsubsub li a.current {
+  font-weight: 600;
+  color: #000;
+}
+
+/* Labels & Descriptions */
+.form-table th label {
+  font-weight: 600;
+  color: #2c3338;
+}
+
+/* Toggles & Labels */
+.StorePulse-toggle-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.checkbox-label {
+  margin-left: 12px;
+  font-weight: 500;
+  color: #1d2327;
+  cursor: pointer;
+}
+
+.description {
+  margin-top: 4px;
+  color: #646970;
+  font-style: italic;
+  display: block;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  min-width: 40px;
+  /* Prevent shrinking */
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked+.slider {
+  background-color: #2271b1;
+}
+
+input:focus+.slider {
+  box-shadow: 0 0 1px #2271b1;
+}
+
+input:checked+.slider:before {
+  -webkit-transform: translateX(20px);
+  -ms-transform: translateX(20px);
+  transform: translateX(20px);
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/* Inputs & Icons */
+.input-with-icon {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  max-width: 400px;
+}
+
+.input-with-icon input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #555;
+  z-index: 2;
+  transition: color 0.2s ease;
+}
+
+.toggle-password:hover {
+  color: #2271b1;
+}
+
+/* Authenticated Tab Labels */
+.token-label {
+  background: #f9f9f9;
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font-family: monospace;
+  display: inline-block;
+  margin-top: 5px;
+}
+
+.status-badge {
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.status-connected {
+  background: #edfaef;
+  color: #135e23;
+  border: 1px solid #b8e6bf;
+}
+
+.status-disconnected {
+  background: #fcf0f1;
+  color: #d63638;
+  border: 1px solid #f8d7da;
+}
+
+/* Utilities */
+.text-red {
+  color: #d63638;
+}
+
+code {
+  background: #f0f0f1;
+  padding: 2px 4px;
+  border-radius: 3px;
+  color: #000;
+}
+
+/* PRO Features */
+.pro-badge {
+  background: #facc15;
+  color: #000;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: 8px;
+  vertical-align: middle;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.pro-feature {
+  opacity: 0.7;
+  background: #fafafa;
+}
+
+.switch.disabled {
+  cursor: not-allowed;
+}
+
+.switch.disabled .slider {
+  background-color: #ddd;
+}
+
+/* Alternating Row Colors Patch (For cases where Tailwind utility classes are not rendering) */
+tr.odd\:bg-blue-50:nth-child(odd),
+.StorePulse-alternating tbody tr:nth-child(odd) {
+  background-color: #ffffff !important;
+}
+
+tr.even\:bg-white:nth-child(even),
+.StorePulse-alternating tbody tr:nth-child(even) {
+  background-color: #eff6ff !important;
+}
+
+/* Hover effects with higher specificity to override !important background colors */
+.wrap tr.hover\:bg-gray-100:hover,
+.wrap tr.hover\:bg-gray-100:hover td,
+.wrap .StorePulse-alternating tbody tr:hover,
+.wrap .StorePulse-alternating tbody tr:hover td {
+  background-color: #f3f4f6 !important;
+}
+
+/* Ensure widefat doesn't override these */
+.wrap .widefat.StorePulse-alternating tr:nth-child(even) td,
+.wrap .widefat tr.even\:bg-white:nth-child(even) td {
+  background-color: #eff6ff !important;
+}
+
+.wrap .widefat.StorePulse-alternating tr:nth-child(odd) td,
+.wrap .widefat tr.odd\:bg-blue-50:nth-child(odd) td {
+  background-color: #ffffff !important;
+}
+
+/* ── StorePulse Tooltip System (T-23) ──────────────────────────── */
+.wptip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  margin-left: 5px;
+  cursor: help;
+}
+
+.wptip .dashicons {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+  color: #72aee6;
+  transition: color .15s;
+}
+
+.wptip:hover .dashicons {
+  color: #2271b1;
+}
+
+.wptip::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1d2327;
+  color: #fff;
+  font-size: 11px;
+  line-height: 1.5;
+  padding: 6px 10px;
+  border-radius: 5px;
+  white-space: pre-line;
+  width: max-content;
+  max-width: 240px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .2s;
+  z-index: 9999;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+}
+
+.wptip::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: #1d2327;
+  opacity: 0;
+  transition: opacity .2s;
+  z-index: 9999;
+}
+
+.wptip:hover::after,
+.wptip:hover::before {
+  opacity: 1;
+}
+
+/* ── StorePulse Unified Loader (T-24) ──────────────────────────── */
+.StorePulse-loader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9989;
+  background: rgba(243, 244, 246, 0.95);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.StorePulse-loader-overlay.is-active {
+  visibility: visible;
+  opacity: 1;
+}
+
+.StorePulse-loader-header {
+  margin-bottom: 15px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #64748b;
+  letter-spacing: 0.02em;
+}
+
+.StorePulse-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(59, 130, 246, 0.1);
+  border-left-color: #3b82f6;
+  border-radius: 50%;
+  animation: StorePulse-spin 1s linear infinite;
+}
+
+.StorePulse-loader-text {
+  margin-top: 15px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #475569;
+  letter-spacing: 0.01em;
+}
+
+@keyframes StorePulse-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Prevent horizontal scroll globally on our pages (T-26) */
+.wrap[id^="StorePulse-"] {
+  max-width: 100%;
+}
+
+.section-header {
+  margin-top: 30px;
+  font-size: 1.3em;
+  font-weight: 600;
+  color: #23282d;
+}
+
+/* WordPress admin panel interaction stays unblocked during loading */
+
+/* ── StorePulse Admin Header (T-25) ───────────────────────────── */
+.StorePulse-admin-header {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  margin: 20px 20px 0 0 !important;
+  padding: 24px 24px 12px 24px;
+  border-radius: 12px 12px 0 0;
+  /* Only top rounding */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  position: relative;
+  z-index: 2;
+}
+
+/* Internal separator between header and controls */
+.StorePulse-admin-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 24px;
+  right: 24px;
+  height: 1px;
+  background: #f1f5f9;
+}
+
+/* Eliminate WordPress default gap and padding for ALL report pages */
+.StorePulse-admin-header+.wrap:not(#StorePulse-settings-wizard),
+.StorePulse-admin-header+form+.wrap,
+.StorePulse-admin-header+div+.wrap,
+#wpbody-content>.StorePulse-admin-header+.wrap:not(#StorePulse-settings-wizard),
+.wrap[id^="StorePulse-"] {
+  margin-left: 0 !important;
+  margin-right: 20px !important;
+  padding: 0 !important;
+  max-width: none !important;
+}
+
+/* Merge the Dashboard Wrap with Header */
+.StorePulse-admin-header+.wrap#StorePulse-dashboard-v2 {
+  margin-top: 0 !important;
+}
+
+/* When the integrated controls follow the header (most pages), merge them */
+.StorePulse-admin-header+.StorePulse-integrated-controls,
+.StorePulse-admin-header+form .StorePulse-integrated-controls,
+.StorePulse-admin-header+.wrap .StorePulse-integrated-controls {
+  margin-top: 0 !important;
+  /* Reduced overlap for better spacing */
+  /* Overlap borders */
+  margin-right: 0 !important;
+  /* Matches parent wrap if nested (Dashboard) */
+  border-top: none !important;
+  border-radius: 0 0 12px 12px !important;
+  /* Only bottom rounding */
+}
+
+/* Special Case for Logs and other pages where Controls are siblings */
+.StorePulse-admin-header+.StorePulse-integrated-controls {
+  margin-right: 20px !important;
+  /* Matches header's 20px if not inside a wrap */
+}
+
+/* Ensure no spacing elements inside the wrap add top gaps when combined */
+.StorePulse-admin-header+.wrap>*:first-child,
+.StorePulse-integrated-controls+.wrap>*:first-child {
+  margin-top: 0 !important;
+}
+
+/* Global Switch for Report Wraps */
+[id$="-v2"] {
+  margin-top: 24px !important;
+  /* Default gap from the Mega-Card above it */
+}
+
+/* When the wrap itself is the combined element (Dashboard) */
+.StorePulse-admin-header+.wrap#StorePulse-dashboard-v2 {
+  margin-top: 0 !important;
+}
+
+.StorePulse-integrated-controls {
+  background: transparent;
+  border: none;
+  margin: 20px 20px 24px 0 !important;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 12px;
+  box-shadow: none;
+}
+
+/* ── Premium Export CSV Button ────────────────────────────── */
+.StorePulse-btn-export {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 18px;
+  background: #6366f1 !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  white-space: nowrap !important;
+  line-height: 1 !important;
+  box-shadow: 0 2px 4px rgba(99, 102, 241, 0.2) !important;
+}
+
+.StorePulse-btn-export:hover {
+  background: #433ebf !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(99, 102, 241, 0.25) !important;
+}
+
+.StorePulse-btn-export:active {
+  transform: translateY(0);
+}
+
+.StorePulse-btn-export svg,
+.StorePulse-btn-export .dashicons {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+}
+
+
+.StorePulse-header-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.StorePulse-logo-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.StorePulse-logo-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2);
+}
+
+.StorePulse-logo-icon .dashicons {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.StorePulse-title-area h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.2;
+}
+
+.StorePulse-title-area p {
+  margin: 2px 0 0 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.StorePulse-header-nav {
+  display: flex;
+  flex-wrap: nowrap;
+  /* Force single line as requested */
+  gap: 4px;
+  /* Reduced gap from 8px to 4px */
+  padding-top: 4px;
+  padding-bottom: 8px;
+  overflow-x: auto;
+  /* Handle overflow gracefully if absolutely necessary */
+  scrollbar-width: none;
+  /* Hide scrollbar for Chrome/Firefox while keeping it scrollable if clipped */
+}
+
+.StorePulse-header-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.StorePulse-nav-item {
+  padding: 5px 8px;
+  /* Further reduced padding */
+  text-decoration: none;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 11.5px;
+  /* Reduced font size from 13px */
+  border: 1px solid transparent;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  /* Reduced icon-text gap */
+  margin-bottom: 0;
+}
+
+.StorePulse-nav-item .dashicons {
+  font-size: 14px;
+  /* Reduced icon size from 20px */
+  width: 14px;
+  height: 14px;
+}
+
+.StorePulse-nav-item:hover {
+  color: #2563eb;
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.StorePulse-nav-item.is-active {
+  color: #2563eb;
+  background: #eff6ff;
+  border-color: #3b82f6;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Sub-navigation link style reset - explicitly simple links */
+.StorePulse-header-subnav a {
+  text-decoration: none;
+  transition: color 0.2s ease;
+  outline: none !important;
+}
+
+.StorePulse-header-subnav a:hover {
+  color: #2563eb !important;
+}
+
+.StorePulse-nav-item .dashicons {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+@media (max-width: 782px) {
+  .StorePulse-admin-header {
+    margin: -10px -10px 15px -10px;
+  }
+}
+
+/* Global Date Picker Styling */
+.StorePulse-date-wrapper {
+  position: relative;
+  width: 100%;
+  display: inline-block;
+}
+
+.StorePulse-date-input {
+  background-color: #ffffff !important;
+  width: 100% !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  padding: 6px 12px 6px 36px !important;
+  font-size: 13px !important;
+  height: 32px !important;
+  color: #1e293b !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+.StorePulse-date-input:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1) !important;
+  outline: none !important;
+}
+
+.StorePulse-date-wrapper .dashicons-calendar-alt {
+  color: #64748b;
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+/* ── Bar Stat Progress Widgets (New vs Returning, Devices, etc) ── */
+.pls-stat-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.pls-stat-meta {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.pls-stat-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 8px;
+  display: inline-block;
+}
+
+.pls-stat-name {
+  flex-grow: 1;
+}
+
+.pls-stat-pct {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.pls-bar-bg {
+  height: 8px;
+  background-color: #f1f5f9;
+  border-radius: 999px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.pls-bar {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Responsive scroll container without scrollbars */
+.StorePulse-scroll-container {
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE/Edge */
+  -webkit-overflow-scrolling: touch;
+}
+
+.StorePulse-scroll-container::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari, Opera */
+}
+
+/* Ensure header navigation links don't have side borders or focus rings (T-27) */
+.StorePulse-scroll-container a {
+  border-left: none !important;
+  border-right: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* ==========================================================================
+   Premium Left Sidebar Navigation (Migrated from Audie Data Migrator)
+   ========================================================================== */
+
+:root {
+  --w2ssyn-sb-bg: #ffffff;
+  --w2ssyn-sb-border: #e2e8f0;
+  --w2ssyn-sb-text: #0f172a;
+  --w2ssyn-sb-text-hover: #0f172a;
+  --w2ssyn-sb-text-active: #2f3cb0;
+  --w2ssyn-sb-bg-hover: #f8fafc;
+  --w2ssyn-sb-bg-active: #eef1ff;
+  --w2ssyn-sb-accent: #3d4fdb;
+  --w2ssyn-sb-accent-hover: #2f3cb0;
+  --w2ssyn-sb-font: 'Inter Tight', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Radius & shadow scale (ported from Audie Data Migrator's design tokens) */
+  --w2ssyn-radius-sm: 6px;
+  --w2ssyn-radius: 10px;
+  --w2ssyn-radius-lg: 14px;
+  --w2ssyn-radius-xl: 20px;
+  --w2ssyn-shadow-xs: 0 1px 0 rgba(15, 23, 42, .04);
+  --w2ssyn-shadow-sm: 0 1px 2px rgba(15, 23, 42, .05), 0 1px 1px rgba(15, 23, 42, .04);
+  --w2ssyn-shadow-md: 0 4px 14px -6px rgba(15, 23, 42, .12), 0 2px 4px -2px rgba(15, 23, 42, .06);
+  --w2ssyn-shadow-lg: 0 24px 48px -16px rgba(15, 23, 42, .18), 0 8px 16px -8px rgba(15, 23, 42, .08);
+}
+
+/* Outer wrapper: side-by-side layout */
+.container.w2ssyn-layout-wrapper {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  min-height: calc(100vh - 32px) !important;
+  margin: 0 !important;
+  background: #f8fafc !important;
+  border: none !important;
+  font-size: 14px !important;
+  font-family: var(--w2ssyn-sb-font) !important;
+  overflow: visible !important;
+  gap: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Sidebar nav strip */
+#smackws-core-tabs.smackws-tabs.w2ssyn-sidebar {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  width: 236px !important;
+  min-width: 236px !important;
+  max-width: 236px !important;
+  flex-shrink: 0 !important;
+  align-self: stretch !important;
+  background: var(--w2ssyn-sb-bg) !important;
+  border-right: 1px solid var(--w2ssyn-sb-border) !important;
+  border-bottom: none !important;
+  padding: 24px 16px !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: #cbd5e1 transparent !important;
+  box-shadow: none !important;
+  list-style: none !important;
+  position: relative !important;
+}
+
+#smackws-core-tabs.smackws-tabs.w2ssyn-sidebar::-webkit-scrollbar {
+  width: 4px !important;
+  height: 0 !important;
+}
+
+#smackws-core-tabs.smackws-tabs.w2ssyn-sidebar::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+#smackws-core-tabs.smackws-tabs.w2ssyn-sidebar::-webkit-scrollbar-thumb {
+  background: #cbd5e1 !important;
+  border-radius: 9999px !important;
+}
+
+/* Brand header */
+.w2ssyn-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+  padding-left: 8px;
+  flex-shrink: 0;
+}
+
+.w2ssyn-logo-box {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #3730a3, #4f46e5, #3b82f6);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: -0.02em;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  flex-shrink: 0;
+}
+
+.w2ssyn-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  min-width: 0;
+}
+
+.w2ssyn-brand-title {
+  font-weight: 800;
+  font-size: 15px;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+}
+
+.w2ssyn-brand-subtitle {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* Sidebar tab items */
+#smackws-core-tabs.w2ssyn-sidebar .smack-tab {
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  padding: 10px 14px !important;
+  border-radius: 8px !important;
+  margin-bottom: 4px !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  color: var(--w2ssyn-sb-text) !important;
+  white-space: nowrap !important;
+  text-align: left !important;
+  flex: none !important;
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: background 0.15s ease, color 0.15s ease !important;
+  user-select: none !important;
+  line-height: 1.4 !important;
+  list-style: none !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+}
+
+#smackws-core-tabs.w2ssyn-sidebar .smack-tab:hover {
+  background: var(--w2ssyn-sb-bg-hover) !important;
+  color: var(--w2ssyn-sb-text-hover) !important;
+}
+
+#smackws-core-tabs.w2ssyn-sidebar .smack-tab.active {
+  background: var(--w2ssyn-sb-bg-active) !important;
+  color: var(--w2ssyn-sb-text-active) !important;
+  font-weight: 600 !important;
+  border-bottom: none !important;
+}
+
+#smackws-core-tabs.w2ssyn-sidebar .smack-tab svg,
+#smackws-core-tabs.w2ssyn-sidebar .smack-tab .dashicons {
+  stroke-width: 1.5 !important;
+  transition: all 0.15s ease !important;
+}
+
+#smackws-core-tabs.w2ssyn-sidebar .smack-tab:hover svg,
+#smackws-core-tabs.w2ssyn-sidebar .smack-tab.active svg,
+#smackws-core-tabs.w2ssyn-sidebar .smack-tab.active .dashicons {
+  color: var(--w2ssyn-sb-accent) !important;
+}
+
+/* Main content area */
+#smackws-cores-tabcontent.w2ssyn-main-layout {
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
+  background: #f8fafc !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+#smackws-cores-tabcontent.w2ssyn-main-layout>.smack-tab-pane {
+  padding: 22px 28px 60px !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+}
+
+/* Override existing margins from WooPulse that might break the layout */
+#wpbody-content {
+  overflow: visible !important;
+}
+
+.wrap[id^="StorePulse-"] {
+  margin: 0 !important;
+  padding: 0 !important;
+  max-width: none !important;
+  overflow-x: hidden !important;
+}
+
+.settings-card {
+  max-width: 100% !important;
+  width: 100%;
+}
+
+/* Responsive: horizontal tab strip on narrow viewports */
+@media (max-width: 992px) {
+  .container.w2ssyn-layout-wrapper {
+    flex-direction: column !important;
+  }
+
+  #smackws-core-tabs.smackws-tabs.w2ssyn-sidebar {
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    align-self: auto !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--w2ssyn-sb-border) !important;
+    padding: 16px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    gap: 6px !important;
+  }
+
+  .w2ssyn-sidebar-brand {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+
+  #smackws-core-tabs.w2ssyn-sidebar .smack-tab {
+    width: auto !important;
+    flex: 0 0 auto !important;
+    padding: 8px 12px !important;
+  }
+
+  #smackws-cores-tabcontent.w2ssyn-main-layout {
+    padding: 0 !important;
+    max-height: none !important;
+  }
+
+  #smackws-cores-tabcontent.w2ssyn-main-layout>.smack-tab-pane {
+    padding: 16px !important;
+  }
+}
+
+/* Responsive: tighter spacing and stacked brand row on phones */
+@media (max-width: 768px) {
+  #smackws-core-tabs.smackws-tabs.w2ssyn-sidebar {
+    padding: 12px !important;
+  }
+
+  .w2ssyn-sidebar-brand {
+    margin-bottom: 12px;
+  }
+
+  #smackws-core-tabs.w2ssyn-sidebar .smack-tab {
+    font-size: 13px !important;
+    padding: 7px 10px !important;
+  }
+
+  #smackws-core-tabs.w2ssyn-sidebar .smack-tab span,
+  #smackws-core-tabs.w2ssyn-sidebar .smack-tab {
+    white-space: nowrap !important;
+  }
+
+  #smackws-cores-tabcontent.w2ssyn-main-layout>.smack-tab-pane {
+    padding: 14px !important;
+  }
+
+  .w2ssyn-subtabs-container {
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  .w2ssyn-subtabs-container::-webkit-scrollbar {
+    display: none;
+  }
+
+  .w2ssyn-subtab {
+    white-space: nowrap !important;
+  }
+}
+
+.w2ssyn-subtab:not(.active):hover {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+@media (max-width: 480px) {
+  .w2ssyn-brand-subtitle {
+    display: none;
+  }
+
+  #smackws-core-tabs.w2ssyn-sidebar .smack-tab {
+    padding: 6px 8px !important;
+    font-size: 12.5px !important;
+  }
+
+  #smackws-cores-tabcontent.w2ssyn-main-layout>.smack-tab-pane {
+    padding: 10px !important;
+  }
+}
+
+/* ==========================================================================
+   Global Typography Enforcements (Premium UI Style)
+   ========================================================================== */
+.wrap[id^="StorePulse-"],
+.StorePulse-wizard-main,
+.StorePulse-metrics-view,
+.w2ssyn-main-layout {
+  font-family: var(--w2ssyn-sb-font) !important;
+}
+
+.wrap[id^="StorePulse-"] *,
+.StorePulse-wizard-main *,
+.StorePulse-metrics-view *,
+.w2ssyn-main-layout * {
+  font-family: inherit !important;
+}
+
+/* Base text sizing */
+.wrap[id^="StorePulse-"],
+.StorePulse-wizard-main,
+.StorePulse-metrics-view,
+.w2ssyn-main-layout {
+  font-size: 14px !important;
+  color: #1d2327 !important;
+}
+
+/* Enforce H2/H3 hierarchy inside the Settings wizard cards only.
+   Scoped to .settings-card so it no longer clobbers the page-specific
+   heading sizes (e.g. dashboard/report card titles) used elsewhere in
+   the plugin's right-side content panes. */
+.settings-card h2:not(.text-xl) {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  color: #1d2327 !important;
+  line-height: 1.2 !important;
+}
+
+.settings-card h3 {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: #1d2327 !important;
+}
+
+/* Enforce paragraphs */
+.wrap[id^="StorePulse-"] p.settings-description,
+.StorePulse-wizard-main p.settings-description,
+.w2ssyn-main-layout p.settings-description,
+.wrap[id^="StorePulse-"] p.step-desc,
+.StorePulse-wizard-main p.step-desc {
+  font-size: 14px !important;
+  color: #50575e !important;
+  line-height: 1.5 !important;
+}
+
+/* Enforce table headers */
+.wrap[id^="StorePulse-"] th,
+.StorePulse-wizard-main th,
+.StorePulse-metrics-view th,
+.w2ssyn-main-layout th {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  color: #666666 !important;
+  padding-top: 14px !important;
+  padding-bottom: 14px !important;
+}
+
+/* Enforce table rows/cells */
+.wrap[id^="StorePulse-"] td,
+.StorePulse-wizard-main td,
+.StorePulse-metrics-view td,
+.w2ssyn-main-layout td {
+  font-size: 14px !important;
+  color: #1d2327 !important;
+}
+
+/* ==========================================================================
+   Global Layout Wrapper Fixes (Removing Unwanted White Space)
+   ========================================================================== */
+#wpcontent {
+  padding: 0 !important;
+}
+
+#wpbody-content {
+  padding: 0 !important;
+}

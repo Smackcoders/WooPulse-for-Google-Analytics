@@ -1,0 +1,209 @@
+openapi: 3.0.0
+info:
+  title: W-Pulse REST API
+  description: REST API for WPulse for Google Analytics WordPress plugin
+  version: 1.0.0
+  contact:
+    name: StorePulse Support
+    url: https://code.zeeyes.com/wordpress/wpulse-for-google-analytics
+
+servers:
+  - url: /wp-json/wpulse/v1
+    description: WordPress REST API base URL
+
+security:
+  - WordPressAuth: []
+
+paths:
+  /dashboard/refresh:
+    get:
+      summary: Refresh dashboard metrics
+      tags:
+        - Dashboard
+      responses:
+        '200':
+          description: Dashboard metrics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessions:
+                    type: integer
+                  revenue:
+                    type: number
+                  conversion_rate:
+                    type: number
+                  avg_order_value:
+                    type: number
+
+  /kpi-metrics:
+    get:
+      summary: Get KPI metrics
+      tags:
+        - Dashboard
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: KPI metrics
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /reports/custom:
+    post:
+      summary: Create custom report
+      tags:
+        - Reports
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - dateRanges
+                - metrics
+              properties:
+                dateRanges:
+                  type: array
+                  items:
+                    type: object
+                metrics:
+                  type: array
+                  items:
+                    type: object
+                dimensions:
+                  type: array
+                  items:
+                    type: object
+                save:
+                  type: boolean
+                title:
+                  type: string
+      responses:
+        '200':
+          description: Report data
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /pro/goal-suggestions:
+    get:
+      summary: Get automated goal suggestions (PRO)
+      tags:
+        - PRO
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 5
+      responses:
+        '200':
+          description: Goal suggestions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  suggestions:
+                    type: array
+                    items:
+                      type: object
+                  count:
+                    type: integer
+        '403':
+          description: PRO license required
+
+  /pro/custom-export:
+    post:
+      summary: Export data in CSV/JSON/XML (PRO)
+      tags:
+        - PRO
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - format
+                - startDate
+                - endDate
+                - dataType
+              properties:
+                format:
+                  type: string
+                  enum: [csv, json, xml]
+                startDate:
+                  type: string
+                  format: date
+                endDate:
+                  type: string
+                  format: date
+                dataType:
+                  type: string
+                  enum: [events, orders, sessions, campaigns]
+      responses:
+        '200':
+          description: Export data
+          content:
+            application/json:
+              schema:
+                type: object
+        '403':
+          description: PRO license required
+
+  /pro/ecommerce-insights:
+    get:
+      summary: Get eCommerce insights - CLV, segmentation, attribution (PRO)
+      tags:
+        - PRO
+      parameters:
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [clv, segmentation, attribution]
+      responses:
+        '200':
+          description: Insights data
+          content:
+            application/json:
+              schema:
+                type: object
+        '403':
+          description: PRO license required
+
+components:
+  securitySchemes:
+    WordPressAuth:
+      type: http
+      scheme: bearer
+      description: WordPress authentication via cookies or token

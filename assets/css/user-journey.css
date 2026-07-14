@@ -1,0 +1,51 @@
+#StorePulse-user-journey select {
+    line-height: normal;
+}
+
+#StorePulse-user-journey .transition-all {
+    transition-duration: 0.2s;
+}
+
+#StorePulse-user-journey tr:hover {
+    background-color: #f8fafc;
+}
+
+.journey-chip {
+    background: #F3F1FF;
+    color: #5551E1;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.journey-chip:hover {
+    background: #E8E4FF;
+}
+
+.journey-arrow {
+    color: #CBD5E1;
+    font-size: 12px;
+    font-weight: bold;
+    margin: 0 2px;
+}
+
+#journey-date-range {
+    padding-right: 45px !important;
+    padding-left: 14px !important;
+}
+
+#journey-search {
+    padding-left: 45px !important;
+}
+
+#StorePulse-user-journey .dashicons {
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}

@@ -1,0 +1,83 @@
+.status-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    font-size: 8px;
+    font-weight: bold;
+}
+
+.status-good {
+    background: #00c875;
+    border-radius: 50%;
+    color: white;
+}
+
+.status-good::after {
+    content: '✓';
+}
+
+.status-warning {
+    background: #ffb020;
+    border-radius: 50%;
+    color: white;
+}
+
+.status-warning::after {
+    content: 'i';
+}
+
+.status-poor {
+    background: #f44336;
+    border-radius: 50%;
+    color: white;
+}
+
+.status-poor::after {
+    content: '✕';
+}
+
+.improvement-row {
+    background: white;
+    border-bottom: 1px solid #f1f5f9;
+    transition: all 0.2s ease;
+}
+
+.improvement-row:last-child {
+    border-bottom: none;
+}
+
+.improvement-row:hover {
+    background-color: #f8fafc;
+}
+
+.improvement-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+}
+
+.improvement-content {
+    display: none;
+    padding-top: 0;
+}
+
+.improvement-row.active {
+    background: #f8fafc;
+}
+
+.improvement-row.active .improvement-content {
+    display: block;
+}
+
+.toggle-icon {
+    transition: transform 0.2s ease;
+    padding: 4px;
+    border: 1px solid #e2e8f0;
+    border-radius: 50%;
+    color: #94a3b8;
+    font-size: 10px;
+}
