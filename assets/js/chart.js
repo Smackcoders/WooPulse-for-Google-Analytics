@@ -1,3 +1,9 @@
+/**
+ * Pulse Analytics for WordPress — Free plugin asset.
+ *
+ * @license GPL-2.0-or-later
+ * @link    https://www.gnu.org/licenses/gpl-2.0.html
+ */
 /*!
  * Chart.js v4.5.1
  * https://www.chartjs.org

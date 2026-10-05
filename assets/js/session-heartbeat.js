@@ -1,145 +1,133 @@
 /**
- * StorePulse Session Heartbeat & Session-End Tracking
- *
- * - Sends a heartbeat every 25 s while the page is visible.
- * - Tracks page-visit journey steps.
- * - Persists session details in sessionStorage to support multi-page tracking.
+ * Pulse Analytics - First-Party User Journey & Session Heartbeat Tracker
  */
-(function () {
-    'use strict';
+(function() {
+	'use strict';
 
-    if ( typeof StorePulseSession === 'undefined' ) {
-        return;
-    }
+	if (typeof window.SmPulseAnalyticsSession === 'undefined') {
+		return;
+	}
 
-    var cfg           = StorePulseSession;
-    var restBase      = cfg.rest_url;
-    var nonce         = cfg.nonce;
-    
-    var sessionId = cfg.session_id || '';
-    if ( sessionId ) {
-        sessionStorage.setItem('StorePulse_sid', sessionId);
-    } else {
-        sessionId = sessionStorage.getItem('StorePulse_sid') || '';
-    }
+	var config = window.SmPulseAnalyticsSession;
+	var restUrl = config.rest_url ? config.rest_url.replace(/\/$/, '') : '';
+	var nonce = config.nonce || '';
+	var sessionId = config.session_id || '';
+	var activeSeconds = 0;
+	var isTabActive = true;
+	var lastActiveTime = Date.now();
 
-    // Retrieve or initialize session start time in sessionStorage
-    var sessionStart = sessionStorage.getItem('StorePulse_session_start');
-    if ( ! sessionStart ) {
-        sessionStart = Math.floor( Date.now() / 1000 ).toString();
-        sessionStorage.setItem('StorePulse_session_start', sessionStart);
-    }
-    sessionStart = parseInt(sessionStart, 10);
+	// Visitor ID generator / reader (persistent 1-year cookie)
+	function getVisitorId() {
+		var vid = getCookie('sm_pulse_analytics_vid');
+		if (!vid) {
+			vid = 'vid_' + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+			setCookie('sm_pulse_analytics_vid', vid, 365);
+		}
+		return vid;
+	}
 
-    var heartbeatMs            = ( cfg.heartbeat_interval || 25 ) * 1000;
-    var hbTimer                = null;
-    var isInternalNavigation   = false;
+	function getCookie(name) {
+		var matches = document.cookie.match(new RegExp(
+			'(?:^|; )' + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'
+		));
+		return matches ? decodeURIComponent(matches[1]) : undefined;
+	}
 
-    /* ───────────── helpers ───────────── */
+	function setCookie(name, value, days) {
+		var expires = '';
+		if (days) {
+			var date = new Date();
+			date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+			expires = '; expires=' + date.toUTCString();
+		}
+		document.cookie = name + '=' + (value || '') + expires + '; path=/; SameSite=Lax';
+	}
 
-    function postJSON( endpoint, data, keepalive, callback ) {
-        var url  = restBase + endpoint;
-        var body = JSON.stringify( data );
+	var visitorId = getVisitorId();
 
-        if ( navigator.sendBeacon && keepalive ) {
-            var blob = new Blob( [ body ], { type: 'application/json' } );
-            navigator.sendBeacon( url, blob );
-            return;
-        }
+	// Activity tracker
+	function onUserActivity() {
+		lastActiveTime = Date.now();
+	}
 
-        fetch( url, {
-            method      : 'POST',
-            headers     : { 'Content-Type': 'application/json', 'X-WP-Nonce': nonce },
-            body        : body,
-            keepalive   : !! keepalive,
-            credentials : 'same-origin'
-        } )
-        .then( function ( response ) {
-            return response.json();
-        } )
-        .then( function ( resData ) {
-            if ( typeof callback === 'function' ) {
-                callback( resData );
-            }
-        } )
-        .catch( function () {} );
-    }
+	['mousemove', 'keydown', 'scroll', 'click', 'touchstart'].forEach(function(evt) {
+		window.addEventListener(evt, onUserActivity, { passive: true });
+	});
 
-    function sendHeartbeat() {
-        if ( document.hidden || ! sessionId ) { return; }
-        postJSON( '/session/heartbeat', {
-            session_id : sessionId,
-            user_id    : cfg.user_id || 0,
-            page_url   : window.location.href,
-            timestamp  : Math.floor( Date.now() / 1000 )
-        }, false, function ( data ) {
-            if ( data && data.new_session_id ) {
-                sessionId = data.new_session_id;
-                sessionStorage.setItem('StorePulse_sid', sessionId);
-            }
-        } );
-    }
+	// Interval timer counting active seconds
+	setInterval(function() {
+		if (isTabActive && (Date.now() - lastActiveTime < 30000)) {
+			activeSeconds += 1;
+		}
+	}, 1000);
 
-    function startHeartbeat() {
-        if ( hbTimer ) { return; }
-        sendHeartbeat();
-        hbTimer = setInterval( function () {
-            if ( ! document.hidden ) { sendHeartbeat(); }
-        }, heartbeatMs );
-    }
+	// Page visibility change handler
+	document.addEventListener('visibilitychange', function() {
+		if (document.hidden) {
+			isTabActive = false;
+			sendEngagementBeacon();
+		} else {
+			isTabActive = true;
+			lastActiveTime = Date.now();
+		}
+	});
 
-    function stopHeartbeat() {
-        if ( hbTimer ) {
-            clearInterval( hbTimer );
-            hbTimer = null;
-        }
-    }
+	window.addEventListener('pagehide', sendEngagementBeacon);
+	window.addEventListener('beforeunload', sendEngagementBeacon);
 
-    /* ───────────── events ───────────── */
+	function sendEngagementBeacon() {
+		if (!restUrl || activeSeconds <= 0) {
+			return;
+		}
 
-    // Detect internal link clicks to prevent ending session on internal navigation
-    document.addEventListener( 'click', function ( event ) {
-        var target = event.target.closest( 'a' );
-        if ( target && target.href ) {
-            try {
-                var url = new URL( target.href );
-                if ( url.origin === window.location.origin ) {
-                    isInternalNavigation = true;
-                }
-            } catch ( e ) {}
-        }
-    }, true );
+		var payload = JSON.stringify({
+			session_id: sessionId,
+			visitor_id: visitorId,
+			page_path: window.location.pathname,
+			page_title: document.title,
+			duration_seconds: activeSeconds,
+			timestamp: new Date().toISOString()
+		});
 
-    // Detect internal form submissions
-    document.addEventListener( 'submit', function ( event ) {
-        var target = event.target;
-        if ( target && target.action ) {
-            try {
-                var url = new URL( target.action );
-                if ( url.origin === window.location.origin ) {
-                    isInternalNavigation = true;
-                }
-            } catch ( e ) {}
-        }
-    }, true );
+		var endpoint = restUrl + '/page-engagement';
 
-    document.addEventListener( 'visibilitychange', function () {
-        if ( document.hidden ) {
-            stopHeartbeat();
-        } else {
-            startHeartbeat();
-        }
-    } );
+		if (navigator.sendBeacon) {
+			var blob = new Blob([payload], { type: 'application/json' });
+			navigator.sendBeacon(endpoint, blob);
+		} else if (window.fetch) {
+			fetch(endpoint, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-WP-Nonce': nonce
+				},
+				body: payload,
+				keepalive: true
+			}).catch(function() {});
+		}
+	}
 
-    window.addEventListener( 'pagehide', function () {
-        // No explicit session end from frontend
-    } );
+	// Heartbeat interval to keep session active
+	var heartbeatInterval = (config.heartbeat_interval || 30) * 1000;
+	setInterval(function() {
+		if (!restUrl || !isTabActive) {
+			return;
+		}
+		if (window.fetch) {
+			fetch(restUrl + '/session-ping', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-WP-Nonce': nonce
+				},
+				body: JSON.stringify({
+					session_id: sessionId,
+					visitor_id: visitorId,
+					page_path: window.location.pathname,
+					active_seconds: activeSeconds
+				})
+			}).catch(function() {});
+		}
+	}, heartbeatInterval);
 
-    /* kick off */
-    if ( document.readyState === 'loading' ) {
-        document.addEventListener( 'DOMContentLoaded', startHeartbeat );
-    } else {
-        startHeartbeat();
-    }
-
-}() );
+})();

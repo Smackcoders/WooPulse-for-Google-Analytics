@@ -1,11 +1,14 @@
 <?php
 /**
- * Admin UI class for StorePulse analytics plugin settings.
+ * Admin UI class for Pulse Analytics settings.
  *
- * @package StorePulse
+ * @package Sm_Pulse_Analytics
+ *
+ * @license GPL-2.0-or-later
+ * @link    https://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace SmackCoders\WGA;
+namespace Sm_Pulse_Analytics;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -13,13 +16,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Admin_UI {
 
-	const SETTINGS_OPTION_NAME = 'storepulse_settings';
-	const AUTH_OPTION_NAME     = 'StorePulse_auth';
+	const SETTINGS_OPTION_NAME = 'sm_pulse_analytics_settings';
+	const AUTH_OPTION_NAME     = 'sm_pulse_analytics_auth';
 
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'add_admin_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
-		add_action( 'admin_post_StorePulse_clear_all_settings', array( __CLASS__, 'handle_clear_all_settings' ) );
 	}
 
 	public static function add_admin_menu() {
@@ -27,224 +29,385 @@ class Admin_UI {
 	}
 
 	public static function enqueue_assets( $hook ) {
-		// Redundant enqueues removed. Admin assets are now centrally handled in includes/connector.php.
-		/*
-		$allowed_hooks = [
-			'toplevel_page_wp-seo-insights',
-			'woo-pulse_page_wp-seo-insights',
-		];
-		$page = $_GET['page'] ?? '';
-		$is_settings_page = in_array($page, ['wp-seo-insights', 'ga-settings', 'StorePulse_goals', 'StorePulse-logs', 'StorePulse-campaigns']);
-
-		if (!in_array($hook, $allowed_hooks) && !$is_settings_page) {
-			return;
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+		if ( 'pulse-analytics' === $page || 'sm-pulse-analytics-settings' === $page || 0 === stripos( $page, 'smackcoders-pulse-analytics-for-woocommerce' ) ) {
+			wp_enqueue_style(
+				'pulse-analytics-settings-css',
+				SM_PULSE_ANALYTICS_PLUGIN_URL . 'assets/css/settings.css',
+				array(),
+				defined( 'SM_PULSE_ANALYTICS_VERSION' ) ? SM_PULSE_ANALYTICS_VERSION : '1.0.0'
+			);
 		}
-
-		wp_enqueue_style('wp-seo-insights-css', GA_PLUGIN_URL . 'assets/css/styles.css', [], '1.2.1');
-		wp_enqueue_script('wp-seo-insights-js', GA_PLUGIN_URL . 'assets/js/script.js', ['jquery'], '1.2.1', true);
-		wp_enqueue_script('chart-js', 'https://cdn.jsdelivr.net/npm/chart.js', [], null, true);
-		*/
 	}
 
 	public static function render_page() {
 		// Define wizard steps.
-		$steps = array(
-			'help'          => '1. Help & Guidance',
-			'general'       => '2. General Settings',
-			'analytics'     => '3. Analytics Configuration',
-			'events'        => '4. Events & Goals',
-			'advanced'      => '5. Advanced Settings',
-			'authenticated' => '6. Authorized Connection',
+		$steps = apply_filters(
+			'sm_pulse_analytics_settings_steps',
+			array(
+				'help'                    => __( 'Help & Guidance', 'smackcoders-pulse-analytics-for-woocommerce' ),
+				'general'                 => __( 'General Settings', 'smackcoders-pulse-analytics-for-woocommerce' ),
+				'analytics'               => __( 'Analytics Configuration', 'smackcoders-pulse-analytics-for-woocommerce' ),
+				'links'                   => __( 'Downloads & Link Paths', 'smackcoders-pulse-analytics-for-woocommerce' ),
+				'affiliate-link-tracking' => __( 'Affiliate Link Tracking', 'smackcoders-pulse-analytics-for-woocommerce' ),
+				'ecommerce'               => __( 'eCommerce', 'smackcoders-pulse-analytics-for-woocommerce' ),
+			)
 		);
 
 		// Determine current step.
 		$current_step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : 'help';
+		if ( 'authenticated' === $current_step ) {
+			$current_step = 'analytics';
+		}
 		if ( ! array_key_exists( $current_step, $steps ) ) {
 			$current_step = 'help'; // Default to help if invalid step.
 		}
 
 		// Get options for rendering.
 		$options      = get_option( self::SETTINGS_OPTION_NAME, array() );
-		$auth_options = get_option( self::AUTH_OPTION_NAME, array() );
+		$auth_options = class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_GA4_OAuth' )
+			? PulseAnalytics_GA4_OAuth::get_auth_tokens()
+			: get_option( self::AUTH_OPTION_NAME, array() );
 
 		// Handle Form Submissions.
-		if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] && isset( $_POST['storepulse_settings'] ) && check_admin_referer( 'save_storepulse_settings' ) ) {
-			$raw_submitted  = wp_unslash( $_POST['storepulse_settings'] );
+		if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] && isset( $_POST['sm_pulse_analytics_settings'] ) && check_admin_referer( 'save_sm_pulse_analytics_settings' ) ) {
+			$allowed_keys = array(
+				'current_step',
+				'site_mode',
+				'currency_code',
+				'client_id',
+				'property_id',
+				'enable_tracking',
+				'enable_debug_mode',
+				'enable_ecommerce_tracking',
+				'enable_woocommerce_tracking',
+				'enable_edd_tracking',
+				'enable_memberpress_tracking',
+				'enable_givewp_tracking',
+				'enable_download_tracking',
+				'download_file_extensions',
+				'affiliate_links',
+				'cart_abandon_timeout',
+				'telemetry_retention_days',
+			);
+			// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$raw_submitted  = (array) wp_unslash( $_POST['sm_pulse_analytics_settings'] );
 			$clean_settings = get_option( self::SETTINGS_OPTION_NAME, array() );
 			$old_settings   = $clean_settings; // For audit logging.
-			$error_message  = '';
+			$error_message     = '';
+			$oauth_creds_saved = false;
 
 			foreach ( $raw_submitted as $key => $val ) {
+				$key = sanitize_key( (string) $key );
+				if ( ! in_array( $key, $allowed_keys, true ) ) {
+					continue;
+				}
+				// Secrets never land in options — handled below via wp-config snippets.
+				if ( in_array( $key, array( 'client_id', 'client_secret' ), true ) ) {
+					continue;
+				}
 				$old_value = $old_settings[ $key ] ?? '';
-				
-				if ( 'client_secret' === $key ) {
-					// Use a safer sanitizer that doesn't strip valid secret characters.
-					$new_value = trim( wp_strip_all_tags( (string) $val ) );
+
+				if ( is_array( $val ) ) {
+					$new_value = array_map(
+						function ( $item ) {
+							if ( is_array( $item ) ) {
+								return array_map( 'sanitize_text_field', $item );
+							}
+							return sanitize_text_field( $item );
+						},
+						$val
+					);
 				} else {
 					$new_value = sanitize_text_field( $val );
 				}
 
 				// Audit Logging.
-				if ( function_exists( 'StorePulse_log_audit' ) && $old_value !== $new_value && ! empty( $new_value ) ) {
-					StorePulse_log_audit(
+				if ( function_exists( 'sm_pulse_analytics_log_audit' ) && $old_value !== $new_value && ! empty( $new_value ) ) {
+					sm_pulse_analytics_log_audit(
 						'Settings Updated',
 						array(
 							'setting'   => $key,
-							'old_value' => $old_value,
-							'new_value' => $new_value,
+							'old_value' => is_scalar( $old_value ) ? $old_value : wp_json_encode( $old_value ),
+							'new_value' => is_scalar( $new_value ) ? $new_value : wp_json_encode( $new_value ),
 						)
 					);
 				}
 				$clean_settings[ $key ] = $new_value;
 			}
 
+			// Strip legacy secret keys from settings option.
+			unset( $clean_settings['client_secret'], $clean_settings['client_id'] );
+
 			// Specific Handling based on current step.
 			if ( 'analytics' === $current_step ) {
-				$clean_settings['enable_realtime'] = isset( $raw_submitted['enable_realtime'] ) ? '1' : '0';
-				
-				if ( isset( $_POST['storepulse_ga4_measurement_id'] ) ) {
-					$meas_id = sanitize_text_field( wp_unslash( $_POST['storepulse_ga4_measurement_id'] ) );
+				if ( isset( $_POST['sm_pulse_analytics_ga4_measurement_id'] ) ) {
+					$meas_id = sanitize_text_field( wp_unslash( $_POST['sm_pulse_analytics_ga4_measurement_id'] ) );
 					if ( empty( $meas_id ) || preg_match( '/^G-[A-Za-z0-9]+$/i', $meas_id ) ) {
-						update_option( 'storepulse_ga4_measurement_id', strtoupper( $meas_id ) );
+						if ( class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_GA4_Config' ) ) {
+							if ( '' !== $meas_id && ! \Sm_Pulse_Analytics\PulseAnalytics_GA4_Config::save_config( array( 'measurement_id' => strtoupper( $meas_id ) ) ) ) {
+								$error_message = __( 'Could not write the GA4 Measurement ID to wp-config.php. Check file permissions.', 'smackcoders-pulse-analytics-for-woocommerce' );
+							}
+						}
 					} else {
-						$error_message = 'Invalid GA4 Measurement ID — it must start with G- followed by alphanumeric characters.';
+						$error_message = __( 'Invalid GA4 Measurement ID — it must start with G- followed by alphanumeric characters.', 'smackcoders-pulse-analytics-for-woocommerce' );
 					}
 				}
-				if ( isset( $_POST['storepulse_psi_api_key'] ) ) {
-					$psi_key = sanitize_text_field( wp_unslash( $_POST['storepulse_psi_api_key'] ) );
-					update_option( 'storepulse_psi_api_key', $psi_key );
+
+				// Secrets → encrypted wp-config.php only.
+				$pending_client_id     = '';
+				$pending_client_secret = '';
+				if ( ! empty( $raw_submitted['client_id'] ) ) {
+					$pending_client_id = trim( wp_strip_all_tags( (string) $raw_submitted['client_id'] ) );
 				}
-				if ( isset( $_POST['storepulse_psi_override_url'] ) ) {
-					$override_url = esc_url_raw( wp_unslash( $_POST['storepulse_psi_override_url'] ) );
-					update_option( 'storepulse_psi_override_url', $override_url );
+				if ( isset( $_POST['sm_pulse_analytics_settings']['client_secret'] ) || isset( $raw_submitted['client_secret'] ) ) {
+					$pending_client_secret = isset( $raw_submitted['client_secret'] )
+						? trim( wp_strip_all_tags( (string) $raw_submitted['client_secret'] ) )
+						: trim( wp_strip_all_tags( (string) wp_unslash( $_POST['sm_pulse_analytics_settings']['client_secret'] ) ) );
 				}
-			} elseif ( 'events' === $current_step ) {
-				$clean_settings['enable_goals'] = isset( $raw_submitted['enable_goals'] ) ? '1' : '0';
-			} elseif ( 'advanced' === $current_step ) {
-				$clean_settings['debug_logging']    = isset( $raw_submitted['debug_logging'] ) ? '1' : '0';
-				$clean_settings['ip_anonymization'] = isset( $raw_submitted['ip_anonymization'] ) ? '1' : '0';
-				$clean_settings['demo_mode']        = isset( $raw_submitted['demo_mode'] ) ? '1' : '0';
+				if ( class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_Secure_Credentials' )
+					&& ( '' !== $pending_client_id || '' !== $pending_client_secret ) ) {
+					$sec               = '\Sm_Pulse_Analytics\PulseAnalytics_Secure_Credentials';
+					$wp_config_written = true;
+					if ( '' !== $pending_client_id ) {
+						$wp_config_written = $sec::write_constant( $sec::CONST_GA4_CLIENT_ID, $pending_client_id ) && $wp_config_written;
+					}
+					if ( '' !== $pending_client_secret ) {
+						$wp_config_written = $sec::write_constant( $sec::CONST_GA4_CLIENT_SECRET, $pending_client_secret ) && $wp_config_written;
+					}
+					if ( $wp_config_written ) {
+						delete_option( 'sm_pulse_analytics_ga4_oauth_app_credentials' );
+						$oauth_creds_saved = true;
+					} else {
+						set_transient(
+							'sm_pulse_analytics_settings_error',
+							__( 'Could not write OAuth credentials to wp-config.php. Make wp-config.php writable, then save again.', 'smackcoders-pulse-analytics-for-woocommerce' ),
+							45
+						);
+					}
+				}
+				if ( class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_Secure_Credentials' ) ) {
+					$sec = '\Sm_Pulse_Analytics\PulseAnalytics_Secure_Credentials';
+					if ( isset( $_POST['sm_pulse_analytics_ga4_api_secret'] ) ) {
+						$api_sec = trim( wp_strip_all_tags( (string) wp_unslash( $_POST['sm_pulse_analytics_ga4_api_secret'] ) ) );
+						if ( '' !== $api_sec && ! $sec::write_constant( $sec::CONST_GA4_API_SECRET, $api_sec ) ) {
+							set_transient(
+								'sm_pulse_analytics_settings_error',
+								__( 'Could not write the GA4 API Secret to wp-config.php. Check file permissions or add the encrypted define manually.', 'smackcoders-pulse-analytics-for-woocommerce' ),
+								45
+							);
+						}
+						delete_option( 'sm_pulse_analytics_ga4_api_secret' );
+					}
+				}
+				$sanitized_post = map_deep( wp_unslash( $_POST ), 'sanitize_text_field' );
+				do_action( 'sm_pulse_analytics_analytics_settings_save', 'analytics', $sanitized_post );
+			} elseif ( 'ecommerce' === $current_step ) {
+				$is_master_enable                               = isset( $raw_submitted['enable_ecommerce_tracking'] ) && '1' === (string) $raw_submitted['enable_ecommerce_tracking'];
+				$is_woo_enable                                  = isset( $raw_submitted['enable_woocommerce_tracking'] ) && '1' === (string) $raw_submitted['enable_woocommerce_tracking'];
+				$is_edd_enable                                  = isset( $raw_submitted['enable_edd_tracking'] ) && '1' === (string) $raw_submitted['enable_edd_tracking'];
+				$is_memberpress_enable                          = isset( $raw_submitted['enable_memberpress_tracking'] ) && '1' === (string) $raw_submitted['enable_memberpress_tracking'];
+				$is_givewp_enable                               = isset( $raw_submitted['enable_givewp_tracking'] ) && '1' === (string) $raw_submitted['enable_givewp_tracking'];
+				$clean_settings['enable_ecommerce_tracking']   = $is_master_enable ? '1' : '0';
+				$clean_settings['enable_woocommerce_tracking'] = $is_woo_enable ? '1' : '0';
+				$clean_settings['enable_edd_tracking']         = $is_edd_enable ? '1' : '0';
+				$clean_settings['enable_memberpress_tracking'] = $is_memberpress_enable ? '1' : '0';
+				$clean_settings['enable_givewp_tracking']      = $is_givewp_enable ? '1' : '0';
+
+				$ecommerce_platforms = array();
+				if ( $is_woo_enable && class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_Site_Profile' ) && PulseAnalytics_Site_Profile::is_woocommerce_active() ) {
+					$ecommerce_platforms[] = 'woocommerce';
+				} elseif ( $is_woo_enable && class_exists( 'WooCommerce' ) ) {
+					$ecommerce_platforms[] = 'woocommerce';
+				}
+				if ( $is_edd_enable && class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_Site_Profile' ) && PulseAnalytics_Site_Profile::is_edd_active() ) {
+					$ecommerce_platforms[] = 'edd';
+				} elseif ( $is_edd_enable && ( class_exists( 'Easy_Digital_Downloads' ) || defined( 'EDD_VERSION' ) ) ) {
+					$ecommerce_platforms[] = 'edd';
+				}
+				if ( $is_memberpress_enable && class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_Site_Profile' ) && PulseAnalytics_Site_Profile::is_memberpress_active() ) {
+					$ecommerce_platforms[] = 'memberpress';
+				}
+				if ( $is_givewp_enable && class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_Site_Profile' ) && PulseAnalytics_Site_Profile::is_givewp_active() ) {
+					$ecommerce_platforms[] = 'givewp';
+				}
+
+				update_option(
+					'sm_pulse_analytics_ecommerce',
+					array(
+						'enable'    => $is_master_enable && ! empty( $ecommerce_platforms ),
+						'ecommerce' => $ecommerce_platforms,
+					)
+				);
+			} elseif ( 'general' === $current_step ) {
+				if ( isset( $raw_submitted['site_mode'] ) ) {
+					$mode = sanitize_key( (string) $raw_submitted['site_mode'] );
+					if ( in_array( $mode, array( 'auto', 'website', 'store' ), true ) ) {
+						$clean_settings['site_mode'] = $mode;
+					}
+				}
+				if ( isset( $raw_submitted['currency_code'] ) ) {
+					$clean_settings['currency_code'] = strtoupper( sanitize_text_field( (string) $raw_submitted['currency_code'] ) );
+				}
+				$clean_settings['enable_tracking']   = isset( $raw_submitted['enable_tracking'] ) ? '1' : '0';
+				if ( ! class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_GA4_Config' ) || ! \Sm_Pulse_Analytics\PulseAnalytics_GA4_Config::is_debug_mode_locked_by_constant() ) {
+					$clean_settings['enable_debug_mode'] = isset( $raw_submitted['enable_debug_mode'] ) ? '1' : '0';
+				}
+			}
+
+			if ( isset( $_POST['sm_pulse_analytics_psi_override_url'] ) ) {
+				$override_url     = esc_url_raw( wp_unslash( $_POST['sm_pulse_analytics_psi_override_url'] ) );
+				$old_override_url = get_option( 'sm_pulse_analytics_psi_override_url', '' );
+				update_option( 'sm_pulse_analytics_psi_override_url', $override_url );
+				if ( function_exists( 'sm_pulse_analytics_log_audit' ) && $old_override_url !== $override_url ) {
+					sm_pulse_analytics_log_audit( 'PSI URL Override Updated', array( 'field' => 'sm_pulse_analytics_psi_override_url' ) );
+				}
+			}
+
+			if ( 'links' === $current_step ) {
+				$clean_settings['enable_download_tracking'] = isset( $raw_submitted['enable_download_tracking'] ) ? '1' : '0';
+				if ( isset( $raw_submitted['telemetry_retention_days'] ) ) {
+					$retention_days = max( 0, (int) $raw_submitted['telemetry_retention_days'] );
+					$clean_settings['telemetry_retention_days'] = $retention_days;
+					update_option( 'sm_pulse_analytics_telemetry_retention_days', $retention_days );
+				}
+			}
+
+			if ( 'analytics' === $current_step && ! empty( $clean_settings['property_id'] ) ) {
+				$submitted_property_id = trim( (string) $clean_settings['property_id'] );
+				if ( ! preg_match( '/^\d{6,15}$/', $submitted_property_id ) ) {
+					$error_message = __( 'Invalid GA4 Property ID — enter the numeric ID from Admin > Property Details (for example, 987654321).', 'smackcoders-pulse-analytics-for-woocommerce' );
+				} else {
+					$clean_settings['property_id'] = $submitted_property_id;
+				}
 			}
 
 			update_option( self::SETTINGS_OPTION_NAME, $clean_settings );
 
+			if ( class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_Site_Profile' ) ) {
+				\Sm_Pulse_Analytics\PulseAnalytics_Site_Profile::sync_profile();
+			}
+
+			if ( class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_GA4_Config' ) ) {
+				\Sm_Pulse_Analytics\PulseAnalytics_GA4_Config::save_config(
+					array(
+						'property_id' => $clean_settings['property_id'] ?? '',
+					)
+				);
+			}
+
 			if ( ! empty( $error_message ) ) {
-				set_transient( 'storepulse_settings_error', $error_message, 45 );
-				$page_val = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : 'wp-seo-insights';
+				set_transient( 'sm_pulse_analytics_settings_error', $error_message, 45 );
+				$page_val = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : 'pulse-analytics';
 				wp_safe_redirect( admin_url( 'admin.php?page=' . $page_val . '&step=' . $current_step ) );
 				exit;
 			}
 
 			if ( isset( $_POST['save_and_connect'] ) ) {
-				$client_id = $clean_settings['client_id'] ?? '';
-				if ( ! empty( $client_id ) ) {
-					$auth_url = GA_Auth::get_auth_url( $client_id );
-					// wp_redirect (not wp_safe_redirect) is required here because
-					// the OAuth URL is an external domain (accounts.google.com).
-					wp_redirect( esc_url_raw( $auth_url ) ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
-					exit;
+				$has_oauth_creds = class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_GA4_Config' )
+					? \Sm_Pulse_Analytics\PulseAnalytics_GA4_Config::has_oauth_app_credentials()
+					: ( class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_Secure_Credentials' )
+						&& \Sm_Pulse_Analytics\PulseAnalytics_Secure_Credentials::has_ga4_oauth_credentials() );
+				if ( $has_oauth_creds ) {
+					$auth_url = GA_Auth::get_auth_url();
+					if ( ! empty( $auth_url ) && '#' !== $auth_url ) {
+						// wp_redirect (not wp_safe_redirect) is required here because
+						// the OAuth URL is an external domain (accounts.google.com).
+						wp_redirect( esc_url_raw( $auth_url ) ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect
+						exit;
+					}
 				}
-			} else {
-				echo '<div class="notice notice-success is-dismissible"><p><strong>Settings Saved Successfully!</strong></p></div>';
+				set_transient(
+					'sm_pulse_analytics_settings_error',
+					__( 'OAuth credentials are incomplete. Enter both Client ID and Client Secret, save, then try Save & Connect again.', 'smackcoders-pulse-analytics-for-woocommerce' ),
+					45
+				);
+				wp_safe_redirect(
+					add_query_arg(
+						array(
+							'page' => 'sm-pulse-analytics-settings',
+							'step' => $current_step,
+						),
+						admin_url( 'admin.php' )
+					)
+				);
+				exit;
 			}
-			$options = $clean_settings; // Update options for current render.
+
+			$redirect_args = array(
+				'page' => 'sm-pulse-analytics-settings',
+				'step' => $current_step,
+			);
+			if ( $oauth_creds_saved ) {
+				$redirect_args['oauth_creds_saved'] = '1';
+			} else {
+				$redirect_args['settings-updated'] = '1';
+			}
+			wp_safe_redirect( add_query_arg( $redirect_args, admin_url( 'admin.php' ) ) );
+			exit;
 		}
 
-		if ( isset( $_GET['cleared'] ) && '1' == $_GET['cleared'] ) {
-			echo '<div class="notice notice-success is-dismissible"><p><strong>All settings and tokens have been cleared and reset to defaults.</strong></p></div>';
+		if ( isset( $_GET['ga4_connected'] ) && '1' == $_GET['ga4_connected'] ) {
+			if ( isset( $_GET['ga4_pick'] ) && '1' === $_GET['ga4_pick'] ) {
+				echo '<div class="notice notice-success is-dismissible"><p><strong>' . esc_html__( 'Google Analytics connected successfully.', 'smackcoders-pulse-analytics-for-woocommerce' ) . '</strong> ' . esc_html__( 'Choose your GA4 property below to save the Property ID and Measurement ID.', 'smackcoders-pulse-analytics-for-woocommerce' ) . '</p></div>';
+			} else {
+				echo '<div class="notice notice-success is-dismissible"><p><strong>' . esc_html__( 'Google Analytics connected successfully.', 'smackcoders-pulse-analytics-for-woocommerce' ) . '</strong></p></div>';
+			}
+		}
+		if ( isset( $_GET['ga4_ids_applied'] ) && '1' === $_GET['ga4_ids_applied'] ) {
+			echo '<div class="notice notice-success is-dismissible"><p><strong>' . esc_html__( 'GA4 Property ID and Measurement ID saved from your Google account.', 'smackcoders-pulse-analytics-for-woocommerce' ) . '</strong></p></div>';
+		}
+		if ( isset( $_GET['ga4_refreshed'] ) && '1' === $_GET['ga4_refreshed'] ) {
+			echo '<div class="notice notice-success is-dismissible"><p><strong>' . esc_html__( 'GA4 property list refreshed from Google.', 'smackcoders-pulse-analytics-for-woocommerce' ) . '</strong></p></div>';
+		}
+		if ( isset( $_GET['token_refreshed'] ) && '1' == $_GET['token_refreshed'] ) {
+			echo '<div class="notice notice-success is-dismissible"><p><strong>' . esc_html__( 'Access token refreshed.', 'smackcoders-pulse-analytics-for-woocommerce' ) . '</strong></p></div>';
+		}
+		if ( isset( $_GET['disconnected'] ) && '1' == $_GET['disconnected'] ) {
+			echo '<div class="notice notice-success is-dismissible"><p><strong>' . esc_html__( 'Google Analytics disconnected.', 'smackcoders-pulse-analytics-for-woocommerce' ) . '</strong></p></div>';
+		}
+		if ( isset( $_GET['settings-updated'] ) && '1' === $_GET['settings-updated'] ) {
+			echo '<div class="notice notice-success is-dismissible"><p><strong>' . esc_html__( 'Settings Saved Successfully!', 'smackcoders-pulse-analytics-for-woocommerce' ) . '</strong></p></div>';
+		}
+		if ( isset( $_GET['oauth_creds_saved'] ) && '1' === $_GET['oauth_creds_saved'] ) {
+			echo '<div class="notice notice-success is-dismissible"><p><strong>' . esc_html__( 'OAuth credentials saved to wp-config.php (encrypted).', 'smackcoders-pulse-analytics-for-woocommerce' ) . '</strong> ';
+			echo esc_html__( 'Click Sign in with Google (or Save & Connect) to authorize your account and complete setup.', 'smackcoders-pulse-analytics-for-woocommerce' );
+			echo '</p></div>';
+		}
+		if ( isset( $_GET['ga4_oauth_error'] ) && '1' === $_GET['ga4_oauth_error'] ) {
+			$oauth_error = get_transient( \Sm_Pulse_Analytics\PulseAnalytics_GA4_OAuth::OAUTH_ERROR_TRANSIENT );
+			if ( false !== $oauth_error ) {
+				echo '<div class="notice notice-error is-dismissible"><p><strong>' . esc_html__( 'Google OAuth Error:', 'smackcoders-pulse-analytics-for-woocommerce' ) . '</strong> ' . esc_html( $oauth_error ) . '</p></div>';
+				delete_transient( \Sm_Pulse_Analytics\PulseAnalytics_GA4_OAuth::OAUTH_ERROR_TRANSIENT );
+			}
 		}
 
-		$transient_error = get_transient( 'storepulse_settings_error' );
+		$transient_error = get_transient( 'sm_pulse_analytics_settings_error' );
 		if ( false !== $transient_error ) {
-			echo '<div class="notice notice-error is-dismissible"><p><strong>Error:</strong> ' . esc_html( $transient_error ) . '</p></div>';
-			delete_transient( 'storepulse_settings_error' );
+			echo '<div class="notice notice-error is-dismissible"><p><strong>' . esc_html__( 'Error:', 'smackcoders-pulse-analytics-for-woocommerce' ) . '</strong> ' . esc_html( $transient_error ) . '</p></div>';
+			delete_transient( 'sm_pulse_analytics_settings_error' );
+		}
+
+		if ( class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_GA4_Admin_API' ) ) {
+			$discovery_error = get_transient( \Sm_Pulse_Analytics\PulseAnalytics_GA4_Admin_API::ERROR_TRANSIENT );
+			if ( false !== $discovery_error ) {
+				echo '<div class="notice notice-warning is-dismissible"><p><strong>' . esc_html__( 'GA4 property discovery:', 'smackcoders-pulse-analytics-for-woocommerce' ) . '</strong> ' . esc_html( $discovery_error ) . '</p></div>';
+				delete_transient( \Sm_Pulse_Analytics\PulseAnalytics_GA4_Admin_API::ERROR_TRANSIENT );
+			}
 		}
 
 		// Global Pulse Header.
-		StorePulse_render_admin_header();
+		sm_pulse_analytics_render_admin_header();
 		?>
-		<div class="wrap" id="StorePulse-settings-v2" style="margin-top: 24px; max-width: 1000px; margin-left: auto; margin-right: auto; padding-bottom: 50px;">
-			<style>
-				#StorePulse-settings-v2, #StorePulse-settings-v2 *, 
-				#StorePulse-settings-v2 h2, #StorePulse-settings-v2 h3, 
-				#StorePulse-settings-v2 p, #StorePulse-settings-v2 span, 
-				#StorePulse-settings-v2 a, #StorePulse-settings-v2 button, 
-				#StorePulse-settings-v2 input { 
-					font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif !important; 
-				}
-				
-				#StorePulse-settings-v2 {
-					max-width: 1000px !important;
-					margin: 15px auto !important;
-					padding: 0 20px;
-				}
-				.settings-card { background: white; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); overflow: hidden; margin-bottom: 24px; padding: 32px; }
-				.settings-header { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
-				.settings-header h2 { font-size: 18px; font-weight: 600; color: #333; margin: 0; line-height: 1.2; }
-				.settings-description { color: #666; font-size: 13px; line-height: 1.5; margin-bottom: 24px; }
-				
-				.icon-circle {
-					width: 44px;
-					height: 44px;
-					background: #f5f3ff;
-					border-radius: 12px;
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					flex-shrink: 0;
-				}
-				
-				.step-item { position: relative; padding-left: 64px; margin-bottom: 32px; }
-				.step-item:last-child { margin-bottom: 0; }
-				.step-item::before { content: ''; position: absolute; left: 19px; top: 40px; bottom: -16px; width: 2px; background: #f1f5f9; }
-				.step-item:last-child::before { display: none; }
-				.step-number { position: absolute; left: 0; top: 0; width: 40px; height: 40px; background: #3d4fdb; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; z-index: 2; box-shadow: 0 0 0 6px white; }
-				.step-title { font-size: 16px; font-weight: 600; color: #333; margin-bottom: 8px; }
-				.step-desc { font-size: 13px; color: #666; line-height: 1.5; }
-				.btn-premium { background: #3d4fdb; color: white !important; border-radius: 8px; padding: 12px 24px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; border: none; cursor: pointer; }
-				.btn-premium:hover { background: #313ea5; transform: translateY(-1px); }
-				.btn-outline { background: white; color: #3d4fdb !important; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 24px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
-				.btn-outline:hover { background: #f8fafc; border-color: #3d4fdb; }
-				.form-table th { font-weight: 600; font-size: 13px; color: #1d2327; width: 240px; vertical-align: top; padding-top: 20px; }
-				.form-table tr { border-bottom: 1px solid #f1f5f9; }
-				.form-table tr:last-child { border-bottom: none; }
-				.form-table td { padding-top: 20px; padding-bottom: 20px; font-size: 13px; color: #1d2327; }
-				.regular-text, .large-text { border: 1px solid #c3c4c7; border-radius: 4px; padding: 8px 12px; font-size: 13px; background: #ffffff; transition: all 0.2s; color: #1d2327; }
-				.regular-text:focus, .large-text:focus { border-color: #2271b1; box-shadow: 0 0 0 1px #2271b1; outline: none; }
-				.wptip .dashicons { color: #72aee6; font-size: 16px; margin-left: 4px; }
+		<div class="pulse-analytics-ui wrap sp-settings-wrap" id="PulseAnalytics-settings-v2">
+			<div class="sp-card sp-settings-panel">
 
-				/* Responsive: premium stacked layout on tablet/mobile widths, matching Audie Data Migrator's breakpoints. */
-				.w2ssyn-subtabs-container { flex-wrap: nowrap !important; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
-				.w2ssyn-subtabs-container .w2ssyn-subtab { white-space: nowrap; flex-shrink: 0; }
+			<div class="PulseAnalytics-wizard-main">
 
-				@media (max-width: 782px) {
-					#StorePulse-settings-v2 { padding: 0 12px; }
-					.settings-card { padding: 20px; border-radius: 12px; margin-bottom: 16px; }
-					.settings-header { gap: 12px; margin-bottom: 16px; }
-					.settings-header h2 { font-size: 16px; }
-					.icon-circle { width: 36px; height: 36px; }
-					.settings-description { margin-bottom: 16px; }
-
-					.form-table th { width: auto; display: block; padding: 16px 0 4px; }
-					.form-table td { display: block; padding: 0 0 16px; }
-					.regular-text, .large-text { width: 100% !important; max-width: 100% !important; box-sizing: border-box; }
-
-					.step-item { padding-left: 52px; margin-bottom: 24px; }
-					.step-number { width: 32px; height: 32px; font-size: 13px; }
-					.step-item::before { left: 15px; }
-
-					.mt-12.flex.items-center.gap-4 { flex-direction: column; align-items: stretch; gap: 12px; }
-					.btn-premium, .btn-outline { width: 100%; justify-content: center; box-sizing: border-box; }
-				}
-			</style>
-
-			<div class="StorePulse-wizard-main">
-
-				<?php if ( 'authenticated' !== $current_step ) : ?>
-					<form method="POST" action="">
-						<?php wp_nonce_field( 'save_storepulse_settings' ); ?>
-						<input type="hidden" name="storepulse_settings[current_step]" value="<?php echo esc_attr( $current_step ); ?>">
-				<?php endif; ?>
+				<form method="POST" action="">
+					<?php wp_nonce_field( 'save_sm_pulse_analytics_settings' ); ?>
+					<input type="hidden" name="sm_pulse_analytics_settings[current_step]" value="<?php echo esc_attr( $current_step ); ?>">
 
 				<?php
 				// HELP & GUIDANCE.
@@ -256,10 +419,10 @@ class Admin_UI {
 							<div class="icon-circle">
 								<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
 							</div>
-							<h2>Welcome to Pulse Analytics</h2>
+							<h2><?php esc_html_e( 'Welcome to Pulse Analytics', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></h2>
 						</div>
 						<p class="settings-description">
-							Pulse Analytics is your all-in-one WordPress analytics companion. It helps you understand your website traffic, track user behavior, monitor eCommerce performance, and make data-driven decisions — all from within your WordPress dashboard. This guide will walk you through the initial setup so you can start collecting meaningful insights right away.
+							<?php esc_html_e( 'Pulse Analytics is your all-in-one WordPress analytics companion. It helps you understand your website traffic, track user behavior, monitor eCommerce performance, and make data-driven decisions — all from within your WordPress dashboard. This guide will walk you through the initial setup so you can start collecting meaningful insights right away.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
 						</p>
 					</div>
 
@@ -269,28 +432,23 @@ class Admin_UI {
 							<div class="icon-circle">
 								<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4 4 4"></path><path d="m16 10-4 4-4-4"></path><path d="m8 14 4-4 4 4"></path></svg>
 							</div>
-							<h2>Getting Started Guide</h2>
+							<h2><?php esc_html_e( 'Getting Started Guide', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></h2>
 						</div>
 						<div class="steps-container">
 							<div class="step-item">
 								<div class="step-number">1</div>
-								<h3 class="step-title">Check General Settings</h3>
-								<p class="step-desc">Navigate to the General Settings tab and review your basic configuration. Make sure your site URL is correct, your timezone is set properly, and user roles with access to analytics are configured. These foundational settings ensure accurate data collection from the start.</p>
+								<h3 class="step-title"><?php esc_html_e( 'Check General Settings', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></h3>
+								<p class="step-desc"><?php esc_html_e( 'Navigate to the General Settings tab and review your basic configuration. Make sure your site URL is correct, your timezone is set properly, and user roles with access to analytics are configured. These foundational settings ensure accurate data collection from the start.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></p>
 							</div>
 							<div class="step-item">
 								<div class="step-number">2</div>
-								<h3 class="step-title">Connect Analytics</h3>
-								<p class="step-desc">Go to the Analytics Configuration tab and connect your analytics provider. You can authorize your Google Analytics account or use the built-in Pulse tracking. Follow the on-screen instructions to complete the authorization flow and verify data is being received.</p>
+								<h3 class="step-title"><?php esc_html_e( 'Connect Analytics', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></h3>
+								<p class="step-desc"><?php esc_html_e( 'Go to the Analytics Configuration tab and connect your analytics provider. You can authorize your Google Analytics account or use the built-in Pulse tracking. Follow the on-screen instructions to complete the authorization flow and verify data is being received.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></p>
 							</div>
 							<div class="step-item">
 								<div class="step-number">3</div>
-								<h3 class="step-title">Enable Events</h3>
-								<p class="step-desc">Visit the Events & Goals tab to enable event tracking. Turn on automatic tracking for clicks, form submissions, scroll depth, and file downloads. You can also set up custom goals to measure conversions and key user actions specific to your website.</p>
-							</div>
-							<div class="step-item">
-								<div class="step-number">4</div>
-								<h3 class="step-title">Verify Connection</h3>
-								<p class="step-desc">Head to the Real-time tab to verify that your connection is working. You should see live visitor data within a few minutes. If data isn't appearing, check the Authorized Connection tab to ensure your credentials are valid and the tracking code is properly installed.</p>
+								<h3 class="step-title"><?php esc_html_e( 'Verify Connection', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></h3>
+								<p class="step-desc"><?php esc_html_e( 'Head to the Dashboard to verify that your connection is working. You should see live visitor data within a few minutes. If data is not appearing, check Analytics Configuration to ensure your credentials are valid and the tracking code is properly installed.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></p>
 							</div>
 						</div>
 					</div>
@@ -301,34 +459,104 @@ class Admin_UI {
 							<div class="icon-circle">
 								<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
 							</div>
-							<h2>Support Resources</h2>
+							<h2><?php esc_html_e( 'Support Resources', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></h2>
 						</div>
-						<p class="settings-description">Need more help? We've got you covered. Browse our full documentation for detailed guides, reach out to our support team for personalized assistance, or jump straight into the General Settings to begin configuring your plugin.</p>
+						<p class="settings-description"><?php esc_html_e( 'Need more help? We have got you covered. Browse our full documentation for detailed guides, reach out to our support team for personalized assistance, or jump straight into the General Settings to begin configuring your plugin.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></p>
 						<div class="flex flex-wrap gap-4 mt-8">
-							<a href="#" class="btn-premium">Read Full Documentation</a>
-							<a href="#" class="btn-outline">Contact Support Team</a>
-							<a href="?page=wp-seo-insights&step=general" class="btn-outline">Move to General Settings &rarr;</a>
+							<a href="<?php echo esc_url( SM_PULSE_ANALYTICS_DOCS_URL ); ?>" target="_blank" class="btn-premium">
+								<?php esc_html_e( 'Read Full Documentation', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+							</a>
+							<a href="<?php echo esc_url( SM_PULSE_ANALYTICS_SUPPORT_URL ); ?>" target="_blank" class="btn-outline">
+								<?php esc_html_e( 'Contact Support Team', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+							</a>
+							<a href="?page=sm-pulse-analytics-settings&step=general" class="btn-outline">
+								<?php esc_html_e( 'Move to General Settings →', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+							</a>
 						</div>
 					</div>
 
 					<?php
 					// GENERAL TAB.
 				elseif ( 'general' === $current_step ) :
+					$site_mode         = $options['site_mode'] ?? 'auto';
+					$currency_code     = class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_Site_Profile' )
+						? \Sm_Pulse_Analytics\PulseAnalytics_Site_Profile::get_currency_code()
+						: ( $options['currency_code'] ?? 'USD' );
+					$detected_platforms = class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_Site_Profile' )
+						? \Sm_Pulse_Analytics\PulseAnalytics_Site_Profile::detect_commerce_platforms()
+						: array();
+					$resolved_site_type = class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_Site_Profile' )
+						? \Sm_Pulse_Analytics\PulseAnalytics_Site_Profile::get_site_type_label()
+						: '';
 					?>
 					<div class="settings-card">
 						<div class="settings-header">
 							<div class="icon-circle">
 								<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
 							</div>
-							<h2>Environment Status & Basic Settings</h2>
+							<h2><?php esc_html_e( 'Site Profile & Environment', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></h2>
 						</div>
-						<p class="settings-description" style="margin-bottom: 40px;">
-							Pulse Analytics automatically detects your store's environment to ensure data accuracy. It is highly recommended that these values match your Google Analytics 4 property settings exactly. Discrepancies in timezone or currency can lead to mismatched revenue reports and incorrect daily traffic peaks.
+						<p class="settings-description sp-mb-32">
+							<?php esc_html_e( 'Pulse Analytics works on blogs, business websites, and online stores. Choose how the plugin should treat your site — commerce reports appear when a supported store plugin is detected or when you select Online store mode.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
 						</p>
-						
+
 						<table class="form-table">
 							<tr>
-								<th>Store Timezone</th>
+								<th><?php esc_html_e( 'Site type', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></th>
+								<td>
+									<select name="sm_pulse_analytics_settings[site_mode]" class="regular-text">
+										<option value="auto" <?php selected( $site_mode, 'auto' ); ?>><?php esc_html_e( 'Auto-detect (recommended)', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></option>
+										<option value="website" <?php selected( $site_mode, 'website' ); ?>><?php esc_html_e( 'Website / blog (traffic only)', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></option>
+										<option value="store" <?php selected( $site_mode, 'store' ); ?>><?php esc_html_e( 'Online store (commerce reports)', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></option>
+									</select>
+									<p class="description sp-mt-10">
+										<?php
+										echo esc_html(
+											sprintf(
+												/* translators: %s: resolved site type label */
+												__( 'Currently resolved as: %s', 'smackcoders-pulse-analytics-for-woocommerce' ),
+												$resolved_site_type
+											)
+										);
+										?>
+									</p>
+								</td>
+							</tr>
+							<tr>
+								<th><?php esc_html_e( 'Commerce platforms', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></th>
+								<td>
+									<div class="sp-flex-wrap-gap-8">
+										<?php
+										$platform_labels = array(
+											'woocommerce' => 'WooCommerce',
+											'edd'         => 'Easy Digital Downloads',
+											'memberpress' => 'MemberPress',
+											'givewp'      => 'GiveWP',
+										);
+										if ( empty( $detected_platforms ) ) :
+											?>
+											<span>
+												<?php esc_html_e( 'None detected', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+											</span>
+											<?php
+										else :
+											foreach ( $detected_platforms as $platform ) :
+												?>
+												<span class="sp-badge sp-badge--success">
+													<?php echo esc_html( $platform_labels[ $platform ] ?? $platform ); ?>
+												</span>
+												<?php
+											endforeach;
+										endif;
+										?>
+									</div>
+									<p class="description sp-mt-10">
+										<?php esc_html_e( 'Install WooCommerce, Easy Digital Downloads, MemberPress, or GiveWP to enable revenue KPIs, eCommerce Overview, and purchase tracking.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+									</p>
+								</td>
+							</tr>
+							<tr>
+								<th><?php esc_html_e( 'Site timezone', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></th>
 								<td>
 									<input type="text" class="regular-text" value="
 									<?php
@@ -338,351 +566,584 @@ class Admin_UI {
 										echo esc_html( sprintf( 'UTC %+03d:%02d', $hours, $minutes ) );
 									?>
 									" readonly />
-									<p class="description" style="margin-top: 10px; color: #666; font-size: 13px;">
-										Your store is currently operating in this timezone. Pulse Analytics uses this to sync your sales data with Google Analytics. Please verify that your GA4 property is also set to this same timezone in the Google Analytics admin panel.
+									<p class="description sp-desc sp-desc--muted sp-mt-10">
+										<?php esc_html_e( 'Used to align daily traffic and conversion reports with your WordPress timezone.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
 									</p>
 								</td>
 							</tr>
 							<tr>
-								<th>Store Currency</th>
+								<th><?php esc_html_e( 'Reporting currency', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></th>
 								<td>
-									<input type="text" class="regular-text" value="<?php echo esc_attr( function_exists( 'get_woocommerce_currency' ) ? get_woocommerce_currency() : 'INR' ); ?>" readonly />
-									<p class="description" style="margin-top: 10px; color: #666; font-size: 13px;">
-										This is the primary currency detected from your WooCommerce settings. All revenue metrics on your dashboard (Total Revenue, AOV) will be displayed in this currency.
+									<?php if ( ! empty( $detected_platforms ) ) : ?>
+										<input type="text" class="regular-text" value="<?php echo esc_attr( $currency_code ); ?>" readonly />
+										<p class="description sp-desc sp-desc--muted sp-mt-10">
+											<?php esc_html_e( 'Detected from your active store plugin.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+										</p>
+									<?php else : ?>
+										<input type="text" name="sm_pulse_analytics_settings[currency_code]" class="regular-text" value="<?php echo esc_attr( $currency_code ); ?>" maxlength="3" />
+										<p class="description sp-desc sp-desc--muted sp-mt-10">
+											<?php esc_html_e( 'ISO code used when no store plugin is active (e.g. USD, EUR, INR).', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+										</p>
+									<?php endif; ?>
+								</td>
+							</tr>
+							<tr>
+								<th><?php esc_html_e( 'Start tracking', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></th>
+								<td>
+									<?php
+									$enable_tracking = array_key_exists( 'enable_tracking', $options )
+										? ( '1' === (string) $options['enable_tracking'] )
+										: true;
+									?>
+									<label class="sp-inline-checkbox-label">
+										<input type="checkbox" name="sm_pulse_analytics_settings[enable_tracking]" value="1" <?php checked( $enable_tracking ); ?> class="sp-checkbox-md" />
+										<span><?php esc_html_e( 'Inject GA4 gtag on the public site', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></span>
+									</label>
+									<p class="description sp-desc sp-desc--slate sp-mt-6">
+										<?php esc_html_e( 'When disabled, Pulse Analytics will not enqueue the Google tag (gtag.js) or related frontend tracking scripts.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+									</p>
+								</td>
+							</tr>
+							<tr>
+								<th><?php esc_html_e( 'GA4 DebugView', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></th>
+								<td>
+									<?php
+									$debug_locked = class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_GA4_Config' )
+										&& \Sm_Pulse_Analytics\PulseAnalytics_GA4_Config::is_debug_mode_locked_by_constant();
+									$debug_on     = class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_GA4_Config' )
+										? \Sm_Pulse_Analytics\PulseAnalytics_GA4_Config::is_debug_mode()
+										: ! empty( $options['enable_debug_mode'] );
+									?>
+									<label class="sp-inline-checkbox-label">
+										<input type="checkbox" name="sm_pulse_analytics_settings[enable_debug_mode]" value="1" <?php checked( $debug_on ); ?> <?php disabled( $debug_locked ); ?> class="sp-checkbox-md" />
+										<span><?php esc_html_e( 'Enable DebugView', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></span>
+									</label>
+									<p class="description sp-desc sp-desc--slate sp-mt-6">
+										<?php
+										if ( $debug_locked ) {
+											esc_html_e( 'Forced on via wp-config.php (SM_PULSE_ANALYTICS_GA4_DEBUG_MODE). Events are sent with debug_mode for GA4 Admin → DebugView.', 'smackcoders-pulse-analytics-for-woocommerce' );
+										} else {
+											esc_html_e( 'Send events with debug_mode so they appear in GA4 Admin → DebugView (use with the GA Debugger extension or preview).', 'smackcoders-pulse-analytics-for-woocommerce' );
+										}
+										?>
 									</p>
 								</td>
 							</tr>
 						</table>
 						<div class="mt-12 flex items-center gap-4">
-							<button type="submit" class="btn-premium">Save Basic Settings</button>
-							<a href="?page=wp-seo-insights&step=analytics" class="btn-outline">Next: Analytics Configuration &rarr;</a>
+							<button type="submit" class="btn-premium"><?php esc_html_e( 'Save site profile', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></button>
+							<a href="?page=sm-pulse-analytics-settings&step=analytics" class="btn-outline"><?php esc_html_e( 'Next: Analytics Configuration', 'smackcoders-pulse-analytics-for-woocommerce' ); ?> &rarr;</a>
 						</div>
 					</div>
 
 					<?php
-					// ANALYTICS TAB.
 				elseif ( 'analytics' === $current_step ) :
-					$measurement_id = get_option( 'storepulse_ga4_measurement_id', '' );
-					if ( empty( $measurement_id ) ) :
-						?>
-						<div style="background-color: #fffbeb; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 0 8px 8px 0; margin-bottom: 24px; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);">
-							<p style="margin: 0; font-size: 14px; color: #b45309;">
-								<strong style="font-weight: 700; color: #92400e;">Measurement ID Missing:</strong> Goals and Links event tracking to GA4 requires a GA4 Measurement ID to be configured below.
+					$ga4_connection = class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_GA4_OAuth' )
+						? \Sm_Pulse_Analytics\PulseAnalytics_GA4_OAuth::get_connection_state( true )
+						: array(
+							'oauth_connected'    => false,
+							'token_valid'        => false,
+							'token_expired'      => false,
+							'token_minutes_left' => 0,
+							'has_property_id'    => false,
+							'has_measurement_id' => false,
+							'is_ready'           => false,
+							'property_id'        => '',
+							'measurement_id'     => '',
+						);
+					$oauth_connected     = ! empty( $ga4_connection['oauth_connected'] );
+					$ga4_is_ready        = ! empty( $ga4_connection['is_ready'] );
+					$ga4_ids_saved       = ! empty( $ga4_connection['has_property_id'] ) && ! empty( $ga4_connection['has_measurement_id'] );
+					$ga4_setup_complete  = ! empty( $ga4_connection['token_valid'] ) && $ga4_ids_saved;
+					$display_property_id = (string) ( $ga4_connection['property_id'] ?? '' );
+					$measurement_id      = (string) ( $ga4_connection['measurement_id'] ?? '' );
+					$token_status_label  = class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_GA4_OAuth' )
+						? \Sm_Pulse_Analytics\PulseAnalytics_GA4_OAuth::get_token_status_label( $ga4_connection )
+						: __( 'Inactive', 'smackcoders-pulse-analytics-for-woocommerce' );
+					$refresh_token_url   = wp_nonce_url(
+						admin_url( 'admin-post.php?action=sm_pulse_analytics_refresh_access_token' ),
+						'sm_pulse_analytics_refresh_access_token'
+					);
+					$disconnect_url      = wp_nonce_url(
+						admin_url( 'admin-post.php?action=sm_pulse_analytics_disconnect_google_analytics' ),
+						'sm_pulse_analytics_disconnect_google_analytics'
+					);
+					$sec_class             = '\Sm_Pulse_Analytics\PulseAnalytics_Secure_Credentials';
+					$config_class          = '\Sm_Pulse_Analytics\PulseAnalytics_GA4_Config';
+					$api_secret_usable     = class_exists( $sec_class )
+						&& $sec_class::is_usable( $sec_class::CONST_GA4_API_SECRET );
+					$client_id_usable      = class_exists( $config_class )
+						? ( '' !== $config_class::get_client_id() )
+						: ( class_exists( $sec_class ) && $sec_class::is_usable( $sec_class::CONST_GA4_CLIENT_ID ) );
+					$client_sec_usable     = class_exists( $config_class )
+						? ( '' !== $config_class::get_client_secret() )
+						: ( class_exists( $sec_class ) && $sec_class::is_usable( $sec_class::CONST_GA4_CLIENT_SECRET ) );
+					$client_id_decrypt_failed = class_exists( $sec_class )
+						&& $sec_class::is_configured( $sec_class::CONST_GA4_CLIENT_ID )
+						&& ! $sec_class::is_usable( $sec_class::CONST_GA4_CLIENT_ID );
+					$client_sec_decrypt_failed = class_exists( $sec_class )
+						&& $sec_class::is_configured( $sec_class::CONST_GA4_CLIENT_SECRET )
+						&& ! $sec_class::is_usable( $sec_class::CONST_GA4_CLIENT_SECRET );
+					$has_oauth_credentials = class_exists( $config_class )
+						? $config_class::has_oauth_app_credentials()
+						: ( class_exists( $sec_class ) && $sec_class::has_ga4_oauth_credentials() );
+					$can_revoke_credentials = class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_GA4_OAuth' )
+						&& \Sm_Pulse_Analytics\PulseAnalytics_GA4_OAuth::has_stored_credentials();
+					$ga4_discoveries       = class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_GA4_Admin_API' )
+						? \Sm_Pulse_Analytics\PulseAnalytics_GA4_Admin_API::get_cached_discoveries()
+						: array();
+					if ( $oauth_connected && empty( $ga4_discoveries ) && class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_GA4_Admin_API' ) ) {
+						\Sm_Pulse_Analytics\PulseAnalytics_GA4_Admin_API::fetch_and_cache_discoveries();
+						$ga4_discoveries = \Sm_Pulse_Analytics\PulseAnalytics_GA4_Admin_API::get_cached_discoveries();
+					}
+					$ga4_discovery_choices = class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_GA4_Admin_API' )
+						? \Sm_Pulse_Analytics\PulseAnalytics_GA4_Admin_API::flatten_choices( $ga4_discoveries )
+						: array();
+					$ga4_selected_choice   = class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_GA4_Admin_API' )
+						? \Sm_Pulse_Analytics\PulseAnalytics_GA4_Admin_API::find_best_match_choice( $ga4_discoveries )
+						: '';
+					$ga4_selected_label    = '';
+					if ( $ga4_ids_saved ) {
+						foreach ( $ga4_discovery_choices as $choice ) {
+							if (
+								(string) ( $choice['property_id'] ?? '' ) === $display_property_id
+								&& strtoupper( (string) ( $choice['measurement_id'] ?? '' ) ) === strtoupper( $measurement_id )
+							) {
+								$ga4_selected_label = (string) $choice['label'];
+								break;
+							}
+						}
+						if ( '' === $ga4_selected_label ) {
+							$ga4_selected_label = sprintf(
+								/* translators: 1: measurement ID, 2: numeric property ID */
+								__( '%1$s (Property %2$s)', 'smackcoders-pulse-analytics-for-woocommerce' ),
+								$measurement_id,
+								$display_property_id
+							);
+						}
+					}
+					$show_ga4_property_picker = $oauth_connected && (
+						! $ga4_ids_saved
+						|| ( isset( $_GET['ga4_change_property'] ) && '1' === sanitize_text_field( wp_unslash( $_GET['ga4_change_property'] ) ) )
+					);
+					$banner_status = $ga4_setup_complete ? 'complete' : ( $oauth_connected ? 'connected' : 'warning' );
+					?>
+					<!-- GA4 Connection Status Banner -->
+					<div class="settings-card sp-ga4-banner sp-ga4-banner--<?php echo esc_attr( $banner_status ); ?>">
+						<div class="sp-flex-between-wrap">
+							<div class="sp-flex-center-gap-14">
+								<div class="sp-banner-icon">
+									<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+										<?php if ( $ga4_setup_complete ) : ?>
+											<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+											<polyline points="22 4 12 14.01 9 11.01"></polyline>
+										<?php elseif ( $oauth_connected ) : ?>
+											<circle cx="12" cy="12" r="10"></circle>
+											<line x1="12" y1="8" x2="12" y2="12"></line>
+											<line x1="12" y1="16" x2="12.01" y2="16"></line>
+										<?php else : ?>
+											<circle cx="12" cy="12" r="10"></circle>
+											<line x1="12" y1="8" x2="12" y2="12"></line>
+											<line x1="12" y1="16" x2="12.01" y2="16"></line>
+										<?php endif; ?>
+									</svg>
+								</div>
+								<div>
+									<h4 class="sp-banner-title">
+										<?php
+										if ( $ga4_setup_complete ) {
+											esc_html_e( 'Google Analytics Status: Configured', 'smackcoders-pulse-analytics-for-woocommerce' );
+										} elseif ( $oauth_connected ) {
+											esc_html_e( 'Google Analytics Status: Connected — select property', 'smackcoders-pulse-analytics-for-woocommerce' );
+										} elseif ( $ga4_ids_saved ) {
+											esc_html_e( 'Google Analytics Status: IDs saved — OAuth required', 'smackcoders-pulse-analytics-for-woocommerce' );
+										} else {
+											echo esc_html(
+												sprintf(
+													/* translators: %s: connection status */
+													__( 'Google Analytics Status: %s', 'smackcoders-pulse-analytics-for-woocommerce' ),
+													__( 'Not Connected', 'smackcoders-pulse-analytics-for-woocommerce' )
+												)
+											);
+										}
+										?>
+									</h4>
+									<p class="sp-banner-text">
+										<?php if ( $ga4_setup_complete ) : ?>
+											<?php esc_html_e( 'Your Google account is connected and GA4 property settings are saved for live dashboard reports.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+										<?php elseif ( $oauth_connected ) : ?>
+											<?php esc_html_e( 'Your Google account is connected. Choose your GA4 property below to save the Property ID and Measurement ID.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+										<?php elseif ( $ga4_ids_saved ) : ?>
+											<?php if ( $has_oauth_credentials ) : ?>
+												<?php esc_html_e( 'Property ID and Measurement ID are saved. Sign in with Google below to activate live dashboard reports.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+											<?php else : ?>
+												<?php esc_html_e( 'Property ID and Measurement ID are saved, but Google OAuth is not active. Add OAuth credentials to wp-config.php and sign in with Google for live dashboard reports.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+											<?php endif; ?>
+										<?php else : ?>
+											<?php
+											printf(
+												/* translators: %s: button label */
+												esc_html__( 'Add your Google Cloud OAuth credentials below, then click %s. GA4 Property ID and Measurement ID can be chosen after you connect.', 'smackcoders-pulse-analytics-for-woocommerce' ),
+												'<strong>' . esc_html__( 'Sign in with Google', 'smackcoders-pulse-analytics-for-woocommerce' ) . '</strong>'
+											);
+											?>
+										<?php endif; ?>
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<?php if ( $show_ga4_property_picker ) : ?>
+					</form>
+					<div class="settings-card sp-ga4-picker-card">
+						<h4 class="sp-card-heading sp-card-heading--indigo"><?php esc_html_e( 'Select GA4 property', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></h4>
+						<p class="sp-card-text sp-card-text--indigo">
+							<?php esc_html_e( 'Choose the GA4 property and web stream for this site, then click Use selected property to save.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+						</p>
+						<?php if ( ! empty( $ga4_discovery_choices ) ) : ?>
+						<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="sp-mb-12">
+							<?php wp_nonce_field( 'sm_pulse_analytics_apply_ga4_discovery' ); ?>
+							<input type="hidden" name="action" value="sm_pulse_analytics_apply_ga4_discovery" />
+							<select id="sm_pulse_analytics_ga4_discovery_choice" name="sm_pulse_analytics_ga4_discovery_choice" class="regular-text sp-input-max-680 sp-mb-12">
+								<?php foreach ( $ga4_discovery_choices as $choice ) : ?>
+									<option value="<?php echo esc_attr( $choice['key'] ); ?>" <?php selected( $ga4_selected_choice, $choice['key'] ); ?>>
+										<?php echo esc_html( $choice['label'] ); ?>
+									</option>
+								<?php endforeach; ?>
+							</select>
+							<div class="sp-flex-gap-12-wrap">
+								<button type="submit" class="button button-primary"><?php esc_html_e( 'Use selected property', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></button>
+							</div>
+						</form>
+						<?php else : ?>
+							<p class="sp-card-text sp-card-text--indigo sp-mb-12">
+								<?php esc_html_e( 'No GA4 properties were loaded yet. Click Refresh from Google to fetch your account properties.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+							</p>
+						<?php endif; ?>
+						<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="sp-m-0">
+							<?php wp_nonce_field( 'sm_pulse_analytics_refresh_ga4_discoveries' ); ?>
+							<input type="hidden" name="action" value="sm_pulse_analytics_refresh_ga4_discoveries" />
+							<button type="submit" class="button"><?php esc_html_e( 'Refresh from Google', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></button>
+						</form>
+					</div>
+					<form method="POST" action="">
+						<?php wp_nonce_field( 'save_sm_pulse_analytics_settings' ); ?>
+						<input type="hidden" name="sm_pulse_analytics_settings[current_step]" value="<?php echo esc_attr( $current_step ); ?>" />
+					<?php endif; ?>
+
+					<?php if ( $oauth_connected && empty( $measurement_id ) ) : ?>
+						<div class="sp-warning-callout">
+							<p class="sp-warning-callout__text">
+								<strong class="sp-warning-callout__strong"><?php esc_html_e( 'Measurement ID Missing:', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></strong> <?php esc_html_e( 'Choose a GA4 property above or enter a Measurement ID below.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
 							</p>
 						</div>
 					<?php endif; ?>
+
+					<?php
+					$auth_url = class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_GA4_OAuth' ) ? \Sm_Pulse_Analytics\PulseAnalytics_GA4_OAuth::get_auth_url() : '';
+					?>
+
 					<div class="settings-card">
 						<div class="settings-header">
 							<div class="icon-circle">
 								<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
 							</div>
-							<h2>Google Analytics Connection</h2>
+							<h2><?php esc_html_e( 'Google Analytics Configuration', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></h2>
 						</div>
-						<p class="settings-description" style="margin-bottom: 40px;">
-							To securely fetch data from your Google Analytics 4 property, you need to create an OAuth 2.0 bridge. This requires a <strong>Google Client ID</strong> and <strong>Secret</strong> from the 
-							<a href="https://console.cloud.google.com/" target="_blank" style="color: #6366f1; text-decoration: underline;">Google Cloud Console</a>. This ensures that your tracking data remains private and only accessible by your authorized administrator.
+						<p class="settings-description sp-mb-24">
+							<?php esc_html_e( 'Configure GA4 Measurement ID, API Secret, and Google Cloud OAuth credentials for live dashboard reporting.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
 						</p>
-						
-						<table class="form-table">
-							<tr>
-								<th>Real-time Tracking</th>
-								<td>
-									<label class="switch-toggle" style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
-										<input type="checkbox" name="storepulse_settings[enable_realtime]" value="1" <?php checked( isset( $options['enable_realtime'] ) && '1' === $options['enable_realtime'] ); ?> style="width: 18px; height: 18px; margin: 0; cursor: pointer;" />
-										<span style="font-weight: 500; color: #1e293b;">Enable real-time active visitors tracking</span>
-									</label>
-									<p class="description" style="margin-top: 10px; color: #666; font-size: 13px;">
-										When enabled, Pulse Analytics will fetch active visitors from your GA4 property to display on the dashboard.
-									</p>
-								</td>
-							</tr>
-							<tr>
-								<th>Google Client ID <span class="wptip" data-tip="Look for 'OAuth 2.0 Client IDs' in your Google Cloud project.">
-									<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; cursor:help;"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-								</span></th>
-								<td>
-									<input type="text" name="storepulse_settings[client_id]" class="large-text" value="<?php echo esc_attr( $options['client_id'] ?? '' ); ?>" style="width: 100%; max-width: 500px;" placeholder="e.g. 1234567-abcdef.apps.googleusercontent.com" />
-									<p class="description" style="margin-top: 10px; color: #666; font-size: 13px;">
-										This is your application's public identity. Think of it as a username that tells Google which app is trying to connect. You can find this under <strong>APIs & Services > Credentials</strong> in your Google Cloud project.
-									</p>
-									<div class="mt-3 p-3 bg-indigo-50 border border-indigo-100 rounded text-sm text-indigo-900 leading-relaxed" style="max-width: 500px;">
-										Ensure you have added exactly <code><?php echo esc_url( admin_url( 'admin.php?page=wp-seo-insights' ) ); ?></code> to the <strong>Authorized redirect URIs</strong> in your Google Cloud Console.
-									</div>
-								</td>
-							</tr>
-							<tr>
-								<th>Google Client Secret</th>
-								<td>
-									<div style="position: relative; max-width: 500px;">
-										<input type="password" id="ga_client_secret" name="storepulse_settings[client_secret]" value="<?php echo esc_attr( $options['client_secret'] ?? '' ); ?>" style="width: 100%;" placeholder="Enter your private client secret" />
-										<button type="button" onclick="toggleSecretVisibility('ga_client_secret')" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; color: #94a3b8;">
-											<svg id="eye_icon_ga_client_secret" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-										</button>
-									</div>
-									<script>
-										function toggleSecretVisibility(id) {
-											const input = document.getElementById(id);
-											const icon = document.getElementById('eye_icon_' + id);
-											if (input.type === 'password') {
-												input.type = 'text';
-												icon.innerHTML = '<path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path><path d="M6.61 6.61A13.52 13.52 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path><line x1="2" y1="2" x2="22" y2="22"></line>';
-											} else {
-												input.type = 'password';
-												icon.innerHTML = '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle>';
-											}
-										}
-									</script>
-									<p class="description" style="margin-top: 10px; color: #666; font-size: 13px;">
-										<strong>Handle with care!</strong> This is your application's private password. It allows Pulse Analytics to securely authenticate with Google's servers. Never share this secret with unauthorized people.
-									</p>
-								</td>
-							</tr>
-							<tr>
-								<th>GA4 Property ID</th>
-								<td>
-									<input type="text" name="storepulse_settings[property_id]" class="regular-text" value="<?php echo esc_attr( $options['property_id'] ?? '' ); ?>" placeholder="e.g. 987654321" />
-									<p class="description" style="margin-top: 10px; color: #666; font-size: 13px;">
-										The <strong>numeric ID</strong> of your specific GA4 property. You can find this in your Google Analytics dashboard under <strong>Admin > Property Settings > Property Details</strong>. Note: This is different from your Measurement ID (which starts with G-).
-									</p>
-								</td>
-							</tr>
-							<tr>
-								<th>GA4 Measurement ID</th>
-								<td>
-									<input type="text" name="storepulse_ga4_measurement_id" class="regular-text" value="<?php echo esc_attr( $measurement_id ); ?>" placeholder="e.g. G-ABC1234567" pattern="^G-[A-Za-z0-9]+$" title="Must start with G- followed by alphanumeric characters." />
-									<p class="description" style="margin-top: 10px; color: #666; font-size: 13px;">
-										Your GA4 Measurement ID (starts with G-). This is injected into your site's frontend for Goals and Links tracking.
-									</p>
-								</td>
-							</tr>
-							<tr>
-								<th>PageSpeed Insights API Key</th>
-								<td>
-									<div style="position: relative; max-width: 500px;">
-										<input type="password" id="psi_api_key" name="storepulse_psi_api_key" value="<?php echo esc_attr( get_option( 'storepulse_psi_api_key', '' ) ); ?>" style="width: 100%;" placeholder="Enter your PageSpeed API key" />
-										<button type="button" onclick="toggleSecretVisibility('psi_api_key')" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; color: #94a3b8;">
-											<svg id="eye_icon_psi_api_key" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-										</button>
-									</div>
-									<p class="description" style="margin-top: 10px; color: #666; font-size: 13px;">
-										Your Google PageSpeed Insights API Key. Adding this prevents rate-limiting issues when checking Core Web Vitals. <a href="https://developers.google.com/speed/docs/insights/v5/get-started" target="_blank">Learn how to generate one here</a>.
-									</p>
-								</td>
-							</tr>
-							<tr>
-								<th>Public Site URL Override</th>
-								<td>
-									<input type="text" name="storepulse_psi_override_url" class="regular-text" value="<?php echo esc_attr( get_option( 'storepulse_psi_override_url', '' ) ); ?>" placeholder="e.g. https://yourdomain.com" style="width: 100%; max-width: 500px;" />
-									<p class="description" style="margin-top: 10px; color: #666; font-size: 13px;">
-										<strong>Only needed for local/staging environments.</strong> If your WordPress is running on <code>localhost</code> but your live site is on a public domain, enter the public URL here. Core Web Vitals and PageSpeed Insights will use this URL instead.
-									</p>
-								</td>
-							</tr>
-						</table>
-						<div class="mt-12 flex items-center gap-4">
-							<button type="submit" name="save_and_connect" class="btn-premium">Save & Authorize Google Connection</button>
-							<a href="?page=wp-seo-insights&step=events" class="btn-outline">Go to Events & Goals &rarr;</a>
-						</div>
-					</div>
 
-					<?php
-					// EVENTS TAB.
-				elseif ( 'events' === $current_step ) :
-					?>
-					<div class="settings-card">
-						<div class="settings-header">
-							<div class="icon-circle">
-								<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-							</div>
-							<h2>Ecommerce Tracking & Goals</h2>
-						</div>
-						<p class="settings-description" style="margin-bottom: 40px;">
-							Configure exactly how your customer interactions are tracked. Enabling Enhanced Ecommerce allows Pulse Analytics to send mission-critical data like orders, product views, and cart additions directly to the Google Analytics Measurement Protocol.
-						</p>
-						
-						<div class="bg-indigo-50/50 p-8 rounded-xl border border-indigo-100/50 mb-8">
-							<label class="flex items-center gap-3 cursor-pointer">
-								<input type="checkbox" name="storepulse_settings[enable_goals]" value="1" <?php checked( '1', $options['enable_goals'] ?? '0' ); ?> <?php echo ! class_exists( 'WooCommerce' ) ? 'disabled' : ''; ?> class="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
-								<span class="text-base font-bold text-gray-900">Enable Enhanced Ecommerce Tracking</span>
-							</label>
-							<?php if ( ! class_exists( 'WooCommerce' ) ) : ?>
-								<div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded text-sm font-medium">
-									⚠️ WooCommerce must be installed and activated to use Enhanced Ecommerce Tracking.
-								</div>
-							<?php endif; ?>
-							<p class="text-sm text-gray-600 mt-4 leading-relaxed">
-								When enabled, the following events will be automatically tracked without any extra setup:
-								<ul class="mt-4 space-y-2 text-sm text-gray-500" style="list-style: disc; padding-left: 20px;">
-									<li><strong>Purchase Events:</strong> Sends order total, tax, shipping, and products when a customer finishes checkout.</li>
-									<li><strong>Add to Cart:</strong> Tracks which products are being added to the shopping basket.</li>
-									<li><strong>Begin Checkout:</strong> Identifies when a customer starts the payment process.</li>
-									<li><strong>Product Views:</strong> Measures interest in individual products on your store.</li>
-								</ul>
+						<!-- Section 1: Essential GA4 Telemetry -->
+						<div class="sp-step-panel sp-step-panel--muted">
+							<h3 class="sp-step-heading">
+								<span class="sp-step-number sp-step-number--primary">1</span>
+								<?php esc_html_e( 'Essential GA4 Telemetry Setup', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+							</h3>
+							<p class="sp-step-desc">
+								<?php if ( $oauth_connected ) : ?>
+									<?php esc_html_e( 'Configure your Measurement ID and API Secret for frontend tracking and server-side events.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+								<?php else : ?>
+									<?php esc_html_e( 'GA4 Measurement ID and API Secret fields appear after you sign in with Google.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+								<?php endif; ?>
 							</p>
+
+							<table class="form-table sp-mt-0">
+								<?php if ( $oauth_connected && $ga4_ids_saved && ! $show_ga4_property_picker ) : ?>
+								<tr>
+									<th><?php esc_html_e( 'Selected GA4 property', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></th>
+									<td>
+										<p class="sp-field-label"><?php echo esc_html( $ga4_selected_label ); ?></p>
+										<a href="<?php echo esc_url( add_query_arg( array( 'page' => 'sm-pulse-analytics-settings', 'step' => 'analytics', 'ga4_change_property' => '1' ), admin_url( 'admin.php' ) ) ); ?>" class="button button-secondary sp-mt-4">
+											<?php esc_html_e( 'Change property', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+										</a>
+									</td>
+								</tr>
+								<?php endif; ?>
+								<?php if ( $oauth_connected ) : ?>
+								<tr>
+									<th><?php esc_html_e( 'GA4 Property ID', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></th>
+									<td>
+										<input type="text" id="ga4-property-id-input" name="sm_pulse_analytics_settings[property_id]" class="regular-text sp-input-max-500" value="<?php echo esc_attr( $display_property_id ); ?>" placeholder="e.g. 987654321" <?php echo ( $ga4_ids_saved && ! $show_ga4_property_picker ) ? 'readonly="readonly"' : ''; ?> />
+										<p class="description sp-desc sp-desc--muted sp-mt-8">
+											<?php esc_html_e( 'The numeric ID of your GA4 property (found under Admin > Property Details). Required by GA4 Data API.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+										</p>
+									</td>
+								</tr>
+								<tr>
+									<th><?php esc_html_e( 'GA4 Measurement ID', 'smackcoders-pulse-analytics-for-woocommerce' ); ?> <span class="sp-required">*</span></th>
+									<td>
+										<input type="text" id="ga4-measurement-id-input" name="sm_pulse_analytics_ga4_measurement_id" class="regular-text sp-input-max-500" value="<?php echo esc_attr( $measurement_id ); ?>" placeholder="<?php echo esc_attr__( 'e.g. G-ABC1234567', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>" pattern="^G-[A-Za-z0-9]+$" title="<?php echo esc_attr__( 'Must start with G- followed by alphanumeric characters.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>" <?php echo ( $ga4_ids_saved && ! $show_ga4_property_picker ) ? 'readonly="readonly"' : ''; ?> />
+										<p class="description sp-desc sp-desc--muted sp-mt-8">
+											<?php
+											printf(
+												/* translators: %s: path in GA4 Admin */
+												esc_html__( 'Your GA4 Measurement ID (starts with G-). Found in %s. Injected into frontend pages.', 'smackcoders-pulse-analytics-for-woocommerce' ),
+												'<strong>' . esc_html__( 'GA4 Admin > Data Streams > Web Stream Details', 'smackcoders-pulse-analytics-for-woocommerce' ) . '</strong>'
+											);
+											?>
+										</p>
+									</td>
+								</tr>
+								<tr>
+									<th><?php esc_html_e( 'Measurement Protocol API Secret', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></th>
+									<td>
+										<?php if ( $api_secret_usable ) : ?>
+											<p class="sp-status-msg sp-status-msg--success"><?php esc_html_e( 'Saved in wp-config.php', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></p>
+											<p class="description sp-desc sp-desc--muted sp-m-0">
+												<?php esc_html_e( 'To replace it, enter a new secret below, save, then update the define() in wp-config.php.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+											</p>
+										<?php endif; ?>
+										<div class="sp-field-relative sp-mt-8">
+											<input class="sp-w-full" type="password" id="sm_pulse_analytics_ga4_api_secret" name="sm_pulse_analytics_ga4_api_secret" value="" autocomplete="new-password" placeholder="<?php echo esc_attr( $api_secret_usable ? __( 'Enter new secret to rotate…', 'smackcoders-pulse-analytics-for-woocommerce' ) : __( 'e.g. G9icPBGrRSKApeK0cedcYbE17g', 'smackcoders-pulse-analytics-for-woocommerce' ) ); ?>" />
+											<button type="button" class="sp-toggle-secret sp-toggle-secret-btn" data-target="sm_pulse_analytics_ga4_api_secret">
+												<svg id="eye_icon_sm_pulse_analytics_ga4_api_secret" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+											</button>
+										</div>
+										<p class="description sp-desc sp-desc--muted sp-mt-8">
+											<?php
+											printf(
+												/* translators: 1: opening strong, 2: closing strong, 3: path in GA4 admin */
+												esc_html__( 'Stored in wp-config.php. Enables reliable %1$sserver-side tracking%2$s for purchases and background events. Retrieve from %3$s.', 'smackcoders-pulse-analytics-for-woocommerce' ),
+												'<strong>',
+												'</strong>',
+												'<strong>' . esc_html__( 'GA4 Admin > Data Streams > Measurement Protocol API Secrets', 'smackcoders-pulse-analytics-for-woocommerce' ) . '</strong>'
+											);
+											?>
+										</p>
+									</td>
+								</tr>
+								<?php endif; ?>
+								<?php
+								do_action(
+									'sm_pulse_analytics_analytics_settings_telemetry_fields',
+									array(
+										'oauth_connected' => $oauth_connected,
+										'measurement_id'  => $measurement_id,
+										'gsc_site_url'    => '',
+									)
+								);
+								?>
+							</table>
 						</div>
 
-						<div class="mt-12 flex items-center gap-4">
-							<button type="submit" class="btn-premium">Save Tracking Settings</button>
-							<a href="?page=wp-seo-insights&step=advanced" class="btn-outline">Advanced Settings &rarr;</a>
+						<!-- Section 2: Admin Dashboard Reports & Google Cloud OAuth (Optional) -->
+						<div class="sp-step-panel sp-step-panel--white">
+							<h3 class="sp-step-heading">
+								<span class="sp-step-number sp-step-number--gray">2</span>
+								Admin Dashboard Reports & Google Cloud OAuth (Optional)
+							</h3>
+							<p class="sp-step-desc">
+								<?php esc_html_e( 'Optional. Fill out your Google Cloud OAuth app credentials to fetch live Analytics reports, real-time active visitors, and traffic overview widgets inside your WordPress dashboard.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+							</p>
+							<?php if ( ! $has_oauth_credentials ) : ?>
+								<p class="sp-step-desc sp-step-desc--warning">
+									<?php esc_html_e( 'Enter your Google Cloud Client ID and Client Secret below, then save and sign in with Google.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+								</p>
+							<?php endif; ?>
+
+							<table class="form-table sp-mt-0">
+								<tr>
+									<th><?php esc_html_e( 'Google Client ID', 'smackcoders-pulse-analytics-for-woocommerce' ); ?> <span class="wptip" data-tip="<?php echo esc_attr__( 'Look for OAuth 2.0 Client IDs in your Google Cloud project.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>">
+										<svg class="sp-help-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+									</span></th>
+									<td>
+										<?php if ( $client_id_usable ) : ?>
+											<p class="sp-status-msg sp-status-msg--success">
+												<?php
+												esc_html_e( 'Saved in wp-config.php', 'smackcoders-pulse-analytics-for-woocommerce' );
+												?>
+											</p>
+										<?php elseif ( $client_id_decrypt_failed ) : ?>
+											<p class="sp-status-msg sp-status-msg--warning"><?php esc_html_e( 'Credential found in wp-config.php but could not be decrypted. Re-enter Client ID/Secret and update wp-config.php.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></p>
+										<?php endif; ?>
+										<input type="text" name="sm_pulse_analytics_settings[client_id]" class="large-text sp-input-max-500" value="" autocomplete="off" placeholder="<?php echo esc_attr( $client_id_usable ? __( 'Enter new Client ID to rotate…', 'smackcoders-pulse-analytics-for-woocommerce' ) : 'e.g. 1234567-abcdef.apps.googleuserconten...' ); ?>" />
+										<p class="description sp-desc sp-desc--muted sp-mt-8">
+											<?php esc_html_e( 'OAuth 2.0 Client ID from Google Cloud Console (APIs & Services → Credentials). Saved encrypted when you submit this form.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+										</p>
+									</td>
+								</tr>
+								<tr>
+									<th><?php esc_html_e( 'Google Client Secret', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></th>
+									<td>
+										<?php if ( $client_sec_usable ) : ?>
+											<p class="sp-status-msg sp-status-msg--success">
+												<?php
+												esc_html_e( 'Saved in wp-config.php', 'smackcoders-pulse-analytics-for-woocommerce' );
+												?>
+											</p>
+										<?php elseif ( $client_sec_decrypt_failed ) : ?>
+											<p class="sp-status-msg sp-status-msg--warning"><?php esc_html_e( 'Credential found in wp-config.php but could not be decrypted. Re-enter Client ID/Secret and update wp-config.php.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></p>
+										<?php endif; ?>
+										<div class="sp-field-relative">
+											<input class="sp-w-full" type="password" id="ga_client_secret" name="sm_pulse_analytics_settings[client_secret]" value="" autocomplete="new-password" placeholder="<?php echo esc_attr( $client_sec_usable ? __( 'Enter new secret to rotate…', 'smackcoders-pulse-analytics-for-woocommerce' ) : __( 'Enter your private client secret', 'smackcoders-pulse-analytics-for-woocommerce' ) ); ?>" />
+											<button type="button" class="sp-toggle-secret sp-toggle-secret-btn" data-target="ga_client_secret">
+												<svg id="eye_icon_ga_client_secret" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+											</button>
+										</div>
+										<p class="description sp-desc sp-desc--muted sp-mt-8">
+											<?php esc_html_e( 'Used to authenticate with the GA4 Data API. Saved encrypted when you submit this form.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+										</p>
+									</td>
+								</tr>
+							</table>
+						</div>
+
+						<!-- VERY BOTTOM BAR: Copy Redirect URI + Action Buttons -->
+						<div class="sp-oauth-footer">
+							<!-- Copyable Authorized Redirect URI at Bottom -->
+							<div class="sp-redirect-uri-box">
+								<label class="sp-block-label">
+									<?php esc_html_e( 'Authorized Redirect URI (Copy to Google Cloud Console):', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+								</label>
+								<p class="sp-redirect-uri-desc">
+									<?php
+									printf(
+										/* translators: %s: section label */
+										esc_html__( 'Add this exact URI under %s in your Google Cloud Console OAuth 2.0 Client ID settings.', 'smackcoders-pulse-analytics-for-woocommerce' ),
+										'<strong>' . esc_html__( 'Authorized redirect URIs', 'smackcoders-pulse-analytics-for-woocommerce' ) . '</strong>'
+									);
+									?>
+								</p>
+								<div class="sp-flex-gap-8">
+									<input type="text" readonly class="sp-select-on-click sp-monospace-input sp-w-full" value="<?php echo esc_attr( admin_url( 'admin.php?page=sm-pulse-analytics-gsc-oauth' ) ); ?>" />
+									<button type="button" class="sp-copy-uri-btn" data-copy-uri="<?php echo esc_attr( admin_url( 'admin.php?page=sm-pulse-analytics-gsc-oauth' ) ); ?>"><?php esc_html_e( 'Copy Redirect URI', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></button>
+								</div>
+							</div>
+
+							<!-- Action Buttons at Very Bottom -->
+							<div class="sp-flex-gap-12-wrap-center">
+								<button type="submit" class="btn-premium sp-btn-pad-lg">
+									<?php esc_html_e( 'Save Analytics Configuration', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+								</button>
+								<?php if ( $has_oauth_credentials && ! $oauth_connected ) : ?>
+									<button type="submit" name="save_and_connect" value="1" class="btn-outline sp-btn-pad-md">
+										<?php esc_html_e( 'Save & Connect', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+									</button>
+									<?php if ( ! empty( $auth_url ) && '#' !== $auth_url ) : ?>
+										<a href="<?php echo esc_url( $auth_url ); ?>" class="btn-outline sp-btn-pad-md sp-no-underline">
+											<?php esc_html_e( 'Sign in with Google →', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+										</a>
+									<?php endif; ?>
+								<?php elseif ( $ga4_setup_complete ) : ?>
+									<span class="sp-text-success">
+										<?php esc_html_e( 'Google Analytics is connected.', 'smackcoders-pulse-analytics-for-woocommerce' ); ?>
+									</span>
+								<?php endif; ?>
+							</div>
+						</div>
+
+						<?php
+						$connection_status = $ga4_setup_complete ? 'complete' : ( $oauth_connected ? 'connected' : ( $ga4_ids_saved ? 'warning' : 'error' ) );
+						$connection_box_title  = $ga4_setup_complete
+							? __( 'Connected & Secure', 'smackcoders-pulse-analytics-for-woocommerce' )
+							: ( $oauth_connected
+								? __( 'Setup incomplete', 'smackcoders-pulse-analytics-for-woocommerce' )
+								: ( $ga4_ids_saved
+									? __( 'OAuth required', 'smackcoders-pulse-analytics-for-woocommerce' )
+									: __( 'Not Connected', 'smackcoders-pulse-analytics-for-woocommerce' ) ) );
+						$connection_box_text   = $ga4_setup_complete
+							? __( 'Your site is authenticated with Google Analytics and a GA4 property is configured for live dashboard reports.', 'smackcoders-pulse-analytics-for-woocommerce' )
+							: ( $oauth_connected
+								? __( 'Google account connected. Select a GA4 property and click Use selected property to finish setup.', 'smackcoders-pulse-analytics-for-woocommerce' )
+								: ( $ga4_ids_saved
+									? ( $has_oauth_credentials
+										? __( 'GA4 IDs are saved. Sign in with Google to activate live dashboard reports.', 'smackcoders-pulse-analytics-for-woocommerce' )
+										: __( 'GA4 IDs are saved but OAuth is inactive. Add credentials to wp-config.php and sign in with Google.', 'smackcoders-pulse-analytics-for-woocommerce' ) )
+									: __( 'Save your Google Cloud OAuth credentials above, then sign in with Google.', 'smackcoders-pulse-analytics-for-woocommerce' ) ) );
+						$token_status_class = ! empty( $ga4_connection['token_expired'] ) ? 'sp-token-status--expired' : 'sp-token-status--active';
+						?>
+						<!-- Connection Status -->
+						<div class="sp-connection-box sp-connection-box--<?php echo esc_attr( $connection_status ); ?>">
+							<div class="sp-flex-start-wrap">
+								<div class="sp-flex-1-min-220">
+									<h3 class="sp-connection-title">
+										<?php echo esc_html( $connection_box_title ); ?>
+									</h3>
+									<p class="sp-connection-text">
+										<?php echo esc_html( $connection_box_text ); ?>
+									</p>
+									<table class="form-table sp-m-0">
+										<?php if ( $oauth_connected ) : ?>
+										<tr>
+											<th class="sp-compact-th sp-compact-th--wide"><?php esc_html_e( 'Property ID', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></th>
+											<td class="sp-compact-td sp-compact-td--bold"><?php echo esc_html( $display_property_id ? $display_property_id : __( 'Not configured', 'smackcoders-pulse-analytics-for-woocommerce' ) ); ?></td>
+										</tr>
+										<?php endif; ?>
+										<tr>
+											<th class="sp-compact-th"><?php esc_html_e( 'Token Status', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></th>
+											<td class="sp-compact-td">
+												<?php if ( $oauth_connected ) : ?>
+													<span class="sp-token-status <?php echo esc_attr( $token_status_class ); ?>">
+														<?php echo esc_html( $token_status_label ); ?>
+													</span>
+												<?php else : ?>
+													<span class="sp-token-inactive"><?php esc_html_e( 'Inactive', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></span>
+												<?php endif; ?>
+											</td>
+										</tr>
+									</table>
+								</div>
+								<?php if ( $oauth_connected || $can_revoke_credentials ) : ?>
+									<div class="sp-flex-gap-10-wrap">
+										<a href="<?php echo esc_url( $refresh_token_url ); ?>" class="btn-premium sp-btn-pad-sm sp-no-underline"><?php esc_html_e( 'Refresh Token', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></a>
+										<?php if ( $can_revoke_credentials ) : ?>
+											<button type="button" id="revoke-analytics-credentials-btn" data-url="<?php echo esc_url( $disconnect_url ); ?>" class="btn-outline sp-btn-revoke"><?php esc_html_e( 'Revoke Credentials', 'smackcoders-pulse-analytics-for-woocommerce' ); ?></button>
+										<?php endif; ?>
+									</div>
+								<?php endif; ?>
+							</div>
+						</div>
+					</div>
 						</div>
 					</div>
 
 					<?php
-					// ADVANCED TAB.
-				elseif ( 'advanced' === $current_step ) :
-					?>
-					<div class="settings-card">
-						<div class="settings-header">
-							<div class="icon-circle">
-								<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-							</div>
-							<h2>Advanced System Configuration</h2>
-						</div>
-						<p class="settings-description">
-							Fine-tune the technical behavior of the plugin. These settings are typically used for privacy compliance and troubleshooting purposes.
-						</p>
-						
-						<table class="form-table">
-							<tr>
-								<th>Privacy & GDPR Compliance</th>
-								<td>
-									<!-- CONSUMED IN: includes/connector.php (inject_gtag_snippet) -->
-									<label class="flex items-center gap-2">
-										<input type="checkbox" name="storepulse_settings[ip_anonymization]" value="1" <?php checked( '1', $options['ip_anonymization'] ?? '0' ); ?>>
-										<strong>Anonymize IP addresses</strong>
-									</label>
-									<p class="description" style="margin-top: 10px; color: #666; font-size: 13px;">
-										If enabled, the last part of your visitors' IP addresses will be removed before the data is sent to Google. This is a recommended step to comply with GDPR and other strict data protection laws.
-									</p>
-								</td>
-							</tr>
-							<tr>
-								<th>Testing & Demo Mode</th>
-								<td>
-									<label class="flex items-center gap-2">
-										<input type="checkbox" name="storepulse_settings[demo_mode]" value="1" <?php checked( '1', $options['demo_mode'] ?? '0' ); ?>>
-										<strong>Enable Sample Data</strong>
-									</label>
-									<p class="description" style="margin-top: 10px; color: #666; font-size: 13px;">
-										If your Google Analytics property is brand new and has no data yet, enable this to see sample visualizations in the Demographic reports. Turn this off once your real traffic starts appearing.
-									</p>
-								</td>
-							</tr>
-						</table>
-						<div class="mt-12 flex items-center gap-4">
-							<button type="submit" class="btn-premium">Update Advanced Settings</button>
-						</div>
-					</div>
-
-					<!-- Danger Zone (Red Box) -->
-					<div class="settings-card" style="border-left: 4px solid #ef4444; background-color: #fef2f2;">
-						<div class="settings-header">
-							<svg class="text-red-500" style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-							<h2 style="color: #ef4444; font-size: 20px; font-weight: 600;">Danger Zone</h2>
-						</div>
-						<p class="settings-description" style="color: #b91c1c; font-weight: 500;">
-							Resetting the plugin will erase all saved settings, authentication tokens, and valid configurations. This action is irreversible.
-						</p>
-						<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" onsubmit="return confirm('WARNING: Are you sure you want to reset all data?');">
-							<?php wp_nonce_field( 'StorePulse_clear_all_settings', '_wpnonce' ); ?>
-							<input type="hidden" name="action" value="StorePulse_clear_all_settings">
-							<button type="submit" class="btn-premium" style="background-color: #ef4444 !important;">
-								<svg class="mr-1 inline-block" style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> Reset All Plugin Data
-							</button>
-						</form>
-					</div>
-				<?php endif; ?>
-
-				<?php
-				if ( 'advanced' !== $current_step && 'authenticated' !== $current_step ) {
-					echo '</form>';}
+					// ECOMMERCE TAB.
+				elseif ( 'ecommerce' === $current_step ) :
+					include SM_PULSE_ANALYTICS_PLUGIN_DIR . 'admin/settings/settings-ecommerce.php';
+					// LINKS & AFFILIATE TAB.
+				elseif ( 'links' === $current_step ) :
+					include SM_PULSE_ANALYTICS_PLUGIN_DIR . 'admin/settings/settings-links.php';
+				endif;
 				?>
 
+				<?php do_action( 'sm_pulse_analytics_render_settings_tab_' . $current_step ); ?>
+
 				<?php
-				// AUTHENTICATED TAB.
-				if ( 'authenticated' === $current_step ) :
-					$is_authenticated  = ! empty( $auth_options['access_token'] );
-					$expiry            = (int) ( $auth_options['token_expiry'] ?? 0 );
-					$remaining_minutes = max( 0, floor( ( $expiry - time() ) / 60 ) );
-					?>
-					<div class="settings-card">
-						<div class="settings-header">
-							<div class="icon-circle">
-								<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-							</div>
-							<h2>Authorized Account Status</h2>
-						</div>
-						
-						<div class="p-6 rounded-xl mb-12 flex items-center gap-6 <?php echo $is_authenticated ? 'bg-green-50 border border-green-100 text-green-700' : 'bg-red-50 border border-red-100 text-red-700'; ?>">
-							<?php if ( $is_authenticated ) : ?>
-								<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-							<?php else : ?>
-								<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-600"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-							<?php endif; ?>
-							<div>
-								<h3 class="text-[1rem] font-bold m-0"><?php echo $is_authenticated ? 'Connected & Secure' : 'Not Connected'; ?></h3>
-								<p class="text-sm opacity-80"><?php echo $is_authenticated ? 'Your site is successfully authenticated with Google Analytics.' : 'Please configure your connection in the Analytics tab.'; ?></p>
-							</div>
-						</div>
+				echo '</form>';
+				?>
 
-						<table class="form-table">
-							<tr>
-								<th>Property ID</th>
-								<td><span style="font-weight: 600; color: #1e293b;"><?php echo esc_html( $options['property_id'] ?? 'N/A' ); ?></span></td>
-							</tr>
-							<tr>
-								<th>Token Status</th>
-								<td>
-									<?php if ( $is_authenticated ) : ?>
-										<span class="text-green-600 font-bold">Expires in <?php echo esc_html( $remaining_minutes ); ?>m</span>
-									<?php else : ?>
-										<span class="text-red-500 italic">Inactive</span>
-									<?php endif; ?>
-								</td>
-							</tr>
-						</table>
-
-						<?php if ( $is_authenticated ) : ?>
-							<div class="mt-12 flex items-center gap-4">
-								<a href="<?php echo esc_url( admin_url( 'admin-post.php?action=refresh_access_token' ) ); ?>" class="btn-premium">Manual Token Refresh</a>
-								<button type="button" id="disconnect-analytics-btn" data-url="<?php echo esc_url( admin_url( 'admin-post.php?action=disconnect_google_analytics' ) ); ?>" class="btn-outline" style="border-color: #f87171; color: #ef4444 !important;">Disconnect Account</button>
-							</div>
-						<?php endif; ?>
-					</div>
-					<script>
-						document.getElementById('disconnect-analytics-btn')?.addEventListener('click', function() {
-							if(confirm('Disconnect Google Analytics? This will disable tracking.')) window.location.href = this.getAttribute('data-url');
-						});
-					</script>
-				<?php endif; ?>
 			</div>
-		</div>
+
+			</div><!-- .sp-card.sp-settings-panel -->
+
+			</div><!-- .sp-settings-content -->
+			</div><!-- .sp-settings-layout -->
+			</div><!-- .pulse-analytics-ui -->
+
+		</div><!-- #PulseAnalytics-settings-v2 -->
 		<?php
-	}
-
-	/**
-	 * Handle "Clear All Settings & Tokens" action.
-	 * Clears plugin settings, auth tokens
-	 * , and optionally custom goals.
-	 */
-	public static function handle_clear_all_settings() {
-		// Check nonce.
-		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['_wpnonce'] ) ), 'StorePulse_clear_all_settings' ) ) {
-			wp_die( 'Security check failed' );
-		}
-
-		// Check capability.
-		if ( ! current_user_can( 'StorePulse_manage_settings' ) ) {
-			wp_die( 'You do not have permission to perform this action' );
-		}
-
-		// Clear options.
-		delete_option( self::SETTINGS_OPTION_NAME );
-		delete_option( self::AUTH_OPTION_NAME );
-		delete_option( 'StorePulse_custom_goals' );
-
-		// Redirect with success message.
-		wp_safe_redirect( admin_url( 'admin.php?page=wp-seo-insights&step=advanced&cleared=1' ) );
-		exit;
 	}
 }

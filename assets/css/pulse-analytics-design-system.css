@@ -1,0 +1,786 @@
+/**
+ * Pulse Analytics design system (from docs/mockups).
+ * Scoped to .pulse-analytics-ui — does not replace tailwind/dashboard.css yet.
+ */
+
+.pulse-analytics-ui {
+  --sp-bg: #f0f0f1;
+  --sp-border: #dcdcde;
+  --sp-text: #1d2327;
+  --sp-muted: #646970;
+  --sp-indigo: #4f46e5;
+  --sp-emerald: #10b981;
+  --sp-red: #ef4444;
+  --sp-radius: 12px;
+  --sp-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.pulse-analytics-ui .sp-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  background: #fff;
+  border: 1px solid var(--sp-border);
+  border-radius: var(--sp-radius);
+}
+
+.pulse-analytics-ui .sp-toolbar-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.pulse-analytics-ui .sp-toolbar select,
+.pulse-analytics-ui .sp-toolbar input[type="text"],
+.pulse-analytics-ui .sp-toolbar input[type="date"],
+.pulse-analytics-ui .sp-toolbar .sp-toolbar-input {
+  font-size: 13px;
+  padding: 8px 12px;
+  border: 1px solid var(--sp-border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--sp-text);
+  min-height: 36px;
+  box-sizing: border-box;
+}
+
+.pulse-analytics-ui .sp-toolbar button.sp-btn-primary {
+  background: var(--sp-indigo);
+  color: #fff;
+  border: 1px solid var(--sp-indigo);
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pulse-analytics-ui .sp-toolbar button.sp-btn-primary:hover {
+  background: #4338ca;
+  border-color: #4338ca;
+}
+
+.pulse-analytics-ui .sp-toolbar button.sp-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pulse-analytics-ui .sp-toolbar button.sp-btn-secondary,
+.pulse-analytics-ui button.sp-btn-secondary,
+.sp-btn-secondary {
+  background: #ffffff;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.15s ease-in-out;
+}
+
+.pulse-analytics-ui .sp-toolbar button.sp-btn-secondary:hover,
+.pulse-analytics-ui button.sp-btn-secondary:hover,
+.sp-btn-secondary:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #94a3b8;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.06);
+}
+
+.pulse-analytics-ui .sp-toolbar button.sp-btn-secondary:active,
+.pulse-analytics-ui button.sp-btn-secondary:active,
+.sp-btn-secondary:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.pulse-analytics-ui .sp-toolbar button.sp-btn-secondary:disabled,
+.pulse-analytics-ui button.sp-btn-secondary:disabled,
+.sp-btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.pulse-analytics-ui .sp-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.pulse-analytics-ui .sp-kpi {
+  background: #fff;
+  border: 1px solid var(--sp-border);
+  border-radius: var(--sp-radius);
+  padding: 16px;
+  box-shadow: var(--sp-shadow);
+}
+
+.pulse-analytics-ui .sp-kpi .sp-kpi-label {
+  font-size: 11px;
+  color: var(--sp-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.pulse-analytics-ui .sp-kpi .sp-kpi-value {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--sp-text);
+}
+
+.pulse-analytics-ui .sp-kpi .sp-kpi-sub {
+  font-size: 12px;
+  color: var(--sp-muted);
+  margin-top: 4px;
+}
+
+.pulse-analytics-ui .sp-kpi-featured .sp-kpi-value {
+  font-size: 36px;
+  color: var(--sp-indigo);
+}
+
+.pulse-analytics-ui .sp-metric-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.pulse-analytics-ui .sp-metric-pill {
+  border: 1px solid var(--sp-border);
+  background: #fff;
+  color: var(--sp-muted);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pulse-analytics-ui .sp-metric-pill.active {
+  background: var(--sp-indigo);
+  border-color: var(--sp-indigo);
+  color: #fff;
+}
+
+.pulse-analytics-ui .sp-toolbar button.sp-btn-ghost,
+.pulse-analytics-ui .sp-toolbar a.sp-toolbar-input {
+  cursor: pointer;
+}
+
+.pulse-analytics-ui .sp-card {
+  background: #fff;
+  border: 1px solid var(--sp-border);
+  border-radius: var(--sp-radius);
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: var(--sp-shadow);
+}
+
+.pulse-analytics-ui .sp-badge-pro {
+  display: inline-block;
+  font-size: 9px;
+  background: var(--sp-indigo);
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 4px;
+  vertical-align: middle;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* Widget-level PRO gate (mockup-aligned) */
+.pulse-analytics-ui .sp-pro-gated {
+  position: relative;
+}
+
+.pulse-analytics-ui .sp-pro-gated .pulse-analytics-pro-blur,
+.pulse-analytics-ui .sp-pro-gated .sp-pro-blur-target {
+  filter: blur(6px);
+  pointer-events: none;
+  user-select: none;
+}
+
+.pulse-analytics-ui .sp-pro-gated .sp-pro-widget-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: var(--sp-radius);
+  z-index: 5;
+  padding: 16px;
+  text-align: center;
+}
+
+.pulse-analytics-ui .sp-pro-widget-overlay-msg {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sp-text);
+  max-width: 220px;
+  line-height: 1.4;
+}
+
+.pulse-analytics-ui .sp-pro-gated .sp-pro-widget-overlay .pulse-analytics-pro-overlay {
+  position: static;
+  background: transparent;
+  padding: 0;
+}
+
+.pulse-analytics-ui.sp-mode-pro .sp-pro-gated .sp-pro-widget-overlay,
+.pulse-analytics-ui.pulse-analytics-is-pro .sp-pro-gated .sp-pro-widget-overlay {
+  display: none;
+}
+
+.pulse-analytics-ui.sp-mode-pro .sp-pro-gated .pulse-analytics-pro-blur,
+.pulse-analytics-ui.pulse-analytics-is-pro .sp-pro-gated .pulse-analytics-pro-blur,
+.pulse-analytics-ui.sp-mode-pro .sp-pro-gated .sp-pro-blur-target,
+.pulse-analytics-ui.pulse-analytics-is-pro .sp-pro-gated .sp-pro-blur-target {
+  filter: none;
+  pointer-events: auto;
+  user-select: auto;
+}
+
+.pulse-analytics-ui .sp-tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--sp-border);
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.pulse-analytics-ui .sp-tabs button,
+.pulse-analytics-ui .sp-tabs .sp-tab {
+  border: none;
+  background: transparent;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--sp-muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.pulse-analytics-ui .sp-tabs button.active,
+.pulse-analytics-ui .sp-tabs .sp-tab.active {
+  color: var(--sp-indigo);
+  border-bottom-color: var(--sp-indigo);
+  font-weight: 600;
+}
+
+.pulse-analytics-ui .sp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.pulse-analytics-ui .sp-table th,
+.pulse-analytics-ui .sp-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--sp-border);
+}
+
+.pulse-analytics-ui .sp-table th {
+  background: #f6f7f7;
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--sp-muted);
+}
+
+.pulse-analytics-ui .sp-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.pulse-analytics-ui .sp-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.pulse-analytics-ui .sp-dashboard-section {
+  margin-bottom: 20px;
+}
+
+.pulse-analytics-ui .sp-section-title {
+  margin: 0 0 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--sp-text);
+}
+
+.pulse-analytics-ui .sp-table-wrap {
+  overflow-x: auto;
+}
+
+.pulse-analytics-ui .pulse-analytics-segmented-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  border-bottom: 1px solid var(--sp-border);
+  padding: 0 16px;
+  background: #fafafa;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.pulse-analytics-ui .pulse-analytics-segmented-bar::-webkit-scrollbar {
+  height: 5px;
+  width: 5px;
+}
+
+.pulse-analytics-ui .pulse-analytics-segmented-bar::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 9999px;
+}
+
+.pulse-analytics-ui .pulse-analytics-segmented-bar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+  transition: background 0.2s ease;
+}
+
+.pulse-analytics-ui .pulse-analytics-segmented-bar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.pulse-analytics-ui .pulse-analytics-segmented-tab {
+  border: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-top: none !important;
+  background: transparent !important;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--sp-muted);
+  border-bottom: 2px solid transparent !important;
+  margin-bottom: -1px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pulse-analytics-ui .pulse-analytics-segmented-tab.active {
+  color: var(--sp-indigo) !important;
+  background: transparent !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-top: none !important;
+  border-bottom: 2px solid var(--sp-indigo) !important;
+  font-weight: 600;
+}
+
+.pulse-analytics-ui .pulse-analytics-segmented-tab[data-trend-tab="ecommerce"] {
+  margin-left: auto;
+}
+
+.pulse-analytics-ui #traffic-line-chart-card .pulse-analytics-segmented-bar,
+.pulse-analytics-ui #wpec-line-chart-card .pulse-analytics-segmented-bar {
+  display: flex !important;
+  width: 100% !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  margin: 0 !important;
+  background: #fafafa !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  overflow: hidden !important;
+}
+
+.pulse-analytics-ui #traffic-line-chart-card .metric-btn,
+.pulse-analytics-ui #wpec-line-chart-card .pulse-analytics-segmented-tab {
+  flex: 1 1 50% !important;
+  width: 50% !important;
+  min-width: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  padding: 13px 20px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em !important;
+  color: #64748b !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  margin-bottom: -1px !important;
+  outline: none !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease !important;
+}
+
+.pulse-analytics-ui #traffic-line-chart-card .metric-btn:hover,
+.pulse-analytics-ui #wpec-line-chart-card .pulse-analytics-segmented-tab:hover {
+  color: #0f172a !important;
+  background: rgba(241, 245, 249, 0.6) !important;
+}
+
+.pulse-analytics-ui #traffic-line-chart-card .metric-btn.active,
+.pulse-analytics-ui #wpec-line-chart-card .pulse-analytics-segmented-tab.active {
+  color: #4f46e5 !important;
+  font-weight: 700 !important;
+  background: #ffffff !important;
+  border-bottom: 2px solid #4f46e5 !important;
+}
+
+.pulse-analytics-ui .sp-funnel-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.pulse-analytics-ui .sp-funnel-step > span:first-child {
+  flex: 0 0 100px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--sp-muted);
+}
+
+.pulse-analytics-ui .sp-funnel-step .bar-wrap {
+  flex: 1;
+  height: 36px;
+  background: #f1f5f9;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.pulse-analytics-ui .sp-funnel-step .bar-fill {
+  height: 100%;
+  min-width: 2%;
+  background: linear-gradient(90deg, #6366f1, #4f46e5);
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  transition: width 1s ease;
+}
+
+.pulse-analytics-ui .sp-progress {
+  height: 10px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.pulse-analytics-ui .sp-progress > span {
+  display: block;
+  height: 100%;
+  background: var(--sp-indigo);
+  border-radius: 999px;
+}
+
+@media (max-width: 900px) {
+  .pulse-analytics-ui .sp-grid-2,
+  .pulse-analytics-ui .sp-grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .pulse-analytics-ui .sp-settings-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Settings layout */
+.pulse-analytics-ui .sp-settings-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.pulse-analytics-ui .sp-settings-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px !important;
+}
+
+.pulse-analytics-ui .sp-settings-nav a,
+.pulse-analytics-ui .sp-settings-nav button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  text-decoration: none !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  background: transparent;
+  padding: 10px 14px;
+  border-radius: 8px !important;
+  cursor: pointer;
+  font-size: 13.5px;
+  color: #475569;
+  font-weight: 500;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.pulse-analytics-ui .sp-settings-nav a:hover,
+.pulse-analytics-ui .sp-settings-nav button:hover {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+.pulse-analytics-ui .sp-settings-nav a.active,
+.pulse-analytics-ui .sp-settings-nav button.active {
+  background: #eef2ff !important;
+  color: var(--sp-indigo, #4f46e5) !important;
+  font-weight: 600 !important;
+}
+
+.pulse-analytics-ui .sp-settings-nav a:focus,
+.pulse-analytics-ui .sp-settings-nav a:focus-visible,
+.pulse-analytics-ui .sp-settings-nav a:active,
+.pulse-analytics-ui .sp-settings-nav button:focus,
+.pulse-analytics-ui .sp-settings-nav button:focus-visible,
+.pulse-analytics-ui .sp-settings-nav button:active {
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  border: none !important;
+}
+
+.pulse-analytics-ui .sp-settings-nav a.active:focus,
+.pulse-analytics-ui .sp-settings-nav a.active:focus-visible,
+.pulse-analytics-ui .sp-settings-nav button.active:focus,
+.pulse-analytics-ui .sp-settings-nav button.active:focus-visible {
+  background: #eef2ff !important;
+  color: var(--sp-indigo, #4f46e5) !important;
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  border: none !important;
+}
+
+.pulse-analytics-ui .sp-settings-nav a.locked::after,
+.pulse-analytics-ui .sp-settings-nav button.locked::after,
+.sp-settings-nav a.locked::after,
+.sp-settings-nav button.locked::after {
+  content: "PRO";
+  float: right;
+  font-size: 9.5px;
+  font-weight: 800;
+  line-height: 1;
+  background: #ef4444;
+  color: #ffffff;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  letter-spacing: 0.6px;
+  box-shadow: 0 1.5px 3px rgba(239, 68, 68, 0.35);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+  transition: all 0.15s ease;
+}
+
+.pulse-analytics-ui .sp-settings-nav a.locked:hover::after,
+.pulse-analytics-ui .sp-settings-nav button.locked:hover::after,
+.sp-settings-nav a.locked:hover::after,
+.sp-settings-nav button.locked:hover::after {
+  background: #dc2626;
+  box-shadow: 0 2px 5px rgba(220, 38, 38, 0.45);
+}
+
+.pulse-analytics-ui .sp-settings-panel {
+  min-width: 0;
+}
+
+.pulse-analytics-ui .sp-form-row {
+  margin-bottom: 16px;
+}
+
+.pulse-analytics-ui .sp-form-row label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+/* ── Modern Table Action Buttons (Site Notes) ────────────────── */
+.pulse-analytics-ui .sp-sn-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.pulse-analytics-ui .sp-sn-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  padding: 5px 12px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  border-radius: 7px !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+  text-decoration: none !important;
+  outline: none !important;
+  height: auto !important;
+  min-height: 28px !important;
+  margin: 0 !important;
+  transition: all 0.15s ease-in-out !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+.pulse-analytics-ui .sp-sn-btn-icon {
+  width: 13px !important;
+  height: 13px !important;
+  stroke-width: 2.2 !important;
+  flex-shrink: 0 !important;
+  pointer-events: none !important;
+}
+
+.pulse-analytics-ui .sp-sn-btn-edit {
+  background: #f5f3ff !important;
+  color: #6366f1 !important;
+  border: 1px solid #e0e7ff !important;
+}
+
+.pulse-analytics-ui .sp-sn-btn-edit:hover,
+.pulse-analytics-ui .sp-sn-btn-edit:focus {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+  border-color: #4f46e5 !important;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25) !important;
+  transform: translateY(-1px);
+}
+
+.pulse-analytics-ui .sp-sn-btn-edit:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(79, 70, 229, 0.2) !important;
+}
+
+.pulse-analytics-ui .sp-sn-btn-delete {
+  background: #fef2f2 !important;
+  color: #ef4444 !important;
+  border: 1px solid #fee2e2 !important;
+}
+
+.pulse-analytics-ui .sp-sn-btn-delete:hover,
+.pulse-analytics-ui .sp-sn-btn-delete:focus {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.25) !important;
+  transform: translateY(-1px);
+}
+
+.pulse-analytics-ui .sp-sn-btn-delete:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(220, 38, 38, 0.2) !important;
+}
+
+.pulse-analytics-ui #sp-sn-table .sp-sn-edit,
+.pulse-analytics-ui #sp-sn-table .sp-sn-delete {
+  min-height: 28px !important;
+  height: auto !important;
+  margin: 0 !important;
+}
+
+/* ── User Journey Toolbar Layout ─────────────────────────────── */
+.pulse-analytics-ui #user-journey-filters {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 12px !important;
+  padding: 16px 20px !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+  margin-bottom: 24px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.pulse-analytics-ui .journey-filters-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+
+.pulse-analytics-ui .journey-date-range-wrap {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex: 1 1 240px !important;
+  min-width: 210px !important;
+}
+
+.pulse-analytics-ui .journey-date-range-wrap input[type="date"] {
+  flex: 1 1 105px !important;
+  min-width: 95px !important;
+  width: auto !important;
+}
+
+.pulse-analytics-ui .journey-filters-row select {
+  flex: 1 1 130px !important;
+  min-width: 110px !important;
+  width: auto !important;
+}
+
+.pulse-analytics-ui .journey-filters-row #btn-filter-journey {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+}
+
+.pulse-analytics-ui .journey-search-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: auto !important;
+}
+
+.pulse-analytics-ui .journey-search-row input[type="text"]#journey-search-input {
+  width: 220px !important;
+  min-width: 180px !important;
+  flex: none !important;
+}
+
+.pulse-analytics-ui .journey-search-row #btn-search-journeys {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+}
+
+

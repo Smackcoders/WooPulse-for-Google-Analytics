@@ -1,101 +1,63 @@
 <?php
 /**
- * Newsletter integration for StorePulse analytics plugin.
+ * Newsletter integration for Pulse Analytics.
  *
- * @package StorePulse
+ * @package Sm_Pulse_Analytics
+ *
+ * @license GPL-2.0-or-later
+ * @link    https://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace SmackCoders\WGA;
+namespace Sm_Pulse_Analytics;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 // Handle newsletter signup after order is created.
-add_action( 'woocommerce_checkout_order_processed', __NAMESPACE__ . '\\StorePulse_process_newsletter_signup', 10, 1 );
+add_action( 'woocommerce_checkout_order_processed', __NAMESPACE__ . '\\sm_pulse_analytics_process_newsletter_signup', 10, 1 );
 add_action(
 	'woocommerce_store_api_checkout_update_order_from_request',
 	function ( $order, $request ) {
-		StorePulse_process_newsletter_signup( $order->get_id() );
+		sm_pulse_analytics_process_newsletter_signup( $order->get_id() );
 	},
 	10,
 	2
 );
 
-// Inject the checkbox via JS to support both Classic and Block Checkouts.
-add_action( 'wp_footer', __NAMESPACE__ . '\\StorePulse_inject_newsletter_js' );
+// Inject the checkbox via enqueued script (WP.org: no inline <script>).
+add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\sm_pulse_analytics_enqueue_newsletter_js' );
 
-function StorePulse_inject_newsletter_js() {
-	if ( ! is_checkout() || is_wc_endpoint_url( 'order-received' ) ) {
+function sm_pulse_analytics_enqueue_newsletter_js() {
+	if ( ! function_exists( 'is_checkout' ) || ! is_checkout() || ( function_exists( 'is_wc_endpoint_url' ) && is_wc_endpoint_url( 'order-received' ) ) ) {
 		return;
 	}
-	?>
-	<script>
-		document.addEventListener('DOMContentLoaded', function() {
-			function injectCheckbox() {
-				if (document.getElementById('StorePulse-newsletter-wrapper')) return;
 
-				// Find a good place to inject (Supports both Classic and Block Checkout)
-				let targetLocation = document.querySelector('.wc-block-checkout__payment-method') || 
-									document.querySelector('.wc-block-checkout__terms') ||
-									document.querySelector('#customer_details');
-				
-				if (!targetLocation) {
-					// Fallback to pushing it just above the place order button area
-					targetLocation = document.querySelector('.wc-block-checkout__actions') || 
-									document.querySelector('#payment');
-				}
-
-				if (targetLocation) {
-					const wrapper = document.createElement('div');
-					wrapper.id = 'StorePulse-newsletter-wrapper';
-					wrapper.style.margin = '20px 0';
-					wrapper.style.padding = '15px';
-					wrapper.style.background = '#f9fafb';
-					wrapper.style.border = '1px solid #e5e7eb';
-					wrapper.style.borderRadius = '8px';
-					
-					wrapper.innerHTML = `
-						<label style="display: flex; align-items: center; cursor: pointer; font-weight: 500; font-size: 14px; color: #374151;">
-							<input type="checkbox" id="storepulse_newsletter_subscribe" style="margin-right: 10px; width: 18px; height: 18px;">
-							Stay Updated! Subscribe to our newsletter.
-						</label>
-					`;
-					
-					targetLocation.parentNode.insertBefore(wrapper, targetLocation);
-
-					// Handle Cookie state
-					const checkbox = document.getElementById('storepulse_newsletter_subscribe');
-					checkbox.addEventListener('change', function() {
-						if (this.checked) {
-							document.cookie = "StorePulse_newsletter_optin=1; path=/; max-age=86400";
-						} else {
-							document.cookie = "StorePulse_newsletter_optin=0; path=/; max-age=0"; // Delete cookie
-						}
-					});
-				} else {
-					// If DOM is still rendering (React), retry in 500ms
-					setTimeout(injectCheckbox, 500);
-				}
-			}
-			
-			// Attempt injection
-			injectCheckbox();
-			
-			// Retry for React-based blocks that load async
-			setTimeout(injectCheckbox, 1000);
-			setTimeout(injectCheckbox, 3000);
-		});
-	</script>
-	<?php
+	wp_enqueue_script(
+		'pulse-analytics-newsletter-checkout',
+		SM_PULSE_ANALYTICS_PLUGIN_URL . 'assets/js/newsletter-checkout.js',
+		array(),
+		defined( 'SM_PULSE_ANALYTICS_VERSION' ) ? SM_PULSE_ANALYTICS_VERSION : '1.0.1',
+		true
+	);
+	wp_localize_script(
+		'pulse-analytics-newsletter-checkout',
+		'pulseAnalyticsNewsletter',
+		array(
+			'label' => __( 'Stay Updated! Subscribe to our newsletter.', 'smackcoders-pulse-analytics-for-woocommerce' ),
+		)
+	);
 }
 
 /**
  * Process newsletter signup and log events + goal match
  */
-function StorePulse_process_newsletter_signup( $order_id ) {
-	// Check if cookie was set by frontend JS.
-	if ( ! isset( $_COOKIE['StorePulse_newsletter_optin'] ) || '1' != $_COOKIE['StorePulse_newsletter_optin'] ) {
+function sm_pulse_analytics_process_newsletter_signup( $order_id ) {
+	$opted_in = false;
+	if ( isset( $_COOKIE['sm_pulse_analytics_newsletter_optin'] ) ) {
+		$opted_in = '1' === sanitize_text_field( wp_unslash( $_COOKIE['sm_pulse_analytics_newsletter_optin'] ) );
+	}
+	if ( ! $opted_in ) {
 		return;
 	}
 
@@ -111,8 +73,7 @@ function StorePulse_process_newsletter_signup( $order_id ) {
 	}
 
 	global $wpdb;
-	$subs_table = $wpdb->prefix . 'storepulse_newsletter_subs';
-	$logs_table = $wpdb->prefix . 'storepulse_logs';
+	$subs_table = $wpdb->prefix . 'sm_pulse_analytics_newsletter_subs';
 
 	// Check if subscription table exists.
 	$fn_get_var = 'get_var';
@@ -145,21 +106,20 @@ function StorePulse_process_newsletter_signup( $order_id ) {
 	$source    = GA_Connector::detect_source();
 	$exit_page = GA_Connector::detect_exit_page();
 
-    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-	$wpdb->insert(
-		$logs_table,
-		array(
-			'event_type' => 'Newsletter_Signup',
-			'message'    => 'Newsletter Subcribed in Checkout Page.',
-			'source'     => $source,
-			'exit_page'  => $exit_page,
-			'order_id'   => $order_id,
-			'created_at' => current_time( 'mysql' ),
-		)
-	);
+	if ( class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_Storage' ) ) {
+		\Sm_Pulse_Analytics\PulseAnalytics_Storage::insert_log(
+			'newsletter_signup',
+			'Newsletter subscribed on checkout page.',
+			array(
+				'source'    => $source,
+				'exit_page' => $exit_page,
+				'order_id'  => $order_id,
+			)
+		);
+	}
 
 	// Match with custom goals.
-	$goals = get_option( 'StorePulse_custom_goals', array() );
+	$goals = get_option( 'sm_pulse_analytics_custom_goals', array() );
 	foreach ( $goals as $goal ) {
 		if ( 'newsletter_signup' === $goal['event_name'] ) {
 			$match_data = json_decode( $goal['match_data'] ?? '', true );
@@ -175,14 +135,12 @@ function StorePulse_process_newsletter_signup( $order_id ) {
 			}
 
 			if ( $matched ) {
-				$goal_log = array(
-					'event_type' => 'Goal_Matched',
-					'message'    => 'Defined Custom Goal Matched Successfully.',
-					'created_at' => current_time( 'mysql' ),
-				);
-
-                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-				$wpdb->insert( $logs_table, $goal_log );
+				if ( class_exists( '\Sm_Pulse_Analytics\PulseAnalytics_Storage' ) ) {
+					\Sm_Pulse_Analytics\PulseAnalytics_Storage::insert_log(
+						'goal_matched',
+						'Defined custom goal matched successfully.'
+					);
+				}
 				break; // optional: stop after first match.
 			}
 		}

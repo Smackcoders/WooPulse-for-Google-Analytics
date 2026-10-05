@@ -1,5 +1,12 @@
+const pulseAjax = (typeof pulseAnalyticsAjax !== 'undefined') ? pulseAnalyticsAjax : {};
+/**
+ * Pulse Analytics for WordPress — Free plugin asset.
+ *
+ * @license GPL-2.0-or-later
+ * @link    https://www.gnu.org/licenses/gpl-2.0.html
+ */
 document.addEventListener('DOMContentLoaded', function() {
-    const restBase = typeof seoInsightsAjax !== 'undefined' ? seoInsightsAjax.rest_url : '/wp-json/wp_asa/v1';
+    const restBase = Object.keys(pulseAjax).length ? pulseAjax.rest_url : '/wp-json/wp_asa/v1';
     let start = new Date(); start.setDate(start.getDate() - 30);
     let stStr = start.toISOString().split('T')[0];
     let enStr = new Date().toISOString().split('T')[0];
@@ -25,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (badge) {
             badge.style.background = '#f0f0f1';
             badge.style.color = '#646970';
-            badge.textContent = 'Syncing...';
+            badge.textContent = (typeof wp !== 'undefined' && wp.i18n && wp.i18n.__ ? wp.i18n.__( 'Syncing...', 'smackcoders-pulse-analytics-for-woocommerce' ) : 'Syncing...');
         }
 
         const urlParams = `?startDate=${stStr}&endDate=${enStr}`;
@@ -38,13 +45,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (!body || !response.data) return;
                 const total = response.data.reduce((a, b) => a + b, 0);
                 body.innerHTML = `
-                    <tr><td><strong>Total Sessions</strong></td><td style="text-align: right; font-weight: 600;">${total.toLocaleString()}</td></tr>
-                    <tr><td><strong>Avg. Daily Sessions</strong></td><td style="text-align: right;">${Math.round(total / response.data.length).toLocaleString()}</td></tr>
+                    <tr><td><strong>Total Sessions</strong></td><td class="sp-td-right-bold">${total.toLocaleString()}</td></tr>
+                    <tr><td><strong>Avg. Daily Sessions</strong></td><td class="sp-td-right">${Math.round(total / response.data.length).toLocaleString()}</td></tr>
                 `;
                 if (badge) {
                     badge.style.background = '#dcfce7'; 
                     badge.style.color = '#166534';
-                    badge.textContent = 'GA4 Data Live';
+                    badge.textContent = (typeof wp !== 'undefined' && wp.i18n && wp.i18n.__ ? wp.i18n.__( 'GA4 Data Live', 'smackcoders-pulse-analytics-for-woocommerce' ) : 'GA4 Data Live');
                 }
             }).catch(e => console.error(e));
 
@@ -55,14 +62,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 const body = document.getElementById('metricsPagesBody');
                 if (!body) return;
                 if (!Array.isArray(data) || !data.length) {
-                    body.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 20px;">No page data found.</td></tr>';
+                    const noDataText = (typeof wp !== 'undefined' && wp.i18n && wp.i18n.__ ? wp.i18n.__( 'No page data found.', 'smackcoders-pulse-analytics-for-woocommerce' ) : 'No page data found.');
+                    body.innerHTML = `<tr><td class="sp-table-empty" colspan="3">${noDataText}</td></tr>`;
                     return;
                 }
                 body.innerHTML = data.slice(0, 10).map(row => `
                     <tr>
-                        <td style="font-family: monospace; font-size: 12px;">${row.page}</td>
-                        <td style="text-align: right; font-weight: 600;">${parseInt(row.pageViews).toLocaleString()}</td>
-                        <td style="text-align: right;">${parseInt(row.newUsers || 0).toLocaleString()}</td>
+                        <td class="sp-td-mono">${row.page}</td>
+                        <td class="sp-td-right-bold">${parseInt(row.pageViews).toLocaleString()}</td>
+                        <td class="sp-td-right">${parseInt(row.newUsers || 0).toLocaleString()}</td>
                     </tr>
                 `).join('');
             });
@@ -74,13 +82,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 const body = document.getElementById('metricsSourcesBody');
                 if (!body) return;
                 if (!Array.isArray(data) || !data.length) {
-                    body.innerHTML = '<tr><td colspan="2" style="text-align:center; padding: 20px;">No source data found.</td></tr>';
+                    const noDataText = (typeof wp !== 'undefined' && wp.i18n && wp.i18n.__ ? wp.i18n.__( 'No source data found.', 'smackcoders-pulse-analytics-for-woocommerce' ) : 'No source data found.');
+                    body.innerHTML = `<tr><td class="sp-table-empty" colspan="2">${noDataText}</td></tr>`;
                     return;
                 }
                 body.innerHTML = data.slice(0, 5).map(row => `
                     <tr>
                         <td><strong>${row.sourceMedium}</strong></td>
-                        <td style="text-align: right; font-weight: 600; color: #2271b1;">${parseInt(row.sessions).toLocaleString()}</td>
+                        <td class="sp-td-right-bold sp-td-accent">${parseInt(row.sessions).toLocaleString()}</td>
                     </tr>
                 `).join('');
             });

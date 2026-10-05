@@ -1,22 +1,28 @@
+/**
+ * Pulse Analytics for WordPress — Free plugin asset.
+ *
+ * @license GPL-2.0-or-later
+ * @link    https://www.gnu.org/licenses/gpl-2.0.html
+ */
 // Global Pulse Analytics Namespace for shared utilities
-window.StorePulse = {
+window.SmPulseAnalytics = {
   showLoader: function (text = 'Loading Data...') {
-    let loader = document.getElementById('StorePulse-global-loader');
+    let loader = document.getElementById('sm-pulse-analytics-global-loader');
     if (!loader) {
       loader = document.createElement('div');
-      loader.id = 'StorePulse-global-loader';
-      loader.className = 'StorePulse-loader-overlay';
+      loader.id = 'sm-pulse-analytics-global-loader';
+      loader.className = 'PulseAnalytics-loader-overlay';
       loader.innerHTML = `
-        <p class="StorePulse-loader-header">Loading...</p>
-        <div class="StorePulse-spinner"></div>
-        <p class="StorePulse-loader-text">${text}</p>
+        <p class="PulseAnalytics-loader-header">Loading...</p>
+        <div class="PulseAnalytics-spinner"></div>
+        <p class="PulseAnalytics-loader-text">${text}</p>
       `;
       document.body.appendChild(loader);
     } else {
-      const textEl = loader.querySelector('.StorePulse-loader-text');
+      const textEl = loader.querySelector('.PulseAnalytics-loader-text');
       if (textEl) textEl.textContent = text;
     }
-    document.body.classList.add('StorePulse-loading-active');
+    document.body.classList.add('sm-pulse-analytics-loading-active');
     loader.classList.add('is-active');
 
     // Safety timeout: automatically hide after 15 seconds if still active
@@ -28,19 +34,122 @@ window.StorePulse = {
   },
   hideLoader: function () {
     if (this._safetyTimeout) clearTimeout(this._safetyTimeout);
-    const loader = document.getElementById('StorePulse-global-loader');
+    const loader = document.getElementById('sm-pulse-analytics-global-loader');
     if (loader) {
       // Add a small delay to ensure data is actually visible before hiding
       setTimeout(() => {
         loader.classList.remove('is-active');
-        document.body.classList.remove('StorePulse-loading-active');
+        document.body.classList.remove('sm-pulse-analytics-loading-active');
       }, 500);
     }
     window._isFetchingData = false;
+  },
+  redirectWpNotices: function () {
+    const wpbody = document.getElementById('wpbody-content') || document.body;
+    const isPluginPage = document.querySelector(
+      '.pulse-analytics-ui, .smack-tab-pane, #smackws-cores-tabcontent, #PulseAnalytics-dashboard-v2, #PulseAnalytics-settings-v2, .sp-dashboard-container, .wrap[id^="PulseAnalytics-"]'
+    ) || document.getElementById('pulse-analytics-admin-notices-container');
+
+    if (!isPluginPage) {
+      return;
+    }
+
+    let container = document.getElementById('pulse-analytics-admin-notices-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'pulse-analytics-admin-notices-container';
+
+      const noticeArea = document.querySelector('.pulse-analytics-notices-area');
+      const tabPane = document.querySelector('.smack-tab-pane');
+      const pluginWrap = document.querySelector(
+        '.pulse-analytics-ui, #PulseAnalytics-dashboard-v2, #PulseAnalytics-settings-v2, .sp-dashboard-container, .wrap'
+      );
+
+      if (noticeArea) {
+        noticeArea.appendChild(container);
+      } else if (tabPane) {
+        tabPane.prepend(container);
+      } else if (pluginWrap) {
+        pluginWrap.prepend(container);
+      } else {
+        wpbody.prepend(container);
+      }
+    }
+
+    const notices = wpbody.querySelectorAll(
+      '.notice, .updated, .error, .notice-success, .notice-error, .notice-warning, .notice-info, .settings-error'
+    );
+
+    notices.forEach(function (notice) {
+      if (
+        notice.id === 'pulse-analytics-admin-notices-container' ||
+        notice.classList.contains('pulse-analytics-notices-area') ||
+        container.contains(notice) ||
+        notice.closest('#pulse-analytics-admin-notices-container') ||
+        notice.closest('.pulse-analytics-pro-modal, .sp-modal')
+      ) {
+        return;
+      }
+
+      container.appendChild(notice);
+    });
   }
 };
 
+
 document.addEventListener('DOMContentLoaded', function () {
+  const pulseAjax = (typeof pulseAnalyticsAjax !== 'undefined') ? pulseAnalyticsAjax : {};
+
+
+  // Redirect WP Admin notices to top of plugin pages
+  if (window.SmPulseAnalytics && typeof window.SmPulseAnalytics.redirectWpNotices === 'function') {
+    window.SmPulseAnalytics.redirectWpNotices();
+    setTimeout(function () { window.SmPulseAnalytics.redirectWpNotices(); }, 200);
+    setTimeout(function () { window.SmPulseAnalytics.redirectWpNotices(); }, 800);
+
+    if (typeof window.MutationObserver !== 'undefined') {
+      const wpbody = document.getElementById('wpbody-content') || document.body;
+      const noticeObserver = new MutationObserver(function (mutations) {
+        let shouldRedirect = false;
+        for (let i = 0; i < mutations.length; i++) {
+          const added = mutations[i].addedNodes;
+          for (let j = 0; j < added.length; j++) {
+            const node = added[j];
+            if (node.nodeType === 1) {
+              if (
+                node.classList &&
+                (node.classList.contains('notice') ||
+                 node.classList.contains('updated') ||
+                 node.classList.contains('error') ||
+                 node.classList.contains('notice-success') ||
+                 node.classList.contains('notice-error') ||
+                 node.classList.contains('notice-warning') ||
+                 node.classList.contains('notice-info') ||
+                 node.classList.contains('settings-error'))
+              ) {
+                if (!node.closest('#pulse-analytics-admin-notices-container')) {
+                  shouldRedirect = true;
+                  break;
+                }
+              }
+              if (node.querySelector && node.querySelector('.notice, .updated, .error, .notice-success, .notice-error, .notice-warning, .notice-info, .settings-error')) {
+                shouldRedirect = true;
+                break;
+              }
+            }
+          }
+          if (shouldRedirect) break;
+        }
+        if (shouldRedirect) {
+          window.SmPulseAnalytics.redirectWpNotices();
+        }
+      });
+      noticeObserver.observe(wpbody, { childList: true, subtree: true });
+    }
+  }
+
+  window.SmPulseAnalyticsProActive = !!(Object.keys(pulseAjax).length && pulseAjax.is_pro_active);
+
   // Visibility Toggle for Password Fields
   const togglePasswords = document.querySelectorAll('.toggle-password');
   togglePasswords.forEach(btn => {
@@ -67,70 +176,150 @@ document.addEventListener('DOMContentLoaded', function () {
     return d.toISOString().split('T')[0];
   }
 
+  function formatDateRangeDisplay(instance, start, end) {
+    if (!start) return '';
+    if (!end) {
+      return instance ? instance.formatDate(start, 'M j, Y') : start.toDateString();
+    }
+    if (start.getFullYear() === end.getFullYear()) {
+      return (instance ? instance.formatDate(start, 'M j') : '') + ' – ' + (instance ? instance.formatDate(end, 'M j, Y') : '');
+    }
+    return (instance ? instance.formatDate(start, 'M j, Y') : '') + ' – ' + (instance ? instance.formatDate(end, 'M j, Y') : '');
+  }
+
+  function getPreviousPeriodDates(startStr, endStr) {
+    const start = new Date(startStr);
+    const end = new Date(endStr);
+    const currentDays = Math.round((end - start) / (24 * 60 * 60 * 1000)) + 1;
+    const prevEnd = new Date(start.getTime() - 24 * 60 * 60 * 1000);
+    const prevStart = new Date(prevEnd.getTime() - (currentDays - 1) * 24 * 60 * 60 * 1000);
+    return {
+      prevStartDate: toLocalDateString(prevStart),
+      prevEndDate: toLocalDateString(prevEnd)
+    };
+  }
+
+  function updateSessionsDelta(current, previous) {
+    const el = document.getElementById('kpi-sessions-delta');
+    if (!el) return;
+    if (!previous || previous === 0) {
+      el.textContent = '— vs last period';
+      el.className = 'text-gray-400 font-medium';
+      return;
+    }
+    const changePercent = ((current - previous) / previous) * 100;
+    const isPositive = changePercent >= 0;
+    const sign = isPositive ? '+' : '';
+    el.textContent = `${sign}${changePercent.toFixed(1)}% vs last period`;
+    el.className = (isPositive ? 'text-green-600' : 'text-red-600') + ' font-medium';
+  }
+
+  function updatePagesPerSession(pageviews, sessions) {
+    const el = document.getElementById('kpi-pageviews-ratio');
+    if (!el) return;
+    if (!sessions || sessions === 0) {
+      el.textContent = '— pages/session';
+      return;
+    }
+    const ratio = parseFloat(pageviews) / parseFloat(sessions);
+    el.textContent = ratio.toFixed(2) + ' pages/session';
+  }
+
+  function formatRelativeSyncTime(timestamp) {
+    if (!timestamp) return '';
+    const secs = Math.floor(Date.now() / 1000) - timestamp;
+    if (secs < 60) return 'just now';
+    if (secs < 3600) return Math.floor(secs / 60) + 'm ago';
+    if (secs < 86400) return Math.floor(secs / 3600) + 'h ago';
+    return Math.floor(secs / 86400) + 'd ago';
+  }
+
+  function updateSyncButtonLabel() {
+    const label = document.getElementById('manualSyncBtnLabel');
+    if (!label) return;
+    const ts = (Object.keys(pulseAjax).length && pulseAjax.last_sync) ? pulseAjax.last_sync : 0;
+    label.textContent = ts ? 'Sync Data · ' + formatRelativeSyncTime(ts) : 'Sync Data';
+  }
+
   let startDate = new Date();
   startDate.setDate(startDate.getDate() - 30); // Default to last 30 days
   startDate = toLocalDateString(startDate);
   let endDate = toLocalDateString(new Date());
 
   /* ================= DATE PICKER (Unified Header) ================= */
-  if (typeof flatpickr !== 'undefined' && document.getElementById('dateRangeInput')) {
-    const datePicker = flatpickr("#dateRangeInput", {
-      mode: "range",
-      dateFormat: "M j, Y",
-      locale: { rangeSeparator: " - " },
-      maxDate: "today",
-      defaultDate: [startDate, endDate],
-      onReady: function (selectedDates, dateStr, instance) {
-        if (selectedDates.length === 2) {
-          const start = selectedDates[0];
-          const end = selectedDates[1];
-          let display;
-          if (start.getFullYear() === end.getFullYear()) {
-            display = instance.formatDate(start, "M j") + " – " + instance.formatDate(end, "M j, Y");
-          } else {
-            display = instance.formatDate(start, "M j, Y") + " – " + instance.formatDate(end, "M j, Y");
-          }
-          instance.input.value = display;
-        }
-      },
-      onClose: function (selectedDates, dateStr, instance) {
-        if (selectedDates.length === 2) {
-          startDate = toLocalDateString(selectedDates[0]);
-          endDate = toLocalDateString(selectedDates[1]);
+  /* ================= DATE PICKER (Unified Header) ================= */
+  const selectEl = document.getElementById('traffic-date-range-select');
+  const customPickerInput = document.getElementById('traffic-custom-date-picker');
 
-          // Correctly format for display to match PHP: Jan 1 – Jan 31, 2025
-          const start = selectedDates[0];
-          const end = selectedDates[1];
-          let display;
-          if (start.getFullYear() === end.getFullYear()) {
-            display = instance.formatDate(start, "M j") + " – " + instance.formatDate(end, "M j, Y");
-          } else {
-            display = instance.formatDate(start, "M j, Y") + " – " + instance.formatDate(end, "M j, Y");
-          }
-          instance.input.value = display;
+  if (selectEl) {
+    function dispatchDateChange(start, end) {
+      startDate = start;
+      endDate = end;
 
-          // Refresh dashboard if we are on it
-          if (document.getElementById('StorePulse-dashboard-v2') && typeof reloadAllData === 'function') {
-            reloadAllData();
+      try {
+        sessionStorage.setItem('sm_pulse_analytics_calendar', JSON.stringify({ start: start, end: end }));
+      } catch (e) {}
+
+      const customEvent = new CustomEvent('pulse-analytics:date-range-changed', {
+        detail: { startDate: start, endDate: end }
+      });
+      document.dispatchEvent(customEvent);
+
+      if (typeof jQuery !== 'undefined') {
+        jQuery(document).trigger('pulse-analytics:date-range-changed', [start, end]);
+      }
+
+      if (document.getElementById('PulseAnalytics-dashboard-v2') && typeof reloadAllData === 'function') {
+        reloadAllData();
+      }
+    }
+
+    selectEl.addEventListener('change', function () {
+      var val = this.value;
+      if (val === 'custom') {
+        if (customPickerInput) {
+          customPickerInput.classList.remove('hidden');
+          if (typeof flatpickr !== 'undefined' && !customPickerInput._flatpickr) {
+            flatpickr(customPickerInput, {
+              mode: 'range',
+              dateFormat: 'Y-m-d',
+              maxDate: 'today',
+              onClose: function (selectedDates) {
+                if (selectedDates.length === 2) {
+                  dispatchDateChange(
+                    flatpickr.formatDate(selectedDates[0], 'Y-m-d'),
+                    flatpickr.formatDate(selectedDates[1], 'Y-m-d')
+                  );
+                }
+              }
+            });
+          }
+          if (customPickerInput._flatpickr) {
+            customPickerInput._flatpickr.open();
           }
         }
+      } else {
+        if (customPickerInput) {
+          customPickerInput.classList.add('hidden');
+        }
+        var days = 30;
+        if (val === '7daysAgo') days = 7;
+        else if (val === '90daysAgo') days = 90;
+        
+        var endD = new Date();
+        var startD = new Date();
+        startD.setDate(endD.getDate() - days);
+        
+        var startStr = startD.getFullYear() + '-' + String(startD.getMonth() + 1).padStart(2, '0') + '-' + String(startD.getDate()).padStart(2, '0');
+        var endStr = endD.getFullYear() + '-' + String(endD.getMonth() + 1).padStart(2, '0') + '-' + String(endD.getDate()).padStart(2, '0');
+        
+        dispatchDateChange(startStr, endStr);
       }
     });
-
-    // Make the entire box clickable (including icons)
-    const datePickerWrap = document.getElementById('dateRangePickerWrap');
-    if (datePickerWrap) {
-      datePickerWrap.addEventListener('click', function (e) {
-        // Only trigger if we didn't click the input directly (flatpickr handles input click)
-        if (e.target.id !== 'dateRangeInput') {
-          datePicker.open();
-        }
-      });
-    }
   }
 
   // Only run dashboard-specific logic if we are on the dashboard
-  const dashboardV2 = document.getElementById('StorePulse-dashboard-v2');
+  const dashboardV2 = document.getElementById('PulseAnalytics-dashboard-v2');
   if (!dashboardV2) {
     // If not on dashboard, we might still have some global initializations but exit here for widget logic
     return;
@@ -148,8 +337,10 @@ document.addEventListener('DOMContentLoaded', function () {
   let currentWCOrders = 0;
   let currentFunnelData = { views: 0, cart: 0, checkout: 0, purchase: 0 };
 
-  const restBase = typeof seoInsightsAjax !== 'undefined' ? seoInsightsAjax.rest_url : '/wp-json/StorePulse/v1';
-  const currencySymbol = typeof seoInsightsAjax !== 'undefined' && seoInsightsAjax.currency_symbol ? seoInsightsAjax.currency_symbol : '₹';
+  const restBase = (typeof pulseAnalyticsAjax !== 'undefined' && pulseAnalyticsAjax.rest_url)
+    ? pulseAnalyticsAjax.rest_url
+    : (Object.keys(pulseAjax).length ? pulseAjax.rest_url : '/wp-json/pulse-analytics/v1');
+  const currencySymbol = Object.keys(pulseAjax).length && pulseAjax.currency_symbol ? pulseAjax.currency_symbol : '₹';
   console.log('Pulse Analytics: restBase is', restBase);
 
   // Helper to build REST API URLs robustly
@@ -174,7 +365,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
           return res.text().then(text => {
             if (text.trim().startsWith('<')) {
-              console.error(`StorePulse: REST API at ${url} returned HTML instead of JSON. Status: ${res.status}`);
+              console.error(`Pulse Analytics: REST API at ${url} returned HTML instead of JSON. Status: ${res.status}`);
             }
             throw new Error(`Invalid Response: Expected JSON, got ${contentType || 'plain text'}`);
           });
@@ -193,7 +384,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Load and apply saved dashboard layout
   function loadDashboardLayout() {
-    const settingsUrl = restBase.replace('StorePulse/v1', 'wp_asa/v1') + '/settings';
+    const settingsUrl = restBase.replace('sm-pulse-analytics/v1', 'wp_asa/v1') + '/settings';
     fetch(settingsUrl)
       .then(res => res.json())
       .then(data => {
@@ -242,13 +433,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (!isReset && layout.length === 0) return;
 
-    const settingsUrl = restBase.replace('StorePulse/v1', 'wp_asa/v1') + '/settings';
+    const settingsUrl = restBase.replace('sm-pulse-analytics/v1', 'wp_asa/v1') + '/settings';
 
     fetch(settingsUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-WP-Nonce': typeof seoInsightsAjax !== 'undefined' ? seoInsightsAjax.nonce : ''
+        'X-WP-Nonce': Object.keys(pulseAjax).length ? pulseAjax.nonce : ''
       },
       body: JSON.stringify({ dashboard_layout: isReset ? [] : layout })
     })
@@ -271,11 +462,11 @@ document.addEventListener('DOMContentLoaded', function () {
   // Custom Confirmation Modal (Premium Yes/No)
   function showConfirmationModal(message, onConfirm) {
     // Remove existing if any
-    const existing = document.getElementById('StorePulse-confirm-modal');
+    const existing = document.getElementById('PulseAnalytics-confirm-modal');
     if (existing) existing.remove();
 
     const modal = document.createElement('div');
-    modal.id = 'StorePulse-confirm-modal';
+    modal.id = 'sm-pulse-analytics-confirm-modal';
     modal.className = 'fixed inset-0 flex items-center justify-center p-4 bg-gray-900 bg-opacity-60 backdrop-blur-sm animate-fade-in';
     modal.style.zIndex = '999999';
 
@@ -285,7 +476,7 @@ document.addEventListener('DOMContentLoaded', function () {
           <div class="bg-blue-50 w-12 h-12 rounded-full flex items-center justify-center shrink-0">
             <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
           </div>
-          <h3 class="text-lg font-bold text-gray-900 m-0" style="margin-bottom: 0;">Are you sure?</h3>
+          <h3 class="text-lg font-bold text-gray-900 m-0 sp-mb-0">Are you sure?</h3>
         </div>
         <p class="text-sm text-gray-500 mb-6">${message}</p>
         <div class="flex gap-3">
@@ -331,20 +522,23 @@ document.addEventListener('DOMContentLoaded', function () {
   // Attach Manual Sync Button event
   const syncBtn = document.getElementById('manualSyncBtn');
   if (syncBtn) {
+    updateSyncButtonLabel();
     syncBtn.addEventListener('click', async function () {
       console.log('Pulse Analytics: Sync button clicked');
 
-      const originalText = syncBtn.textContent;
       syncBtn.disabled = true;
-      syncBtn.innerHTML = '<svg class="mr-2 animate-spin-slow" style="width: 14px; height: 14px; color: #64748b;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>Syncing...';
+      const labelEl = document.getElementById('manualSyncBtnLabel');
+      if (labelEl) {
+        labelEl.textContent = (typeof wp !== 'undefined' && wp.i18n && wp.i18n.__ ? wp.i18n.__( 'Syncing...', 'smackcoders-pulse-analytics-for-woocommerce' ) : 'Syncing...');
+      }
 
       showNotification('Synchronizing data with Google Analytics...', 'info');
 
       try {
-        const url = typeof seoInsightsAjax !== 'undefined' ? seoInsightsAjax.ajax_url : '/wp-admin/admin-ajax.php';
+        const url = Object.keys(pulseAjax).length ? pulseAjax.ajax_url : '/wp-admin/admin-ajax.php';
         const formData = new FormData();
-        formData.append('action', 'StorePulse_manual_sync');
-        formData.append('nonce', typeof seoInsightsAjax !== 'undefined' ? seoInsightsAjax.nonce : '');
+        formData.append('action', 'sm_pulse_analytics_manual_sync');
+        formData.append('nonce', Object.keys(pulseAjax).length ? pulseAjax.nonce : '');
 
         const response = await fetch(url, {
           method: 'POST',
@@ -359,6 +553,9 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log('Pulse Analytics: Sync result:', data);
 
         if (data.success) {
+          if (Object.keys(pulseAjax).length && data.data && data.data.last_sync) {
+            pulseAjax.last_sync = data.data.last_sync;
+          }
           showNotification('Data synchronized successfully!', 'success');
           await reloadAllData(); // Refresh the counts and charts
         } else {
@@ -369,7 +566,7 @@ document.addEventListener('DOMContentLoaded', function () {
         showNotification('Sync failed. InfinityFree might be blocking the request. Please try again.', 'error');
       } finally {
         syncBtn.disabled = false;
-        syncBtn.textContent = originalText;
+        updateSyncButtonLabel();
       }
     });
   }
@@ -377,11 +574,11 @@ document.addEventListener('DOMContentLoaded', function () {
   // Show notification (improved)
   function showNotification(message, type) {
     // Remove existing notification if any
-    const existing = document.getElementById('StorePulse-notification');
+    const existing = document.getElementById('PulseAnalytics-notification');
     if (existing) existing.remove();
 
     const notification = document.createElement('div');
-    notification.id = 'StorePulse-notification';
+    notification.id = 'sm-pulse-analytics-notification';
     let bgColor = 'bg-blue-600';
     if (type === 'success') bgColor = 'bg-green-500';
     if (type === 'error') bgColor = 'bg-red-500';
@@ -418,6 +615,127 @@ document.addEventListener('DOMContentLoaded', function () {
   loadDashboardLayout();
 
   // Unified date picker is initialized in the header section above.
+
+  /* ================= STORE TRAFFIC TRENDS TABS & FILTERS ================= */
+  let currentActiveTab = 'traffic';
+
+  document.addEventListener('click', function (e) {
+    // 1. Tab switching
+    const tabBtn = e.target.closest('[data-trend-tab]');
+    if (tabBtn) {
+      const tab = tabBtn.getAttribute('data-trend-tab');
+      currentActiveTab = tab;
+
+      document.querySelectorAll('[data-trend-tab]').forEach(b => b.classList.remove('active'));
+      tabBtn.classList.add('active');
+
+      if (typeof window.updateChartForTab === 'function') {
+        window.updateChartForTab(tab);
+      } else if (typeof updateChartForTab === 'function') {
+        updateChartForTab(tab);
+      }
+      return;
+    }
+
+    // 4. Dashboard PRO Modal trigger
+    const proTag = e.target.closest('.open-dashboard-pro-modal, .pulse-analytics-pro-badge-pill, .pulse-analytics-pro-mini-tag, .sp-pro-gated .sp-pro-blur-target');
+    if (proTag) {
+      const dash = document.getElementById('PulseAnalytics-dashboard-v2');
+      if (dash && dash.contains(proTag)) {
+        e.preventDefault();
+        e.stopPropagation();
+        const modal = document.getElementById('pulse-analytics-dashboard-pro-modal');
+        if (modal) {
+          modal.classList.remove('hidden');
+          modal.classList.add('flex');
+          setTimeout(() => {
+            const dialog = modal.querySelector('.animate-pro-modal-in');
+            if (dialog) {
+              dialog.classList.remove('scale-95', 'opacity-0');
+              dialog.classList.add('scale-100', 'opacity-100');
+            }
+          }, 10);
+        }
+        return;
+      }
+    }
+
+    // 5. Dashboard PRO Modal Close
+    if (e.target.closest('.pulse-analytics-dashboard-modal-close')) {
+      e.preventDefault();
+      const modal = document.getElementById('pulse-analytics-dashboard-pro-modal');
+      if (modal) {
+        const dialog = modal.querySelector('.animate-pro-modal-in');
+        if (dialog) {
+          dialog.classList.remove('scale-100', 'opacity-100');
+          dialog.classList.add('scale-95', 'opacity-0');
+        }
+        setTimeout(() => {
+          modal.classList.remove('flex');
+          modal.classList.add('hidden');
+        }, 200);
+      }
+      return;
+    }
+
+    // 6. Click on backdrop to close
+    const proModal = document.getElementById('pulse-analytics-dashboard-pro-modal');
+    if (proModal && e.target === proModal) {
+      e.preventDefault();
+      const dialog = proModal.querySelector('.animate-pro-modal-in');
+      if (dialog) {
+        dialog.classList.remove('scale-100', 'opacity-100');
+        dialog.classList.add('scale-95', 'opacity-0');
+      }
+      setTimeout(() => {
+        proModal.classList.remove('flex');
+        proModal.classList.add('hidden');
+      }, 200);
+      return;
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      const modal = document.getElementById('pulse-analytics-dashboard-pro-modal');
+      if (modal && !modal.classList.contains('hidden')) {
+        const dialog = modal.querySelector('.animate-pro-modal-in');
+        if (dialog) {
+          dialog.classList.remove('scale-100', 'opacity-100');
+          dialog.classList.add('scale-95', 'opacity-0');
+        }
+        setTimeout(() => {
+          modal.classList.remove('flex');
+          modal.classList.add('hidden');
+        }, 200);
+      }
+    }
+  });
+
+  window.resetTrendFilters = function () {
+    const popover = document.getElementById('metricsPopover');
+    if (!popover) return;
+    const activePanel = popover.querySelector('[data-popover-panel="' + currentActiveTab + '"]');
+    if (!activePanel) return;
+
+    const defaults = {
+      traffic: ['sessions', 'engagedSessions', 'keyEventRate'],
+      engagement: ['sessions', 'engagedSessions', 'engagementRate'],
+      referrals: ['sessions', 'engagedSessions', 'keyEventRate']
+    };
+    const defaultList = defaults[currentActiveTab] || ['sessions'];
+    activePanel.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      cb.checked = defaultList.includes(cb.value);
+    });
+  };
+
+  window.applyTrendFilters = function () {
+    const popover = document.getElementById('metricsPopover');
+    if (popover) popover.classList.add('hidden');
+    if (typeof loadLineChart === 'function') {
+      loadLineChart();
+    }
+  };
 
   /* ================= LINE CHART ================= */
   function loadLineChart() {
@@ -478,9 +796,15 @@ document.addEventListener('DOMContentLoaded', function () {
             plugins: {
               legend: { display: false },
               tooltip: {
-                backgroundColor: '#1e293b',
-                titleColor: '#e2e8f0',
-                bodyColor: '#94a3b8',
+                backgroundColor: '#ffffff',
+                titleColor: '#0f172a',
+                bodyColor: '#334155',
+                borderColor: '#e2e8f0',
+                borderWidth: 1,
+                padding: 10,
+                cornerRadius: 10,
+                boxPadding: 4,
+                usePointStyle: true,
                 padding: 10,
                 cornerRadius: 8,
                 displayColors: false
@@ -488,6 +812,12 @@ document.addEventListener('DOMContentLoaded', function () {
             }
           }
         });
+
+        lineChartInstance.$smPulseAnalyticsChartDates = labels;
+        window.lineChartInstance = lineChartInstance;
+        if (typeof jQuery !== 'undefined') {
+          jQuery(document).trigger('sm-pulse-analytics:traffic-overview-loaded');
+        }
 
         totalSessions = (Array.isArray(data) && data.length > 0) ? data.reduce((a, b) => a + b, 0) : 0;
         updateUI(); // Renamed from refreshVisualStates to be clearer
@@ -513,25 +843,31 @@ document.addEventListener('DOMContentLoaded', function () {
     const fields = ['views', 'cart', 'checkout', 'purchase'];
 
     fields.forEach(f => {
-      const el = document.getElementById(`funnel-${f}`);
       const bar = document.getElementById(`funnel-bar-${f}`);
       const val = (currentFunnelData && typeof currentFunnelData[f] !== 'undefined') ? currentFunnelData[f] : 0;
 
-      if (el) el.textContent = val.toLocaleString();
       if (bar) {
         const pct = (val / funnelBaseline) * 100;
         bar.style.width = Math.min(100, Math.max(0.5, pct)) + '%';
+        bar.textContent = val.toLocaleString();
       }
     });
+
+    const funnelSummary = document.getElementById('funnel-conversion-summary');
+    if (funnelSummary && funnelBaseline > 0) {
+      const purchases = (currentFunnelData && typeof currentFunnelData.purchase !== 'undefined') ? currentFunnelData.purchase : 0;
+      const overallRate = (purchases / funnelBaseline) * 100;
+      funnelSummary.textContent = overallRate.toFixed(1) + '% overall conversion rate';
+    }
   }
 
   /* ================= GLOBAL PAGE LOADER (Bridge) ================= */
   function showPageLoader() {
-    window.StorePulse.showLoader();
+    window.SmPulseAnalytics.showLoader();
   }
 
   function hidePageLoader() {
-    window.StorePulse.hideLoader();
+    window.SmPulseAnalytics.hideLoader();
   }
 
   /* =============== DONUT CHARTS =============== */
@@ -694,10 +1030,14 @@ document.addEventListener('DOMContentLoaded', function () {
             <span class="text-gray-900 font-bold">${pct}%</span>
           </div>
           <div class="h-1.5 w-full bg-gray-50 rounded-full overflow-hidden">
-            <div class="h-full bg-indigo-600 transition-all duration-1000 ${isFirst ? '' : 'opacity-30'}" style="width:${pct}%"></div>
+            <div class="h-full bg-indigo-600 transition-all duration-1000 sp-progress-bar-fill ${isFirst ? '' : 'opacity-30'}" data-progress="${pct}"></div>
           </div>
         </div>`;
     }).join('');
+    wrap.querySelectorAll('.sp-progress-bar-fill[data-progress]').forEach(function (el) {
+      el.style.width = el.getAttribute('data-progress') + '%';
+      el.removeAttribute('data-progress');
+    });
   }
 
   function loadDonuts() {
@@ -761,6 +1101,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /* ================= SHOPPING FUNNEL ================= */
+
   function loadFunnelReport() {
     return fetchJson(buildRestUrl('funnel', { startDate, endDate }))
       .then(data => {
@@ -780,17 +1121,119 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /* ================= REAL-TIME VISITORS ================= */
-  function loadRealTimeData() {
-    const url = buildRestUrl('realtime');
-    return fetchJson(url)
+  let realtimeMinuteChartInstance;
+
+  function initRealtimeMinuteChart() {
+    const el = document.getElementById('realtimeMinuteChart');
+    if (!el) return;
+
+    if (realtimeMinuteChartInstance) realtimeMinuteChartInstance.destroy();
+
+    const ctx = el.getContext('2d');
+    const gradient = ctx.createLinearGradient(0, 0, 0, 240);
+    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.35)');
+    gradient.addColorStop(0.7, 'rgba(59, 130, 246, 0.08)');
+    gradient.addColorStop(1, 'rgba(59, 130, 246, 0.00)');
+
+    const labels = ['30m ago', '25m ago', '20m ago', '15m ago', '10m ago', '5m ago', '0m ago'];
+    const dataPoints = [24, 38, 45, 62, 53, 78, 85];
+
+    realtimeMinuteChartInstance = new Chart(el, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: (typeof wp !== 'undefined' && wp.i18n && wp.i18n.__ ? wp.i18n.__( 'Pageviews / min', 'smackcoders-pulse-analytics-for-woocommerce' ) : 'Pageviews / min'),
+          data: dataPoints,
+          borderColor: '#3b82f6',
+          backgroundColor: gradient,
+          fill: true,
+          tension: 0.35,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointBackgroundColor: '#ffffff',
+          pointBorderColor: '#3b82f6',
+          pointBorderWidth: 2,
+          borderWidth: 2.5
+        }]
+      },
+      plugins: [{
+        id: 'smPulseAnalyticsDynamicCrosshair',
+        afterDraw: function (chart) {
+          if (window.SmPulseAnalyticsChartTooltip && window.SmPulseAnalyticsChartTooltip.crosshairPlugin) {
+            window.SmPulseAnalyticsChartTooltip.crosshairPlugin.afterDraw(chart);
+          }
+        }
+      }],
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            enabled: false,
+            position: 'nearest',
+            external: function (context) {
+              if (window.SmPulseAnalyticsChartTooltip && typeof window.SmPulseAnalyticsChartTooltip.createExternalTooltip === 'function') {
+                window.SmPulseAnalyticsChartTooltip.createExternalTooltip((typeof wp !== 'undefined' && wp.i18n && wp.i18n.__ ? wp.i18n.__( 'Pageviews / min', 'smackcoders-pulse-analytics-for-woocommerce' ) : 'Pageviews / min'))(context);
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Pageview Count',
+              color: '#64748b',
+              font: { size: 11, weight: '600' }
+            },
+            ticks: { precision: 0, color: '#94a3b8', font: { size: 10 } },
+            grid: { color: 'rgba(241, 245, 249, 0.8)' }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Minutes Ago (5m intervals)',
+              color: '#64748b',
+              font: { size: 11, weight: '600' }
+            },
+            grid: { display: false },
+            ticks: { color: '#94a3b8', font: { size: 10 } }
+          }
+        }
+      }
+    });
+  }
+
+  function loadLiveVisitorsCount() {
+    return fetchJson(buildRestUrl('realtime'))
       .then(data => {
         const el = document.getElementById('live-visitors-count');
         if (el) {
-          el.textContent = typeof data === 'number' ? data : '0';
+          const count = typeof data === 'number' ? data : parseInt(data, 10);
+          el.textContent = Number.isFinite(count) ? count.toLocaleString() : '0';
         }
       })
       .catch(err => {
-        console.error('Error loading real-time data:', err);
+        console.error('Error loading live visitors count:', err);
+      });
+  }
+
+  function loadRealTimeData() {
+    initRealtimeMinuteChart();
+    return loadLiveVisitorsCount();
+  }
+
+  function loadSessionsPeriodComparison(currentSessions) {
+    const { prevStartDate, prevEndDate } = getPreviousPeriodDates(startDate, endDate);
+    return fetchJson(buildRestUrl('kpi-metrics', { startDate: prevStartDate, endDate: prevEndDate }))
+      .then(prevData => {
+        updateSessionsDelta(currentSessions, prevData.sessions || 0);
+      })
+      .catch(() => {
+        updateSessionsDelta(currentSessions, 0);
       });
   }
 
@@ -820,12 +1263,13 @@ document.addEventListener('DOMContentLoaded', function () {
           </tr>`;
 
         const isOk = Array.isArray(data) && data.length > 0;
+        const noDataText = (typeof wp !== 'undefined' && wp.i18n && wp.i18n.__ ? wp.i18n.__( 'No data found.', 'smackcoders-pulse-analytics-for-woocommerce' ) : 'No data found.');
 
         if (overviewBody) {
-          overviewBody.innerHTML = isOk ? data.slice(0, 5).map(renderOverviewRow).join('') : '<tr><td colspan="2" class="p-8 text-center text-gray-400">No data found.</td></tr>';
+          overviewBody.innerHTML = isOk ? data.slice(0, 5).map(renderOverviewRow).join('') : `<tr><td colspan="2" class="p-8 text-center text-gray-400">${noDataText}</td></tr>`;
         }
         if (fullBody) {
-          fullBody.innerHTML = isOk ? data.map(renderFullRow).join('') : '<tr><td colspan="5" class="p-8 text-center text-gray-400">No data found.</td></tr>';
+          fullBody.innerHTML = isOk ? data.map(renderFullRow).join('') : `<tr><td colspan="5" class="p-8 text-center text-gray-400">${noDataText}</td></tr>`;
         }
       }).catch(e => console.error("Top Pages failed:", e));
 
@@ -845,12 +1289,13 @@ document.addEventListener('DOMContentLoaded', function () {
           </tr>`;
 
         const isOk = Array.isArray(data) && data.length > 0;
+        const noDataText = (typeof wp !== 'undefined' && wp.i18n && wp.i18n.__ ? wp.i18n.__( 'No data found.', 'smackcoders-pulse-analytics-for-woocommerce' ) : 'No data found.');
 
         if (overviewBody) {
-          overviewBody.innerHTML = isOk ? data.slice(0, 5).map((r, i) => renderRow(r, i)).join('') : '<tr><td colspan="2" class="p-8 text-center text-gray-400">No data found.</td></tr>';
+          overviewBody.innerHTML = isOk ? data.slice(0, 5).map((r, i) => renderRow(r, i)).join('') : `<tr><td colspan="2" class="p-8 text-center text-gray-400">${noDataText}</td></tr>`;
         }
         if (fullBody) {
-          fullBody.innerHTML = isOk ? data.map((r, i) => renderRow(r, i)).join('') : '<tr><td colspan="2" class="p-8 text-center text-gray-400">No data found.</td></tr>';
+          fullBody.innerHTML = isOk ? data.map((r, i) => renderRow(r, i)).join('') : `<tr><td colspan="2" class="p-8 text-center text-gray-400">${noDataText}</td></tr>`;
         }
       }).catch(e => console.error("Top Countries failed:", e));
 
@@ -861,7 +1306,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!tbody) return;
 
         if (!Array.isArray(data) || !data.length) {
-          tbody.innerHTML = '<tr><td colspan="2" class="p-8 text-center text-gray-400">No data found.</td></tr>';
+          const noDataText = (typeof wp !== 'undefined' && wp.i18n && wp.i18n.__ ? wp.i18n.__( 'No data found.', 'smackcoders-pulse-analytics-for-woocommerce' ) : 'No data found.');
+          tbody.innerHTML = `<tr><td colspan="2" class="p-8 text-center text-gray-400">${noDataText}</td></tr>`;
           return;
         }
 
@@ -875,38 +1321,21 @@ document.addEventListener('DOMContentLoaded', function () {
     return Promise.all([p1, p2, p3]);
   }
 
-  /* ================= KPI METRICS (Sessions, Revenue, Conv Rate, AOV) ================= */
+  /* ================= KPI METRICS (Sessions, Page Views, Duration, Engagement) ================= */
   function loadKPIMetrics() {
     const params = { startDate, endDate };
 
-    const gaPromise = fetchJson(buildRestUrl('kpi-metrics', params));
-    const wcPromise = fetchJson(buildRestUrl('wc-metrics', params));
-
-    return Promise.all([gaPromise, wcPromise])
-      .then(([gaData, wcData]) => {
-        if (gaData.error || gaData.code || wcData.error || wcData.code) {
-          console.error("Metric fetch partial error:", gaData.error || gaData.code, wcData.error || wcData.code);
+    return fetchJson(buildRestUrl('kpi-metrics', params))
+      .then(gaData => {
+        if (gaData.error || gaData.code) {
+          console.error('Metric fetch partial error:', gaData.error || gaData.code);
         }
 
         currentSessionsReported = gaData.sessions || 0;
-        currentOrdersReported = wcData.orders || 0;
-        currentWCOrders = currentOrdersReported;
-
-        const revenue = wcData.revenue || 0;
-        const avgOrder = wcData.avg_order || 0;
-
-        const revenueEl = document.getElementById('kpi-revenue');
-        if (revenueEl) revenueEl.textContent = currencySymbol + revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-        const aovEl = document.getElementById('kpi-aov');
-        if (aovEl) aovEl.textContent = currencySymbol + avgOrder.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-        updateUI();
 
         const pageViewsEl = document.getElementById('kpi-pageviews');
         if (pageViewsEl) {
-          const pv = gaData.pageviews || 0;
-          pageViewsEl.textContent = parseInt(pv).toLocaleString();
+          pageViewsEl.textContent = parseInt(gaData.pageviews || 0, 10).toLocaleString();
         }
 
         const durationEl = document.getElementById('kpi-duration');
@@ -923,102 +1352,125 @@ document.addEventListener('DOMContentLoaded', function () {
           engageEl.textContent = (rate * 100).toFixed(1) + '%';
         }
 
-        const productsBody = document.getElementById('topProductsBody');
-        if (productsBody && wcData.top_products) {
-          productsBody.innerHTML = wcData.top_products.map(p => `
-                <tr class="group transition-colors hover:bg-gray-50/50">
-                    <td class="py-3.5 text-gray-600 font-medium">${p.name}</td>
-                    <td class="py-3.5 text-center text-gray-500">${p.qty}</td>
-                    <td class="py-3.5 text-right font-semibold text-gray-900 tracking-tight">${currencySymbol}${parseFloat(p.revenue.toString().replace(/,/g, '')).toLocaleString('en-US', { maximumFractionDigits: 0 })}</td>
-                </tr>
-            `).join('');
+        updatePagesPerSession(gaData.pageviews || 0, gaData.sessions || 0);
+        loadSessionsPeriodComparison(gaData.sessions || 0);
+
+        const sessionsEl = document.getElementById('kpi-sessions');
+        if (sessionsEl) {
+          sessionsEl.textContent = currentSessionsReported.toLocaleString();
         }
 
-        return Promise.resolve();
+        if (typeof jQuery !== 'undefined') {
+          jQuery(document).trigger('pulse-analytics:dashboard-loaded', [{ startDate, endDate, gaData }]);
+        }
+
+        return Promise.resolve(gaData);
       })
-      .catch(e => console.error("KPI Metrics sync failed:", e));
+      .catch(e => console.error('KPI Metrics sync failed:', e));
   }
 
-  /* ================= RELOAD ALL ================= */
-  async function reloadAllData(silent = false) {
+  async function reloadFreeTrafficData(silent = false) {
     if (!silent) showPageLoader();
 
-    // Fire off all requests independently.
-    // This prevents one slow endpoint from blocking the entire dashboard.
     const tasks = [
       loadLineChart(),
       loadKPIMetrics(),
       loadDonuts(),
       loadTables(),
-      loadFunnelReport(),
-      loadRealTimeData()
+      loadLiveVisitorsCount()
     ];
 
-    // On constrained hosts like InfinityFree, we use Promise.allSettled 
-    // to ensure the loader hide trigger executes even if some tasks fail or timeout.
-    Promise.allSettled(tasks).then((results) => {
-      console.log('StorePulse: All dashboard tasks settled.', results);
+    Promise.allSettled(tasks).then(() => {
       if (!silent) hidePageLoader();
     }).catch(err => {
-      console.error('StorePulse: Dashboard sequence error:', err);
+      console.error('Pulse Analytics: Free traffic load error:', err);
       if (!silent) hidePageLoader();
     });
+  }
+
+  /* ================= RELOAD ALL (Delegates to Free Traffic Loader + Dispatches Event) ================= */
+  async function reloadAllData(silent = false) {
+    return reloadFreeTrafficData(silent);
   }
 
   /* ================= SECTION SWITCHING ================= */
   const viewSelector = document.getElementById('viewSelector');
-  if (viewSelector) {
-    viewSelector.addEventListener('change', function () {
-      const sections = ['overviewSection', 'topPagesSection', 'topCountriesSection', 'sourceMediumSection'];
-      sections.forEach(s => {
-        const sectionEl = document.getElementById(s);
-        if (sectionEl) sectionEl.classList.add('hidden');
-      });
+if (viewSelector) {
+  viewSelector.addEventListener('change', function () {
+    const sections = ['overviewSection', 'topPagesSection', 'topCountriesSection', 'sourceMediumSection'];
+    sections.forEach(s => {
+      const sectionEl = document.getElementById(s);
+      if (sectionEl) sectionEl.classList.add('hidden');
+    });
 
-      const selectedSection = document.getElementById(this.value);
-      if (selectedSection) {
-        selectedSection.classList.remove('hidden');
+    const selectedSection = document.getElementById(this.value);
+    if (selectedSection) {
+      selectedSection.classList.remove('hidden');
+    }
+  });
+}
+
+/* ================= DRILL-DOWN FUNCTIONALITY (PRO) ================= */
+function setupDrillDown() {
+  const drillDownElements = document.querySelectorAll('[data-drilldown]');
+  drillDownElements.forEach(el => {
+    el.addEventListener('click', function (e) {
+      // If clicking on PRO badge or inside modal, do not trigger drilldown navigation
+      if (e.target.closest('.open-dashboard-pro-modal, .pulse-analytics-pro-badge-pill, .pulse-analytics-pro-mini-tag, #pulse-analytics-dashboard-pro-modal, .pulse-analytics-dashboard-modal-close')) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
       }
+
+      // In Free mode, if card has a PRO badge, open the PRO popup modal instead of redirecting
+      const hasProBadge = this.querySelector('.pulse-analytics-pro-badge-pill, .pulse-analytics-pro-mini-tag');
+      if (hasProBadge) {
+        e.preventDefault();
+        e.stopPropagation();
+        const modal = document.getElementById('pulse-analytics-dashboard-pro-modal');
+        if (modal) {
+          modal.classList.remove('hidden');
+          modal.classList.add('flex');
+          setTimeout(() => {
+            const dialog = modal.querySelector('.animate-pro-modal-in');
+            if (dialog) {
+              dialog.classList.remove('scale-95', 'opacity-0');
+              dialog.classList.add('scale-100', 'opacity-100');
+            }
+          }, 10);
+        }
+        return;
+      }
+
+      const metric = this.getAttribute('data-drilldown');
+
+      // Pro drill-down pages (free falls back to in-dashboard modal).
+      const proActive = !!(window.pulseAnalyticsAjax && window.pulseAnalyticsAjax.is_pro_active);
+      if (proActive && metric === 'sessions') {
+        window.location.href = 'admin.php?page=pulse-analytics-traffic-overview';
+        return;
+      }
+      if (proActive && (metric === 'revenue' || metric === 'avg_order_value' || metric === 'conversion_rate')) {
+        window.location.href = 'admin.php?page=pulse-analytics-ecommerce-overview';
+        return;
+      }
+
+      const dimension = this.getAttribute('data-dimension') || 'deviceCategory';
+      openDrillDownModal(metric, dimension);
     });
-  }
+  });
+}
 
-  /* ================= DRILL-DOWN FUNCTIONALITY (PRO) ================= */
-  function setupDrillDown() {
-    const drillDownElements = document.querySelectorAll('[data-drilldown]');
-    drillDownElements.forEach(el => {
-      el.addEventListener('click', function () {
-        const metric = this.getAttribute('data-drilldown');
-
-        // Redirect to specific report pages for main metrics
-        if (metric === 'sessions') {
-          window.location.href = 'admin.php?page=StorePulse-traffic-overview';
-          return;
-        }
-        if (metric === 'revenue' || metric === 'avg_order_value') {
-          window.location.href = 'admin.php?page=StorePulse-sales-summary';
-          return;
-        }
-        if (metric === 'conversion_rate') {
-          window.location.href = 'admin.php?page=StorePulse-ecommerce-overview';
-          return;
-        }
-
-        const dimension = this.getAttribute('data-dimension') || 'deviceCategory';
-        openDrillDownModal(metric, dimension);
-      });
-    });
-  }
-
-  function openDrillDownModal(metric, dimension) {
-    // Create modal for drill-down view
-    const modal = document.createElement('div');
-    modal.id = 'drilldown-modal';
-    modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
-    modal.innerHTML = `
+function openDrillDownModal(metric, dimension) {
+  // Create modal for drill-down view
+  const modal = document.createElement('div');
+  modal.id = 'drilldown-modal';
+  modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
+  modal.innerHTML = `
       <div class="bg-white rounded-xl shadow-xl max-w-4xl w-full mx-4 max-h-[80vh] flex flex-col">
         <div class="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 class="text-xl font-semibold text-gray-800">${metric.charAt(0).toUpperCase() + metric.slice(1)} by ${dimension}</h2>
-          <button class="text-gray-400 hover:text-gray-600 text-2xl" onclick="this.closest('#drilldown-modal').remove()">&times;</button>
+          <button type="button" class="text-gray-400 hover:text-gray-600 text-2xl drilldown-modal-close" aria-label="Close">&times;</button>
         </div>
         <div class="p-6 overflow-y-auto flex-1">
           <div id="drilldown-content" class="text-center py-8">
@@ -1028,173 +1480,268 @@ document.addEventListener('DOMContentLoaded', function () {
         </div>
       </div>
     `;
-    document.body.appendChild(modal);
+  document.body.appendChild(modal);
 
-    // Fetch drill-down data
-    const dateRange = document.getElementById('dateRangeInput')?.value || '';
-    const [startDate, endDate] = dateRange ? dateRange.split(' to ') : [
-      toLocalDateString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)),
-      toLocalDateString(new Date())
-    ];
+  modal.querySelector('.drilldown-modal-close')?.addEventListener('click', () => modal.remove());
+  modal.addEventListener('click', (event) => {
+    if (event.target === modal) {
+      modal.remove();
+    }
+  });
 
-    fetch(`${restBase}/reports/custom`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-WP-Nonce': typeof seoInsightsAjax !== 'undefined' ? seoInsightsAjax.nonce : ''
-      },
-      body: JSON.stringify({
-        dateRanges: [{ startDate, endDate }],
-        metrics: [{ name: metric === 'conversion_rate' ? 'conversions' : metric }],
-        dimensions: [{ name: dimension }]
-      })
+  // Fetch drill-down data
+  const dateRange = document.getElementById('dateRangeInput')?.value || '';
+  const [startDate, endDate] = dateRange ? dateRange.split(' to ') : [
+    toLocalDateString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)),
+    toLocalDateString(new Date())
+  ];
+
+  fetch(`${restBase}/reports/custom`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-WP-Nonce': Object.keys(pulseAjax).length ? pulseAjax.nonce : ''
+    },
+    body: JSON.stringify({
+      dateRanges: [{ startDate, endDate }],
+      metrics: [{ name: metric === 'conversion_rate' ? 'conversions' : metric }],
+      dimensions: [{ name: dimension }]
     })
-      .then(res => res.json())
-      .then(data => {
-        const content = document.getElementById('drilldown-content');
-        if (data.error || data.code || !data.data || !data.data.rows) {
-          content.innerHTML = '<p class="text-red-600">Error loading breakdown data</p>';
-          return;
-        }
+  })
+    .then(res => res.json())
+    .then(data => {
+      const content = document.getElementById('drilldown-content');
+      if (data.error || data.code || !data.data || !data.data.rows) {
+        content.innerHTML = '<p class="text-red-600">Error loading breakdown data</p>';
+        return;
+      }
 
-        let html = '<table class="w-full text-sm"><thead class="bg-gray-50"><tr>';
-        html += `<th class="p-3 text-left">${dimension}</th>`;
-        html += `<th class="p-3 text-right">${metric}</th>`;
-        html += '</tr></thead><tbody>';
+      let html = '<table class="w-full text-sm"><thead class="bg-gray-50"><tr>';
+      html += `<th class="p-3 text-left">${dimension}</th>`;
+      html += `<th class="p-3 text-right">${metric}</th>`;
+      html += '</tr></thead><tbody>';
 
-        data.data.rows.forEach(row => {
-          const dimValue = row.dimensionValues?.[0]?.value || 'Unknown';
-          const metricValue = row.metricValues?.[0]?.value || '0';
-          html += `<tr class="border-b"><td class="p-3">${dimValue}</td><td class="p-3 text-right font-semibold">${metricValue}</td></tr>`;
-        });
-
-        html += '</tbody></table>';
-        content.innerHTML = html;
-      })
-      .catch(err => {
-        document.getElementById('drilldown-content').innerHTML = '<p class="text-red-600">Error: ' + err.message + '</p>';
+      data.data.rows.forEach(row => {
+        const dimValue = row.dimensionValues?.[0]?.value || 'Unknown';
+        const metricValue = row.metricValues?.[0]?.value || '0';
+        html += `<tr class="border-b"><td class="p-3">${dimValue}</td><td class="p-3 text-right font-semibold">${metricValue}</td></tr>`;
       });
-  }
 
-  /* ================= PERIOD COMPARISON (PRO) ================= */
-  function setupPeriodComparison() {
-    const compareToggle = document.getElementById('dashboard-compare-toggle');
-    const comparePeriodType = document.getElementById('compare-period-type');
+      html += '</tbody></table>';
+      content.innerHTML = html;
+    })
+    .catch(err => {
+      document.getElementById('drilldown-content').innerHTML = '<p class="text-red-600">Error: ' + err.message + '</p>';
+    });
+}
 
-    if (!compareToggle) return;
+/* ================= PERIOD COMPARISON (PRO) ================= */
+function setupPeriodComparison() {
+  const compareToggle = document.getElementById('dashboard-compare-toggle');
+  const comparePeriodType = document.getElementById('compare-period-type');
 
-    compareToggle.addEventListener('change', function () {
-      if (this.checked) {
-        comparePeriodType.style.display = 'block';
+  if (!compareToggle) return;
+
+  compareToggle.addEventListener('change', function () {
+    if (this.checked) {
+      comparePeriodType.style.display = 'block';
+      loadKPIMetricsWithComparison();
+    } else {
+      comparePeriodType.style.display = 'none';
+      loadKPIMetrics();
+    }
+  });
+
+  if (comparePeriodType) {
+    comparePeriodType.addEventListener('change', function () {
+      if (compareToggle.checked) {
         loadKPIMetricsWithComparison();
-      } else {
-        comparePeriodType.style.display = 'none';
-        loadKPIMetrics();
       }
     });
+  }
+}
 
-    if (comparePeriodType) {
-      comparePeriodType.addEventListener('change', function () {
-        if (compareToggle.checked) {
-          loadKPIMetricsWithComparison();
-        }
-      });
-    }
+function loadKPIMetricsWithComparison() {
+  const compareType = document.getElementById('compare-period-type')?.value || 'week';
+  const dateRange = document.getElementById('dateRangeInput')?.value || '';
+  let startDate, endDate;
+
+  if (dateRange && dateRange.includes(' to ')) {
+    [startDate, endDate] = dateRange.split(' to ');
+  } else {
+    endDate = toLocalDateString(new Date());
+    startDate = toLocalDateString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
   }
 
-  function loadKPIMetricsWithComparison() {
-    const compareType = document.getElementById('compare-period-type')?.value || 'week';
-    const dateRange = document.getElementById('dateRangeInput')?.value || '';
-    let startDate, endDate;
+  // Calculate comparison period (shifted back by same number of days)
+  const currentDays = Math.round((new Date(endDate) - new Date(startDate)) / (24 * 60 * 60 * 1000)) + 1;
+  const prevEndDate = toLocalDateString(new Date(new Date(startDate).getTime() - 24 * 60 * 60 * 1000));
+  const prevStartDate = toLocalDateString(new Date(new Date(prevEndDate).getTime() - currentDays * 24 * 60 * 60 * 1000));
 
-    if (dateRange && dateRange.includes(' to ')) {
-      [startDate, endDate] = dateRange.split(' to ');
-    } else {
-      endDate = toLocalDateString(new Date());
-      startDate = toLocalDateString(new Date(Date.now() - 30 * 24 * 60 * 60 * 1000));
-    }
+  // Fetch comparison data
+  Promise.all([
+    fetch(`${restBase}/reports/compare?period=${compareType}&startDate=${startDate}&endDate=${endDate}&metrics=sessions,totalUsers`).then(r => r.json()),
+    fetch(`${restBase}/wc-metrics?startDate=${startDate}&endDate=${endDate}`).then(r => r.json()),
+    fetch(`${restBase}/wc-metrics?startDate=${prevStartDate}&endDate=${prevEndDate}`).then(r => r.json())
+  ])
+    .then(([compareData, wcData, prevWcData]) => {
+      if (compareData.error) {
+        console.error('Comparison error:', compareData);
+        return;
+      }
 
-    // Calculate comparison period (shifted back by same number of days)
-    const currentDays = Math.round((new Date(endDate) - new Date(startDate)) / (24 * 60 * 60 * 1000)) + 1;
-    const prevEndDate = toLocalDateString(new Date(new Date(startDate).getTime() - 24 * 60 * 60 * 1000));
-    const prevStartDate = toLocalDateString(new Date(new Date(prevEndDate).getTime() - currentDays * 24 * 60 * 60 * 1000));
+      // Extract comparison values from GA response
+      const currentMetrics = compareData.current?.metrics || {};
+      const previousMetrics = compareData.previous?.metrics || {};
 
-    // Fetch comparison data
-    Promise.all([
-      fetch(`${restBase}/reports/compare?period=${compareType}&startDate=${startDate}&endDate=${endDate}&metrics=sessions,totalUsers`).then(r => r.json()),
-      fetch(`${restBase}/wc-metrics?startDate=${startDate}&endDate=${endDate}`).then(r => r.json()),
-      fetch(`${restBase}/wc-metrics?startDate=${prevStartDate}&endDate=${prevEndDate}`).then(r => r.json())
-    ])
-      .then(([compareData, wcData, prevWcData]) => {
-        if (compareData.error) {
-          console.error('Comparison error:', compareData);
-          return;
-        }
+      const sessionsCurrent = currentMetrics.sessions || 0;
+      const sessionsPrevious = previousMetrics.sessions || 0;
 
-        // Extract comparison values from GA response
-        const currentMetrics = compareData.current?.metrics || {};
-        const previousMetrics = compareData.previous?.metrics || {};
+      const revenueCurrent = wcData.revenue || 0;
+      const revenuePrevious = prevWcData.revenue || 0;
+      const ordersCurrent = wcData.orders || 0;
+      const ordersPrevious = prevWcData.orders || 0;
 
-        const sessionsCurrent = currentMetrics.sessions || 0;
-        const sessionsPrevious = previousMetrics.sessions || 0;
+      // Calculate conversion rates
+      const convRateCurrent = sessionsCurrent > 0 ? (ordersCurrent / sessionsCurrent * 100) : 0;
+      const convRatePrevious = sessionsPrevious > 0 ? (ordersPrevious / sessionsPrevious * 100) : 0;
 
-        const revenueCurrent = wcData.revenue || 0;
-        const revenuePrevious = prevWcData.revenue || 0;
-        const ordersCurrent = wcData.orders || 0;
-        const ordersPrevious = prevWcData.orders || 0;
+      // Calculate AOV
+      const aovCurrent = ordersCurrent > 0 ? (revenueCurrent / ordersCurrent) : 0;
+      const aovPrevious = ordersPrevious > 0 ? (revenuePrevious / ordersPrevious) : 0;
 
-        // Calculate conversion rates
-        const convRateCurrent = sessionsCurrent > 0 ? (ordersCurrent / sessionsCurrent * 100) : 0;
-        const convRatePrevious = sessionsPrevious > 0 ? (ordersPrevious / sessionsPrevious * 100) : 0;
+      // Update comparison indicators
+      updateComparisonIndicator('kpi-sessions-comparison', sessionsCurrent, sessionsPrevious);
+      updateComparisonIndicator('kpi-revenue-comparison', revenueCurrent, revenuePrevious);
+      updateComparisonIndicator('kpi-conversion-comparison', convRateCurrent, convRatePrevious);
+      updateComparisonIndicator('kpi-aov-comparison', aovCurrent, aovPrevious);
+    })
+    .catch(err => console.error('Comparison fetch failed:', err));
+}
 
-        // Calculate AOV
-        const aovCurrent = ordersCurrent > 0 ? (revenueCurrent / ordersCurrent) : 0;
-        const aovPrevious = ordersPrevious > 0 ? (revenuePrevious / ordersPrevious) : 0;
+function updateComparisonIndicator(elementId, current, previous, change) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
 
-        // Update comparison indicators
-        updateComparisonIndicator('kpi-sessions-comparison', sessionsCurrent, sessionsPrevious);
-        updateComparisonIndicator('kpi-revenue-comparison', revenueCurrent, revenuePrevious);
-        updateComparisonIndicator('kpi-conversion-comparison', convRateCurrent, convRatePrevious);
-        updateComparisonIndicator('kpi-aov-comparison', aovCurrent, aovPrevious);
-      })
-      .catch(err => console.error('Comparison fetch failed:', err));
+  if (previous === 0) {
+    el.innerHTML = '<span class="text-gray-500">No previous data</span>';
+    el.style.display = 'block';
+    return;
   }
 
-  function updateComparisonIndicator(elementId, current, previous, change) {
-    const el = document.getElementById(elementId);
-    if (!el) return;
+  const changePercent = change !== undefined ? change : ((current - previous) / previous * 100);
+  const isPositive = changePercent >= 0;
+  const arrow = isPositive ? '↑' : '↓';
+  const color = isPositive ? 'text-green-600' : 'text-red-600';
+  const periodType = document.getElementById('compare-period-type')?.value || 'period';
+  const periodLabel = periodType === 'week' ? 'week' : periodType === 'month' ? 'month' : 'period';
 
-    if (previous === 0) {
-      el.innerHTML = '<span class="text-gray-500">No previous data</span>';
-      el.style.display = 'block';
+  el.innerHTML = `<span class="${color} font-medium">${arrow} ${Math.abs(changePercent).toFixed(1)}% vs previous ${periodLabel}</span>`;
+  el.style.display = 'block';
+}
+
+// Sortable Drag & Drop UI Setup
+if (typeof Sortable !== 'undefined') {
+  const overviewEl = document.getElementById('overviewSection');
+  if (overviewEl) {
+    Sortable.create(overviewEl, {
+      animation: 150,
+      handle: '.cursor-move',
+      ghostClass: 'bg-blue-50',
+      onEnd: function () {
+        if (typeof window.saveDashboardLayout === 'function') window.saveDashboardLayout();
+      }
+    });
+  }
+  const kpiEl = document.getElementById('kpi-cards-container');
+  if (kpiEl) {
+    Sortable.create(kpiEl, {
+      animation: 150,
+      handle: '.cursor-move-kpi',
+      ghostClass: 'bg-blue-100',
+      onEnd: function () {
+        if (typeof window.saveDashboardLayout === 'function') window.saveDashboardLayout();
+      }
+    });
+  }
+}
+
+// Initial Data Load
+if (document.getElementById('PulseAnalytics-dashboard-v2')) {
+  reloadAllData();
+
+  if (window.SmPulseAnalyticsProActive) {
+    setInterval(function () {
+      console.log('Pulse Analytics: Auto-refreshing dashboard PRO data...');
+      reloadAllData(true);
+      if (document.getElementById('dashboard-compare-toggle')?.checked) {
+        loadKPIMetricsWithComparison();
+      }
+    }, 60000);
+
+    setInterval(loadRealTimeData, 20000);
+  } else {
+    setInterval(function () {
+      reloadFreeTrafficData(true);
+    }, 120000);
+    setInterval(loadLiveVisitorsCount, 60000);
+  }
+}
+
+const dashboardDatePreset = document.getElementById('dashboardDatePreset');
+if (dashboardDatePreset) {
+  dashboardDatePreset.addEventListener('change', function () {
+    const preset = this.value;
+    if (preset === 'custom') {
+      if (window.SmPulseAnalyticsDatePicker) {
+        window.SmPulseAnalyticsDatePicker.open();
+      }
       return;
     }
-
-    const changePercent = change !== undefined ? change : ((current - previous) / previous * 100);
-    const isPositive = changePercent >= 0;
-    const arrow = isPositive ? '↑' : '↓';
-    const color = isPositive ? 'text-green-600' : 'text-red-600';
-    const periodType = document.getElementById('compare-period-type')?.value || 'period';
-    const periodLabel = periodType === 'week' ? 'week' : periodType === 'month' ? 'month' : 'period';
-
-    el.innerHTML = `<span class="${color} font-medium">${arrow} ${Math.abs(changePercent).toFixed(1)}% vs previous ${periodLabel}</span>`;
-    el.style.display = 'block';
-  }
-
-  // Initial Data Load
-  reloadAllData();
-  setupDrillDown();
-  setupPeriodComparison();
-
-  // Auto-reload all data every 60 seconds (no loader for background refresh)
-  setInterval(function () {
-    console.log('StorePulse: Auto-refreshing all dashboard data...');
-    reloadAllData(true); // Silent refresh
-    if (document.getElementById('dashboard-compare-toggle')?.checked) {
-      loadKPIMetricsWithComparison();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    let start;
+    let end;
+    switch (preset) {
+      case 'today':
+        start = new Date(today);
+        end = new Date(today);
+        break;
+      case 'yesterday':
+        end = new Date(today);
+        end.setDate(end.getDate() - 1);
+        start = new Date(end);
+        break;
+      case '7':
+        end = new Date(today);
+        start = new Date(today);
+        start.setDate(start.getDate() - 6);
+        break;
+      case '30':
+        end = new Date(today);
+        start = new Date(today);
+        start.setDate(start.getDate() - 29);
+        break;
+      case '90':
+        end = new Date(today);
+        start = new Date(today);
+        start.setDate(start.getDate() - 89);
+        break;
+      default:
+        return;
     }
-  }, 60000);
+    startDate = toLocalDateString(start);
+    endDate = toLocalDateString(end);
+    if (window.SmPulseAnalyticsDatePicker) {
+      window.SmPulseAnalyticsDatePicker.setDate([start, end], false);
+      window.SmPulseAnalyticsDatePicker.input.value = formatDateRangeDisplay(window.SmPulseAnalyticsDatePicker, start, end);
+    }
+    if (typeof reloadAllData === 'function') {
+      reloadAllData();
+    }
+  });
+}
 
-  // Real-time interval every 20 seconds
-  setInterval(loadRealTimeData, 20000);
+setupDrillDown();
+setupPeriodComparison();
 });

@@ -1,58 +1,60 @@
 <?php
 /**
- * Plugin uninstall cleanup for StorePulse analytics plugin.
+ * Plugin uninstall cleanup for Pulse Analytics.
  *
- * @package StorePulse
+ * @package Sm_Pulse_Analytics
+ *
+ * @license GPL-2.0-or-later
+ * @link    https://www.gnu.org/licenses/gpl-2.0.html
  */
 
-namespace SmackCoders\WGA;
+namespace Sm_Pulse_Analytics;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * Drop StorePulse database tables for current site.
- * Uses $wpdb->prefix to support custom prefixes and multisite.
+ * Drop all Pulse Analytics tables (v2 + legacy) for current site.
  */
-function StorePulse_drop_tables() {
-	global $wpdb;
-
-	$tables = array(
-		'storepulse_events',
-		'storepulse_aggregated_metrics',
-		'storepulse_reports',
-		'storepulse_settings',
-		'storepulse_logs',
-		'storepulse_campaigns',
-		'storepulse_sync',
-		'storepulse_newsletter_subs',
-		'storepulse_aggregates',
-		'storepulse_notes',
-		'storepulse_identities',
+function sm_pulse_analytics_drop_tables() {
+	$all = array_merge(
+		PulseAnalytics_Storage::table_suffixes(),
+		PulseAnalytics_Storage::legacy_table_suffixes()
 	);
+	PulseAnalytics_Storage::drop_tables( $all );
 
-	foreach ( $tables as $table ) {
-		$fn_query = 'query';
-		$wpdb->$fn_query( "DROP TABLE IF EXISTS `{$wpdb->prefix}{$table}`" );
+	global $wpdb;
+	$option_patterns = array(
+		'sm_pulse_analytics_',
+		'_transient_sm_pulse_analytics_',
+		'_transient_timeout_sm_pulse_analytics_',
+		'_transient_PulseAnalytics_',
+		'_transient_timeout_PulseAnalytics_',
+	);
+	foreach ( $option_patterns as $pattern ) {
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
+				$wpdb->esc_like( $pattern ) . '%'
+			)
+		);
 	}
 
-	// Delete WordPress options starting with StorePulse_.
-	$fn_query = 'query';
-	$wpdb->$fn_query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE 'StorePulse_%'" );
+	// Drop any leftover legacy storepulse_ tables if rename did not run.
+	$legacy_base = $wpdb->prefix . 'storepulse_';
+	foreach ( array( 'telemetry', 'audit', 'snapshots', 'events', 'logs', 'cache' ) as $suffix ) {
+		$table = $legacy_base . $suffix;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+		$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $table ) );
+	}
 
-	// Delete transients (pattern match).
-	$wpdb->$fn_query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_StorePulse_%'" );
-	$wpdb->$fn_query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_StorePulse_%'" );
+	delete_option( PulseAnalytics_Storage::DB_VERSION_OPTION );
 }
 
-/**
- * Uninstall hook - called when plugin is deleted.
- * Handles both single-site and multisite installations.
- */
-function StorePulse_uninstall() {
+function sm_pulse_analytics_uninstall() {
 	if ( is_multisite() ) {
-		// Get all site IDs.
 		if ( function_exists( 'get_sites' ) ) {
 			$sites = get_sites(
 				array(
@@ -61,26 +63,15 @@ function StorePulse_uninstall() {
 				)
 			);
 		} else {
-			// Fallback for older WordPress versions.
-			$fn_wp_get_sites = 'wp_get_sites';
-			$sites           = $fn_wp_get_sites( array( 'limit' => 0 ) );
-			$sites           = array_map(
-				function ( $site ) {
-					return is_array( $site ) ? $site['blog_id'] : $site;
-				},
-				$sites
-			);
+			$sites = array( get_current_blog_id() );
 		}
 
-		// Drop tables and delete options for each site.
 		foreach ( $sites as $site_id ) {
 			switch_to_blog( $site_id );
-			StorePulse_drop_tables();
+			sm_pulse_analytics_drop_tables();
 			restore_current_blog();
 		}
 	} else {
-		// Single-site uninstall.
-		StorePulse_drop_tables();
+		sm_pulse_analytics_drop_tables();
 	}
 }
-// StorePulse_uninstall();

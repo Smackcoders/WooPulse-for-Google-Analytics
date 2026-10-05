@@ -1,22 +1,23 @@
-# StorePulse Analytics
+# Pulse Analytics for Google Analytics 4
 
-> Connects your WooCommerce store to GA4 over OAuth2 and backs it with a self-hosted local analytics store, so revenue, conversion, and visitor data show up on one WordPress dashboard.
+Connects WordPress to Google Analytics 4 and see live traffic, form conversions, affiliate clicks, and audience insights right inside your dashboard.
 
-![License](https://img.shields.io/badge/license-GPLv2%20or%20later-blue.svg)
-![WordPress](https://img.shields.io/badge/WordPress-6.4%2B-21759B.svg)
-![PHP](https://img.shields.io/badge/PHP-7.4%2B-777BB4.svg)
+[![WordPress Version](https://img.shields.io/badge/WordPress-6.4%2B-blue.svg)](https://wordpress.org/)
+[![PHP Version](https://img.shields.io/badge/PHP-7.4%2B-green.svg)](https://php.net/)
+[![License](https://img.shields.io/badge/License-GPLv2-lightgray.svg)](https://www.gnu.org/licenses/gpl-2.0.html)
 
 ## Table of Contents
-
 - [Overview](#overview)
 - [Key Features](#key-features)
+- [Free Version Includes](#free-version-includes)
+- [Pro Tier Features (Available Separately)](#pro-tier-features-available-separately)
 - [Use Cases](#use-cases)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Usage](#usage)
 - [Supported Integrations](#supported-integrations)
-- [Screenshots](#screenshots)
+
 - [Documentation](#documentation)
 - [FAQ](#faq)
 - [Roadmap](#roadmap)
@@ -26,274 +27,170 @@
 - [Support](#support)
 - [License](#license)
 - [Disclaimer](#disclaimer)
+- [External Services](#external-services)
 - [Author](#author)
 
 ## Overview
+Pulse Analytics brings Google Analytics 4 into your WordPress admin, designed for blogs, business sites, and online stores. Instead of logging into a separate Google Analytics account and digging through menus, you connect your GA4 property once, and your numbers show up exactly where you work. 
 
-StorePulse Analytics is a GA4 WooCommerce integration for store owners who want a straight answer about how the shop is doing without cross-referencing order data against a separate reporting tool. It connects your WooCommerce store to a Google Analytics 4 property through OAuth2 and pulls sessions, revenue, device, browser, and geography data through the GA4 Data API — no manual tagging required once the connection is authorized.
-
-What sets it apart from a thin GA4 wrapper is the local analytics layer running alongside it. Every visit and event is also logged to the plugin's own database tables, using cookie-based session IDs and a heartbeat check-in. That means real-time visitor counts, sales figures, and campaign attribution are available the moment traffic arrives, rather than waiting on GA4's processing delay. Store owners evaluating a Metorik alternative, or anyone tired of digging through Google Analytics's own interface for basic ecommerce numbers, get both an official GA4 pipeline and a fallback that never goes dark.
+It is built for publishers who want to see what content earns attention, marketers tracking forms and leads, affiliate marketers measuring link clicks, and eCommerce store owners relying on WooCommerce, Easy Digital Downloads, MemberPress, or GiveWP. This is a reporting plugin for GA4—not a replacement for it. Your analytics data stays safely within your own GA4 property.
 
 ## Key Features
+- **GA4 Dashboard Inside WordPress** — The dashboard runs on live GA4 data showing active visitors, sessions, page views, average session duration, and engagement rate. Supporting widgets break down new vs. returning visitors, device type, browsers, top pages, and visitor geography.
+- **Forms Conversion Report** — Automatically track form impressions, starts, and conversions across your site with no manual coding. Supports WPForms, Gravity Forms, Contact Form 7, Formidable Forms, Ninja Forms, Forminator, Elementor, and Divi forms.
+- **Affiliate and Outbound Link Tracking** — Affiliate and outbound clicks are tracked automatically without manual tagging. Match domains to partner names and track specific affiliate URL prefixes.
+- **Downloadable Link Tracking** — Automatically track file downloads (PDF, ZIP, DOCX, MP3, MP4, etc.) to measure lead magnets and podcast performance.
+- **Global Date Picker** — A unified date picker (Last 7 Days, Last 30 Days, Last 90 Days, Custom Range) ensures every widget, chart, and table aligns perfectly.
+- **Session and Engagement Tracking** — A lightweight session heartbeat records active sessions and time on page to feed your engagement metrics. 
+- **Privacy Controls** — IP addresses are always anonymized in frontend tracking automatically, and link tracking respects visitor privacy and cookie consent.
 
-- **One-Page Dashboard** — Sessions, revenue, conversion rate, and average order value in a single customizable-widget view, backed by dedicated traffic, ecommerce, and sales-summary reports.
-- **GA4 OAuth2 Connection & Data API Reporting** — A guided OAuth2 flow authorizes the plugin against your GA4 property; once connected, it pulls daily metrics, device, browser, top-pages, and top-countries data through the GA4 Data API.
-- **Enhanced Ecommerce Tracking** — `view_item`, `add_to_cart`, and `purchase` events fire through a gtag.js snippet the plugin injects site-wide, with duplicate-purchase guarding on the order and full compatibility with WooCommerce Cart & Checkout Blocks.
-- **Local Analytics Store & Real-Time Visitors** — An independent session and event tracking system with cookie-based session IDs and a heartbeat check, so the real-time visitors report keeps working even when GA4 has nothing to show yet.
-- **UTM & Campaign URL Tracking** — Automatic UTM parameter capture, campaign URL tracking, social-referrer detection, and a link report for tying sales back to specific campaigns.
-- **Custom Goals Engine** — Define conversion goals and follow a user journey report to see how visitors move from landing page to purchase.
-- **Core Web Vitals Tracking** — LCP, CLS, and related metrics surfaced directly in WordPress admin, powered by the Google PageSpeed Insights API.
-- **Newsletter Opt-in Capture** — Collects newsletter signups at checkout, no separate form plugin needed.
-- **Daily Data Aggregation & Sync Now** — A scheduled daily wp-cron job aggregates data automatically; a manual Sync Now action is available whenever you want a refresh right away.
-- **REST API & Role-Based Capabilities** — A dedicated `StorePulse/v1` REST namespace exposes dashboard data, settings, notes, and funnel endpoints, gated by two WordPress capabilities so shop managers or editors can view reports without full admin access.
-- **HPOS & Cart/Checkout Blocks Compatibility** — Declares compatibility with WooCommerce High-Performance Order Storage and Cart & Checkout Blocks on the `before_woocommerce_init` hook.
-- **Modular Architecture** — A free core plugin with optional Pro addons layered on top.
-- **IP Anonymization & GDPR Toggle** — A settings toggle enables GA4's `anonymize_ip` flag on the gtag.js snippet. Note this applies to GA4 tracking only; the built-in visitor geolocation lookup sends the full IP to ip-api.com regardless of this toggle (see [Disclaimer](#disclaimer)).
+## Free Version Includes
+- Dashboard Overview with live KPIs and traffic trend charts
+- Audience Breakdown (New vs. Returning, Device, Browser, Top Pages, Geography)
+- Global date picker functionality
+- Advanced Forms Conversion report (Impressions, Starts, Conversions)
+- Affiliate and Outbound Link tracking (Partners, Source Pages)
+- Downloadable File tracking
+- Session heartbeat and engagement metrics
+- Privacy controls and automatic IP anonymization
 
-### Free Version Includes
+## Pro Tier Features (Available Separately)
+Everything in the free version is completely free with no trial period. **WP Pulse Analytics Pro** is a separate, optional upgrade that includes:
+- **Real-Time Visitors** — Live report with active users and visitor geography.
+- **eCommerce Analytics** — Advanced reporting for WooCommerce covering revenue, funnels, cart abandonment, and coupons.
+- **Traffic Overview & AI Referral Tracking** — Channels, landing pages, source/medium, and AI traffic (ChatGPT, Claude, Gemini).
+- **Google Search Console Integration** — Search queries, impressions, CTR, and average positions inside WordPress.
+- **Advanced Reporting & AI Analytics (Ask AI)** — Ask plain-English questions about your GA4 data.
+- **User Journey Tracking** — Visual path from a user's first click to checkout.
+- **Campaign & UTM Builder** — Build tracking links matched back to GA4 performance.
+- **Site Performance** — Google PageSpeed Insights integration for Core Web Vitals.
+- **EU Compliance & Privacy** — Consent-gated tracking, PII stripping, and visitor opt-out for GDPR.
 
-- One-page overview dashboard with key metrics
-- Pre-built reports for sales, traffic, and products
-- Enhanced ecommerce tracking via WooCommerce hooks
-- UTM and campaign tracking
-- Simple funnel reports
-- Customizable key metrics
-- Basic event and goal tracking
-- Real-time visitor counter
-
-### Pro Tier Features (Available Separately)
-
-- Custom report builder with additional GA4 metrics and dimensions
-- Multi-step goal funnels with visual funnel tracking
-- Automated goal suggestions
-- Customer Lifetime Value (CLV), segmentation, and attribution analysis
-- Advanced campaign attribution and A/B testing insights
-- Custom data export (CSV, JSON, XML)
-- Security audit logs
-
-Each Pro feature ships as a separate licensed addon. Heatmaps and session recordings are not built into StorePulse — the plugin's alert system flags where a third-party heatmap or session-recording service could plug in, but doesn't provide one itself.
+*Each Pro feature is part of the comprehensive premium addon. Heatmaps and session recordings are not built into Pulse Analytics.*
 
 ## Use Cases
-
-- **Track WooCommerce sales in Google Analytics** without manually cross-referencing order data against GA4 reports.
-- **Watch real-time visitors on a WooCommerce store** and react to traffic spikes, launches, or ad campaigns as they happen.
-- **Measure marketing campaign ROI** with UTM tracking, campaign attribution, and a link report for content and social promotions.
-- **Keep dashboards populated when GA4 has no data yet** by relying on the plugin's local analytics store as a fallback layer.
-- **Monitor Core Web Vitals and store performance** from inside WordPress admin instead of a separate tool.
-- **Grant limited analytics access** to a shop manager or editor role without exposing full site administration.
-- **Evaluate a Metorik alternative** for teams that want native GA4 reporting plus local analytics inside WordPress itself.
+- **Bloggers and publishers** who want to quickly see what their audience reads without leaving WordPress.
+- **Business site owners** monitoring traffic and engagement on their corporate sites.
+- **Marketers** who need to see which forms and outbound links generate leads and conversions.
+- **Affiliate marketers** tracking which partners and pages earn clicks natively.
+- **Agencies and freelancers** looking for an easy analytics setup for client sites.
+- **WooCommerce, EDD, MemberPress, and GiveWP users** needing analytics seamlessly integrated into their store management flow.
 
 ## Requirements
 
 | Requirement | Version |
-| --- | --- |
-| WordPress | 6.4 or higher (tested up to 7.0) |
+|---|---|
+| WordPress | 6.4 or higher |
 | PHP | 7.4 or higher |
-| WooCommerce | 8.0 or higher (tested up to 9.8) |
-| Google Analytics | A GA4 property, for GA4-connected reporting (the local analytics store works without one) |
+| Google Analytics | A Google Analytics 4 property |
+
+*(WooCommerce is not required. The core plugin works perfectly on any standard WordPress site. However, commerce tracking widgets will activate if WooCommerce, EDD, MemberPress, or GiveWP are detected).*
 
 ## Installation
 
-### Install from WordPress
-
+**Install from WordPress**
 1. Log in to your WordPress admin dashboard.
-2. Go to **Plugins → Add New Plugin → Upload Plugin**.
-3. Choose the StorePulse Analytics ZIP file and click **Install Now**.
-4. Click **Activate** once installation finishes.
+2. Go to **Plugins -> Add New**.
+3. Search for "WP Pulse Analytics".
+4. Click **Install Now**, then **Activate**.
 
-### Manual Installation
-
-1. Download this repository or clone it.
-2. Upload the plugin folder to `/wp-content/plugins/` via FTP, SFTP, or your hosting file manager.
+**Manual Installation**
+1. Download the plugin ZIP file.
+2. Upload the folder to `/wp-content/plugins/` via FTP, SFTP, or your hosting file manager.
 3. Log in to WordPress admin and go to **Plugins**.
-4. Locate StorePulse Analytics in the list and click **Activate**.
+4. Locate the plugin in the list and click **Activate**.
 
 ## Configuration
-
-1. After activation, go to **Pulse Analytics → Settings**.
-2. Follow the guided setup wizard to connect your Google Analytics account through OAuth2.
-3. Enter your GA4 Property ID and authorize the plugin.
-4. Turn on the IP anonymization toggle if required for your region.
-5. Set up dashboard widgets, key metrics, and role-based capabilities for shop managers or editors.
-6. Save your settings — the local analytics store starts collecting data immediately, even before the first GA4 sync completes.
+1. After activation, go to **Pulse Analytics -> Settings -> Analytics Configuration**.
+2. Enter your **GA4 Measurement ID** (starts with G-) and **GA4 Property ID**.
+3. Enter your **Google Client ID** and **Google Client Secret** from Google Cloud Console.
+4. Copy the Authorized Redirect URI shown on the page and add it to your OAuth client in Google Cloud Console.
+5. Click **Save Analytics Configuration**, then click **Sign in with Google** to authorize.
+6. Verify your connection under Google Analytics Status.
 
 ## Usage
-
-Once connected, open **Pulse Analytics** from the WordPress admin menu to see the one-page dashboard: sessions, revenue, conversion rate, and average order value at a glance. From there:
-
-- Drill into **Traffic Overview**, **Ecommerce Overview**, **Sales Summary**, and **Product Performance** reports.
-- Check the **Real-Time Visitors** report for live session counts.
-- Review the **User Journey** and **Social Media Tracking** reports to see how customers reach and move through your store.
-- Trigger **Sync Now** any time you want an immediate data refresh instead of waiting for the daily aggregation job.
-- Set up **Custom Goals** to track conversions specific to your store, such as newsletter signups or purchases of a particular product.
+Once connected, open **Pulse Analytics -> Dashboard**:
+- Drill into Top Pages, Top Countries, and Source/Medium from the View selector.
+- Use the **Global Date Picker** at the top to change reporting periods.
+- Check the **Forms Conversion report** to monitor form impressions and abandonment.
+- Navigate to the **Audience & Links report** to monitor affiliate clicks, outbound links, and file downloads.
+- Trigger **Sync Data** anytime to refresh cached report data on demand.
 
 ## Supported Integrations
-
-- WooCommerce, including HPOS and Cart & Checkout Blocks
-- Google Analytics 4 (GA4) Data API
+- Google Analytics 4 (GA4) Data API and Measurement Protocol
 - Google OAuth2 API
-- Google PageSpeed Insights API (Core Web Vitals)
-- ip-api.com geolocation service (visitor country and city)
+- WooCommerce, Easy Digital Downloads, MemberPress, GiveWP (for commerce detection)
+- Form Plugins: WPForms, Gravity Forms, Contact Form 7, Formidable Forms, Ninja Forms, Forminator, Elementor forms, Divi forms.
 
-## Screenshots
 
-This repository snapshot doesn't include image assets. Current screenshots of the dashboard, reports, and setup wizard are available from Smackcoders at [smackcoders.com/wordpress.html](https://www.smackcoders.com/wordpress.html).
 
 ## Documentation
-
-Full documentation lives in the [`docs/`](docs/) directory, including:
-
-- [Architecture Design](docs/Architecture-Design.md) — REST API namespace and system design (base namespace: `/wp-json/StorePulse/v1/`)
-- [Module Design](docs/Module-Design.md)
-- [Developer Guide](docs/DEVELOPER.md)
-- [Usability Guide](docs/Usability-Guide.md)
-- [Changelog](docs/CHANGELOG.md)
+Full documentation is available on our website:
+- [WP Pulse Analytics Documentation](https://www.smackcoders.com/documentation/wp-pulse-analytics)
+- Covers setup, module configuration, and developer hooks.
 
 ## FAQ
 
-### Does this plugin work with Google Analytics 4?
+**Do I need a Google Analytics account to use this plugin?**
+Yes. You need a free Google Analytics 4 property at analytics.google.com. Universal Analytics is not supported.
 
-Yes. StorePulse Analytics is built around the GA4 Data API. Set up a GA4 property in your Google Analytics account, then connect it through OAuth2 during setup.
+**Do I need WooCommerce to use this plugin?**
+No. The core dashboard, Forms Conversion, Affiliate Links, and Audience reports work on any WordPress site. E-commerce platforms are just auto-detected for expanded widget features.
 
-### Do I need a Google Analytics account?
+**Which form plugins are tracked?**
+WPForms, Gravity Forms, Contact Form 7, Formidable Forms, Ninja Forms, Forminator, Elementor forms, Divi forms, WooCommerce forms, WordPress comment forms, and generic HTML forms are tracked automatically.
 
-For GA4-connected reporting, yes — you'll need a Google Analytics account with a GA4 property, and the plugin walks you through the OAuth2 connection. Without one, the local analytics store still tracks sessions, events, and real-time visitors on its own, so core dashboards keep working before a GA4 connection exists.
+**Does this plugin track affiliate and outbound links automatically?**
+Yes. Simply add your affiliate URL prefixes or domains under Affiliate Link Tracking settings, and every matching click is reported without manual tagging.
 
-### Is WooCommerce required?
-
-Yes. StorePulse Analytics is built specifically for WooCommerce stores and requires WooCommerce to be installed and active.
-
-### Does it support HPOS and Cart/Checkout Blocks?
-
-Yes. The plugin declares compatibility with WooCommerce High-Performance Order Storage and Cart & Checkout Blocks on the `before_woocommerce_init` hook.
-
-### Does it track add-to-cart and purchase events?
-
-Yes. `view_item`, `add_to_cart`, and `purchase` events are sent through the gtag.js snippet the plugin injects, with duplicate-purchase guarding so a page refresh on the thank-you page doesn't double-count a conversion.
-
-### Can I see real-time visitors?
-
-Yes. The dashboard includes a real-time visitors report built on cookie-based session IDs and a heartbeat check-in.
-
-### Can I customize the dashboard?
-
-Yes. Widgets can be rearranged, and you choose which key metrics show on the overview page.
-
-### Does the plugin track personal data?
-
-It tracks ecommerce events, session identifiers, and visitor geolocation (country and city, resolved via ip-api.com). The IP anonymization toggle sets GA4's `anonymize_ip` flag for data sent to Google, but does not affect the IP address the plugin sends to ip-api.com for geolocation — review your own regional compliance requirements before relying on this toggle for GDPR purposes.
-
-### Can developers extend the plugin?
-
-Yes. StorePulse Analytics exposes REST endpoints under the `StorePulse/v1` namespace for dashboard data, settings, notes, and funnels, along with hooks and filters documented in the [Developer Guide](docs/DEVELOPER.md) for custom integrations.
-
-### What's included in the Pro tier?
-
-The free version covers core dashboard, reporting, and tracking needs. Pro addons add a custom report builder, multi-step goal funnels, CLV and segmentation, A/B testing insights, custom data export, and security audit logs. Each Pro feature is licensed as a separate addon.
+**Is this plugin GDPR compatible?**
+Visitor IP addresses are anonymized automatically in frontend tracking. Link tracking can wait for cookie consent. You remain responsible for your own consent banner, but our Pro EU Compliance module provides deeper PII stripping and visitor opt-outs.
 
 ## Roadmap
-
-Planned areas of investment include deeper attribution reporting, expanded A/B testing tooling, and additional data export formats for the Pro tier. Features are only added to this list once confirmed for development — see [GitHub Issues](https://github.com/Smackcoders/WooPulse-for-Google-Analytics/issues) for active discussion.
+We continuously refine our tracking engine based on WordPress ecosystem changes. Upcoming integrations include enhanced data portability, broader third-party form plugin support, and deeper REST API endpoints for developers.
 
 ## Changelog
-
-### 1.0.1
-
-- WordPress 7.0 beta compatibility verified
-- WooCommerce 9.8 compatibility verified
-- Added HPOS (High-Performance Order Storage) compatibility declaration
-- Added Cart & Checkout Blocks compatibility declaration
-- Social Media Tracking and User Journey pages now available to all users
-- Updated minimum requirements (WordPress 6.4+, WooCommerce 8.0+)
-- **Upgrade notice:** Compatibility update for WordPress 7.0 and WooCommerce 9.8. Adds HPOS support. Upgrade recommended for all users.
-
-### 1.0.0
-
-- Initial release
-- Core dashboard with key metrics
-- Pre-built reports for sales, traffic, and products
-- Enhanced ecommerce tracking
-- UTM and campaign tracking
-- Real-time visitor counter
-- Custom events and goals
-- REST API endpoints
-- **Upgrade notice:** Initial release of StorePulse Analytics. Install and activate to start tracking your WooCommerce store performance.
-
-Full history: [docs/CHANGELOG.md](docs/CHANGELOG.md)
+**1.0**
+- Initial public release of WP Pulse Analytics.
+- Added GA4-powered analytics dashboard with traffic KPIs, charts, and live analytics data.
+- Added Affiliate and outbound link tracking.
+- Added Form tracking with automatic submission tracking.
+- Added Session heartbeat and page engagement tracking.
+- Added Google Analytics 4 OAuth connection and configuration.
 
 ## Security
-
-GA4 OAuth2 access and refresh tokens are stored in the WordPress options table and are only reachable by users holding the `StorePulse_manage_settings` capability. REST endpoints are gated by WordPress capability checks (`StorePulse_view_reports` for read access, `StorePulse_manage_settings` for configuration) rather than open to anonymous requests. If you discover a security vulnerability, please don't disclose it publicly in a GitHub issue — report it privately via [GitHub Issues](https://github.com/Smackcoders/WooPulse-for-Google-Analytics/issues) marked confidential, or contact Smackcoders directly through [smackcoders.com](https://www.smackcoders.com/wordpress.html) so it can be triaged before public disclosure.
+OAuth client secrets are stored encrypted in your database. The plugin leverages WordPress REST API with proper capability checks (`manage_options`). If you discover a security vulnerability, please report it privately to `support@smackcoders.com` before public disclosure.
 
 ## Contributing
-
-Contributions are welcome. Before submitting a pull request, please review:
-
-- [Architecture Design](docs/Architecture-Design.md)
-- [Module Design](docs/Module-Design.md)
-- [Usability Guide](docs/Usability-Guide.md)
-
-Project structure:
-
-- `includes/` — Core plugin classes and functionality
-- `admin/` — Admin interface pages and templates
-- `assets/` — CSS, JavaScript, and image files
-- `database/` — Database schema and migration files
-- `docs/` — Documentation files
-
-Bug reports and feature suggestions can be filed through GitHub Issues linked below.
+Developer hooks and REST API endpoints are available for custom extensions. We welcome bug reports and feature requests via email or our support portal.
 
 ## Support
-
-For support, feature requests, and documentation, please visit:
-
-- [Documentation](docs/)
-- [GitHub Issues](https://github.com/Smackcoders/WooPulse-for-Google-Analytics/issues)
+For help, feature requests, and documentation:
+- [Documentation](https://www.smackcoders.com/documentation/wp-pulse-analytics)
+- Email: `support@smackcoders.com`
 
 ## License
-
-GPLv2 or later. See [gnu.org/licenses/gpl-2.0.html](https://www.gnu.org/licenses/gpl-2.0.html) for full license text.
+GPLv2 or later. See gnu.org/licenses/gpl-2.0.html for full license text.
 
 ## Disclaimer
+This plugin requires an active Google Analytics 4 property. Google Analytics is a product of Google LLC; Pulse Analytics is an independent integration and isn't affiliated with, endorsed by, or sponsored by Google.
 
-This plugin requires an active Google Analytics account and an active WooCommerce installation — set up both before installing. Google Analytics, Google Analytics 4, and Google PageSpeed Insights are products of Google LLC; StorePulse Analytics is an independent integration and isn't affiliated with, endorsed by, or sponsored by Google. WooCommerce is a trademark of Automattic Inc.
-
-### External Services
-
+## External Services
 This plugin communicates with the following external services:
 
-**Google Analytics Data API**
+**Google Analytics 4 (Google Tag and Measurement Protocol)**
+- **Purpose**: Enqueues the official Google tag script and sends page views and interaction events.
+- **Data sent**: Form views, link clicks, file downloads, sessions.
+- **Terms of Service**: https://marketingplatform.google.com/about/analytics/terms/us/
+- **Privacy Policy**: https://policies.google.com/privacy
 
-- Purpose: Fetches analytics reports and data for display in the WordPress admin dashboard.
-- Data sent: Google Analytics property ID, date ranges, and metric/dimension filters.
-- When: When viewing analytics reports in the dashboard.
-- Terms of Service: https://developers.google.com/terms
-- Privacy Policy: https://policies.google.com/privacy
+**Google OAuth and the Google Analytics Data API**
+- **Purpose**: Authenticates the plugin with Google Analytics to read your reports.
+- **Data sent**: OAuth authorization code, access tokens, and Property ID.
+- **Terms of Service**: https://developers.google.com/terms
+- **Privacy Policy**: https://policies.google.com/privacy
 
-**Google OAuth2 API**
-
-- Purpose: Authenticates the plugin with Google Analytics.
-- Data sent: OAuth authorization code and refresh tokens.
-- When: During initial setup and token refresh.
-- Terms of Service: https://developers.google.com/terms
-- Privacy Policy: https://policies.google.com/privacy
-
-**Google PageSpeed Insights API**
-
-- Purpose: Fetches Core Web Vitals data for pages.
-- Data sent: Page URLs to analyze.
-- When: When viewing the Core Web Vitals report.
-- Terms of Service: https://developers.google.com/terms
-- Privacy Policy: https://policies.google.com/privacy
-
-**ip-api.com Geolocation Service**
-
-- Purpose: Resolves visitor country and city for the real-time visitor dashboard.
-- Data sent: Visitor IP address. This lookup always uses the full IP; the plugin's IP anonymization setting applies to GA4 tracking only, not this service.
-- When: When a visitor accesses the frontend of the site.
-- Terms of Service: https://ip-api.com/docs/legal
-- Privacy Policy: https://ip-api.com/docs/legal
+You are responsible for informing your visitors about this data collection and for obtaining consent where the law requires it.
 
 ## Author
-
-Developed and maintained by **Smackcoders**, with contributions from fenzik. Visit [smackcoders.com](https://www.smackcoders.com/wordpress.html) for more WordPress and WooCommerce plugins.
+Developed and maintained by **Smackcoders**, with contributions from premairuthayarajan, fenzik, and smackmarketing. Visit [smackcoders.com](https://www.smackcoders.com/) for more WordPress plugins.

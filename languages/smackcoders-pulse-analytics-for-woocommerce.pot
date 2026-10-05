@@ -1,0 +1,1935 @@
+# Copyright (C) 2026 Smackcoders
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Smackcoders Pulse Analytics | Google Analytics 4 Dashboard 1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/smackcoders-pulse-analytics-for-woocommerce\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-09-24T13:34:43+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: smackcoders-pulse-analytics-for-woocommerce\n"
+
+#. Plugin Name of the plugin
+#: smackcoders-pulse-analytics-for-woocommerce.php
+msgid "Smackcoders Pulse Analytics | Google Analytics 4 Dashboard"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: smackcoders-pulse-analytics-for-woocommerce.php
+msgid "https://www.smackcoders.com/documentation/wp-pulse-analytics"
+msgstr ""
+
+#. Description of the plugin
+#: smackcoders-pulse-analytics-for-woocommerce.php
+msgid "Analytics dashboard for WordPress sites, blogs, and online stores. Connect Google Analytics 4 for traffic insights; unlock revenue, behavior, and commerce reports with WP Pulse Analytics Pro."
+msgstr ""
+
+#. Author of the plugin
+#: smackcoders-pulse-analytics-for-woocommerce.php
+msgid "Smackcoders"
+msgstr ""
+
+#. Author URI of the plugin
+#: smackcoders-pulse-analytics-for-woocommerce.php
+msgid "https://www.smackcoders.com/wordpress.html?utm_source=pulse_analytics&utm_medium=plugin&utm_content=support_resource"
+msgstr ""
+
+#: admin/dashboard.php:37
+msgid "Connect Google Analytics to see live metrics"
+msgstr ""
+
+#: admin/dashboard.php:40
+msgid "Dashboard KPIs load from the GA4 Data API. Save a numeric Property ID and complete Google OAuth under Analytics settings. Zeros usually mean the connection is missing or the property has no data yet."
+msgstr ""
+
+#: admin/dashboard.php:47
+msgid "Open Analytics settings"
+msgstr ""
+
+#: admin/dashboard.php:54
+msgid "Website analytics mode"
+msgstr ""
+
+#: admin/dashboard.php:55
+msgid "Traffic and engagement reports are fully available. Install WooCommerce or Easy Digital Downloads to unlock revenue and store reports."
+msgstr ""
+
+#: admin/dashboard.php:57
+msgid "Site profile settings"
+msgstr ""
+
+#: admin/dashboard.php:78
+#: admin/help.php:67
+msgid "Dashboard Overview"
+msgstr ""
+
+#: admin/dashboard.php:79
+#: admin/dashboard.php:528
+msgid "Top Countries"
+msgstr ""
+
+#: admin/dashboard.php:80
+#: admin/dashboard.php:446
+#: admin/dashboard.php:508
+msgid "Top Pages"
+msgstr ""
+
+#: admin/dashboard.php:81
+#: admin/dashboard.php:545
+#: admin/dashboard.php:550
+msgid "Source / Medium"
+msgstr ""
+
+#: admin/dashboard.php:93
+msgid "Connected GA4 property"
+msgstr ""
+
+#. translators: %s: GA4 property ID
+#: admin/dashboard.php:94
+#, php-format
+msgid "GA4 Property — %s"
+msgstr ""
+
+#: admin/dashboard.php:97
+msgid "Add your numeric GA4 Property ID under Analytics settings to load dashboard reports."
+msgstr ""
+
+#: admin/dashboard.php:98
+msgid "GA4 Property — Not configured"
+msgstr ""
+
+#: admin/dashboard.php:123
+msgid "Unlock advanced insights like Customer Lifetime Value and Heatmaps"
+msgstr ""
+
+#: admin/dashboard.php:127
+msgid "Upgrade Now"
+msgstr ""
+
+#: admin/dashboard.php:139
+msgid "Real-time"
+msgstr ""
+
+#: admin/dashboard.php:145
+msgid "Active visitors now"
+msgstr ""
+
+#: admin/dashboard.php:157
+#: admin/dashboard.php:314
+#: admin/dashboard.php:515
+msgid "Sessions"
+msgstr ""
+
+#: admin/dashboard.php:162
+#: admin/dashboard.php:216
+#: admin/dashboard.php:234
+msgid "— vs last period"
+msgstr ""
+
+#: admin/dashboard.php:174
+msgid "Page Views"
+msgstr ""
+
+#: admin/dashboard.php:179
+msgid "— pages/session"
+msgstr ""
+
+#: admin/dashboard.php:210
+msgid "Avg. Session"
+msgstr ""
+
+#: admin/dashboard.php:228
+msgid "Engage Rate"
+msgstr ""
+
+#: admin/dashboard.php:276
+msgid "Traffic"
+msgstr ""
+
+#: admin/dashboard.php:280
+msgid "Engagement"
+msgstr ""
+
+#: admin/dashboard.php:284
+msgid "Referrals"
+msgstr ""
+
+#: admin/dashboard.php:319
+msgid "Engaged Sessions"
+msgstr ""
+
+#: admin/dashboard.php:324
+msgid "Key Event Rate"
+msgstr ""
+
+#: admin/dashboard.php:362
+msgid "New vs Returning"
+msgstr ""
+
+#: admin/dashboard.php:367
+msgid "New"
+msgstr ""
+
+#: admin/dashboard.php:372
+msgid "Returning"
+msgstr ""
+
+#: admin/dashboard.php:386
+msgid "Device Type"
+msgstr ""
+
+#: admin/dashboard.php:396
+msgid "Mobile"
+msgstr ""
+
+#: admin/dashboard.php:407
+msgid "Desktop"
+msgstr ""
+
+#: admin/dashboard.php:417
+msgid "Tablet"
+msgstr ""
+
+#: admin/dashboard.php:426
+msgid "Browser Used"
+msgstr ""
+
+#: admin/dashboard.php:454
+msgid "Page Path"
+msgstr ""
+
+#: admin/dashboard.php:455
+#: admin/dashboard.php:514
+msgid "Views"
+msgstr ""
+
+#: admin/dashboard.php:460
+#: admin/dashboard.php:493
+msgid "Loading data..."
+msgstr ""
+
+#: admin/dashboard.php:479
+msgid "Visitor Geography"
+msgstr ""
+
+#: admin/dashboard.php:487
+#: admin/dashboard.php:533
+msgid "Country"
+msgstr ""
+
+#: admin/dashboard.php:488
+msgid "Visitors"
+msgstr ""
+
+#: admin/dashboard.php:513
+msgid "URL Path"
+msgstr ""
+
+#: admin/dashboard.php:516
+msgid "New Users"
+msgstr ""
+
+#: admin/dashboard.php:517
+msgid "Bounce %"
+msgstr ""
+
+#: admin/dashboard.php:534
+msgid "Total Visitors"
+msgstr ""
+
+#: admin/dashboard.php:551
+msgid "Total Sessions"
+msgstr ""
+
+#: admin/forms-report.php:23
+msgid "Form Impressions"
+msgstr ""
+
+#: admin/forms-report.php:27
+#: admin/forms-report.php:57
+#: admin/forms-report.php:89
+msgid "Form Starts"
+msgstr ""
+
+#: admin/forms-report.php:31
+#: admin/forms-report.php:62
+#: admin/forms-report.php:90
+msgid "Conversions"
+msgstr ""
+
+#: admin/forms-report.php:35
+#: admin/forms-report.php:91
+msgid "Conversion Rate"
+msgstr ""
+
+#: admin/forms-report.php:42
+msgid "Form Activity Trend"
+msgstr ""
+
+#: admin/forms-report.php:45
+msgid "Metrics"
+msgstr ""
+
+#: admin/forms-report.php:52
+#: admin/forms-report.php:88
+msgid "Impressions"
+msgstr ""
+
+#: admin/forms-report.php:74
+msgid "Forms"
+msgstr ""
+
+#: admin/forms-report.php:80
+msgid "Fetching forms data…"
+msgstr ""
+
+#: admin/forms-report.php:87
+msgid "Form Name or ID"
+msgstr ""
+
+#: admin/forms-report.php:102
+msgid "Loading forms data…"
+msgstr ""
+
+#: admin/forms-report.php:112
+msgid "Form Details"
+msgstr ""
+
+#: admin/help.php:16
+msgid "Help & Tutorials"
+msgstr ""
+
+#: admin/help.php:17
+msgid "Get help with WooPulse setup and features"
+msgstr ""
+
+#: admin/help.php:25
+msgid "Getting Started"
+msgstr ""
+
+#: admin/help.php:28
+msgid "1. Connect Google Analytics"
+msgstr ""
+
+#: admin/help.php:29
+msgid "Go to Settings → Analytics and connect your GA4 property. You'll need to authorize WooPulse to access your analytics data."
+msgstr ""
+
+#: admin/help.php:32
+msgid "2. Configure Tracking"
+msgstr ""
+
+#: admin/help.php:33
+msgid "Set up event tracking for WooCommerce orders, product views, and custom events in Settings → Events."
+msgstr ""
+
+#: admin/help.php:36
+msgid "3. View Dashboard"
+msgstr ""
+
+#: admin/help.php:37
+msgid "Visit the Dashboard to see your analytics data, including sessions, revenue, conversion rates, and more."
+msgstr ""
+
+#: admin/help.php:44
+msgid "Common Questions"
+msgstr ""
+
+#: admin/help.php:47
+msgid "How do I track custom events?"
+msgstr ""
+
+#: admin/help.php:48
+msgid "Use the REST API endpoint"
+msgstr ""
+
+#: admin/help.php:48
+msgid "or add JavaScript tracking code to your theme."
+msgstr ""
+
+#: admin/help.php:51
+msgid "Can I export my data?"
+msgstr ""
+
+#: admin/help.php:52
+msgid "Yes! PRO users can export data in CSV, JSON, or XML format from the Data Export page. You can also schedule automatic exports."
+msgstr ""
+
+#: admin/help.php:55
+msgid "How do I set up alerts?"
+msgstr ""
+
+#: admin/help.php:56
+msgid "PRO users can configure real-time alerts in Settings → Real-time Alerts. Set thresholds for metrics like conversion rate or revenue."
+msgstr ""
+
+#: admin/help.php:64
+msgid "Feature Guides"
+msgstr ""
+
+#: admin/help.php:68
+msgid "Learn how to navigate and customize your dashboard widgets."
+msgstr ""
+
+#: admin/help.php:69
+#: admin/help.php:74
+#: admin/help.php:79
+msgid "View Guide →"
+msgstr ""
+
+#: admin/help.php:72
+msgid "Custom Reports"
+msgstr ""
+
+#: admin/help.php:73
+msgid "Create custom reports with drag-and-drop metrics and dimensions."
+msgstr ""
+
+#: admin/help.php:77
+msgid "Funnel Analysis"
+msgstr ""
+
+#: admin/help.php:78
+msgid "Set up multi-step funnels to track conversion paths."
+msgstr ""
+
+#: admin/help.php:86
+msgid "Tooltips Reference"
+msgstr ""
+
+#: admin/help.php:88
+msgid "Dashboard Widgets:"
+msgstr ""
+
+#: admin/help.php:88
+msgid "Hover over the info icon (ℹ️) next to any metric to see a detailed explanation."
+msgstr ""
+
+#: admin/help.php:89
+msgid "Settings:"
+msgstr ""
+
+#: admin/help.php:89
+msgid "Most settings have help text below them explaining what they do."
+msgstr ""
+
+#: admin/help.php:90
+msgid "Reports:"
+msgstr ""
+
+#: admin/help.php:90
+msgid "Click the help icon in the top-right corner of any report for context-specific help."
+msgstr ""
+
+#: admin/link-report.php:22
+#: admin/link-report.php:72
+msgid "Outbound Links"
+msgstr ""
+
+#: admin/link-report.php:25
+msgid "File Downloads"
+msgstr ""
+
+#: admin/link-report.php:28
+msgid "Demographics"
+msgstr ""
+
+#: admin/link-report.php:46
+#: admin/link-report.php:116
+msgid "GA4 unavailable:"
+msgstr ""
+
+#: admin/link-report.php:47
+msgid "Connect Google under Settings → Analytics Configuration to load live link clicks. Showing sample data until then."
+msgstr ""
+
+#: admin/link-report.php:54
+msgid "Inbound Links"
+msgstr ""
+
+#: admin/link-report.php:59
+msgid "Source URL"
+msgstr ""
+
+#: admin/link-report.php:60
+#: admin/link-report.php:78
+#: admin/link-report.php:97
+msgid "Clicks"
+msgstr ""
+
+#: admin/link-report.php:64
+#: admin/link-report.php:82
+#: admin/link-report.php:101
+#: admin/link-report.php:132
+msgid "Loading…"
+msgstr ""
+
+#: admin/link-report.php:77
+msgid "Destination URL"
+msgstr ""
+
+#: admin/link-report.php:91
+#: includes/affiliate-link/settings/class-affiliate-link-settings.php:74
+#: includes/affiliate-link/settings/class-affiliate-link-settings.php:97
+#: includes/affiliate-link/settings/class-affiliate-link-settings.php:98
+#: includes/connector.php:246
+#: includes/connector.php:247
+#: includes/helpers.php:454
+msgid "Affiliate Links"
+msgstr ""
+
+#: admin/link-report.php:96
+msgid "Affiliate URL"
+msgstr ""
+
+#: admin/link-report.php:117
+msgid "Connect Google under Settings → Analytics Configuration to load live download events. Showing sample data until then."
+msgstr ""
+
+#: admin/link-report.php:122
+msgid "Downloadable Links"
+msgstr ""
+
+#: admin/link-report.php:127
+msgid "File URL"
+msgstr ""
+
+#: admin/link-report.php:128
+msgid "Downloads"
+msgstr ""
+
+#: admin/link-report.php:147
+msgid "No demographics yet:"
+msgstr ""
+
+#: admin/link-report.php:148
+msgid "Age and gender require Google Signals in your GA4 property plus enough traffic. Connect Analytics if reports are empty."
+msgstr ""
+
+#: admin/link-report.php:155
+msgid "Age Distribution"
+msgstr ""
+
+#: admin/link-report.php:163
+msgid "No Age data available."
+msgstr ""
+
+#: admin/link-report.php:164
+msgid "Demographics require Google Signals in GA4."
+msgstr ""
+
+#: admin/link-report.php:169
+msgid "Age Bracket"
+msgstr ""
+
+#: admin/link-report.php:174
+#: admin/link-report.php:188
+msgid "Gender"
+msgstr ""
+
+#: admin/link-report.php:182
+msgid "No Gender data available."
+msgstr ""
+
+#: admin/link-report.php:183
+msgid "Enable Google Signals in your GA4 property."
+msgstr ""
+
+#: admin/settings/settings-ecommerce.php:49
+msgid "eCommerce Tracking"
+msgstr ""
+
+#: admin/settings/settings-ecommerce.php:58
+msgid "Enable eCommerce Tracking"
+msgstr ""
+
+#: admin/settings/settings-ecommerce.php:64
+msgid "No commerce plugin detected. Install WooCommerce or Easy Digital Downloads to enable purchase tracking, or switch your site profile to Website mode if you only need traffic analytics."
+msgstr ""
+
+#: admin/settings/settings-ecommerce.php:76
+msgid "physical & variable product stores"
+msgstr ""
+
+#: admin/settings/settings-ecommerce.php:78
+#: admin/settings/settings-ecommerce.php:92
+msgid "not installed"
+msgstr ""
+
+#: admin/settings/settings-ecommerce.php:90
+msgid "digital downloads & license sales"
+msgstr ""
+
+#: admin/settings/settings-ecommerce.php:103
+msgid "Cart Abandonment Session Timeout"
+msgstr ""
+
+#: admin/settings/settings-ecommerce.php:105
+msgid "Select the inactivity duration before an uncompleted cart session is classified as abandoned."
+msgstr ""
+
+#: admin/settings/settings-ecommerce.php:110
+msgid "1 hour"
+msgstr ""
+
+#: admin/settings/settings-ecommerce.php:111
+msgid "6 hours"
+msgstr ""
+
+#: admin/settings/settings-ecommerce.php:112
+msgid "12 hours"
+msgstr ""
+
+#: admin/settings/settings-ecommerce.php:113
+msgid "24 hours (Default)"
+msgstr ""
+
+#: admin/settings/settings-ecommerce.php:114
+msgid "48 hours"
+msgstr ""
+
+#: admin/settings/settings-ecommerce.php:115
+msgid "72 hours"
+msgstr ""
+
+#: admin/settings/settings-ecommerce.php:122
+msgid "Save eCommerce Settings"
+msgstr ""
+
+#: admin/settings/settings-ecommerce.php:123
+msgid "Affiliate & Link Tracking"
+msgstr ""
+
+#: admin/settings/settings-links.php:49
+#: admin/settings/settings-links.php:144
+#: includes/affiliate-link/settings/class-affiliate-link-settings.php:52
+#: includes/affiliate-link/settings/class-affiliate-link-settings.php:57
+#: includes/class-admin-ui.php:53
+#: includes/helpers.php:552
+msgid "Affiliate Link Tracking"
+msgstr ""
+
+#: admin/settings/settings-links.php:52
+msgid "Affiliate and outbound click tracking is configured in the dedicated Affiliate Link Tracking settings tab. Use the Affiliate Links report in the main menu for performance data."
+msgstr ""
+
+#: admin/settings/settings-links.php:56
+msgid "Open Affiliate Link Tracking Settings"
+msgstr ""
+
+#: admin/settings/settings-links.php:59
+msgid "View Affiliate Links Report"
+msgstr ""
+
+#: admin/settings/settings-links.php:66
+msgid "Link Paths"
+msgstr ""
+
+#: admin/settings/settings-links.php:70
+msgid "Track internal redirect paths (for example /go/) as outbound / affiliate clicks."
+msgstr ""
+
+#: admin/settings/settings-links.php:74
+msgid "Path (example: /go/)"
+msgstr ""
+
+#: admin/settings/settings-links.php:75
+msgid "Label (example: aff)"
+msgstr ""
+
+#: admin/settings/settings-links.php:83
+msgid "/go/"
+msgstr ""
+
+#: admin/settings/settings-links.php:86
+msgid "affiliate"
+msgstr ""
+
+#: admin/settings/settings-links.php:99
+msgid "Add Another Link Path"
+msgstr ""
+
+#: admin/settings/settings-links.php:107
+msgid "Downloadable Link Tracking"
+msgstr ""
+
+#: admin/settings/settings-links.php:111
+msgid "Enable Downloadable Link Tracking"
+msgstr ""
+
+#: admin/settings/settings-links.php:114
+msgid "Tracked File Extensions (comma separated)"
+msgstr ""
+
+#: admin/settings/settings-links.php:115
+msgid "e.g. pdf, zip, docx, csv, mp3, mp4"
+msgstr ""
+
+#: admin/settings/settings-links.php:116
+msgid "File downloads matching these file extensions will be tracked automatically."
+msgstr ""
+
+#: admin/settings/settings-links.php:123
+msgid "Telemetry Data Retention & Storage Pruning"
+msgstr ""
+
+#: admin/settings/settings-links.php:126
+msgid "Control how long raw visitor engagement telemetry is stored in the database before automatic cleanup. Completed eCommerce order journeys are permanently saved to WooCommerce order meta and will never be affected."
+msgstr ""
+
+#: admin/settings/settings-links.php:129
+msgid "Telemetry Retention Period"
+msgstr ""
+
+#: admin/settings/settings-links.php:131
+msgid "30 Days (Recommended Default)"
+msgstr ""
+
+#: admin/settings/settings-links.php:132
+msgid "60 Days"
+msgstr ""
+
+#: admin/settings/settings-links.php:133
+msgid "90 Days (3 Months)"
+msgstr ""
+
+#: admin/settings/settings-links.php:134
+msgid "180 Days (6 Months)"
+msgstr ""
+
+#: admin/settings/settings-links.php:135
+msgid "365 Days (1 Year)"
+msgstr ""
+
+#: admin/settings/settings-links.php:136
+msgid "Keep Forever (Disable Pruning)"
+msgstr ""
+
+#: admin/settings/settings-links.php:138
+msgid "Automatic daily WP-Cron cleanup purges raw transient page view events older than this limit."
+msgstr ""
+
+#: admin/settings/settings-links.php:143
+msgid "Save Link Tracking Settings"
+msgstr ""
+
+#: admin/settings/settings-monsterinsights-migration.php:25
+#: includes/class-monsterinsights-migration.php:166
+#: includes/class-monsterinsights-migration.php:171
+msgid "Import from MonsterInsights"
+msgstr ""
+
+#: admin/settings/settings-monsterinsights-migration.php:26
+msgid "Migrate compatible MonsterInsights settings and locally stored aggregated report data into Pulse Analytics. Live GA4 history remains in your Google Analytics property — this imports WordPress-side configuration and cached MonsterInsights summaries."
+msgstr ""
+
+#: admin/settings/settings-monsterinsights-migration.php:30
+msgid "Migration finished. Review the summary below and verify Analytics Configuration."
+msgstr ""
+
+#: admin/settings/settings-monsterinsights-migration.php:36
+msgid "MonsterInsights plugin"
+msgstr ""
+
+#: admin/settings/settings-monsterinsights-migration.php:39
+#: includes/ga4/oauth.php:332
+msgid "Active"
+msgstr ""
+
+#: admin/settings/settings-monsterinsights-migration.php:41
+msgid "Not active (legacy data detected)"
+msgstr ""
+
+#. translators: %s: version
+#: admin/settings/settings-monsterinsights-migration.php:44
+#, php-format
+msgid "Detected version: %s"
+msgstr ""
+
+#: admin/settings/settings-monsterinsights-migration.php:49
+#: includes/class-plugins-page-integration.php:70
+#: includes/connector.php:265
+#: includes/helpers.php:462
+#: includes/helpers.php:560
+msgid "Settings"
+msgstr ""
+
+#: admin/settings/settings-monsterinsights-migration.php:52
+msgid "MonsterInsights settings option found."
+msgstr ""
+
+#: admin/settings/settings-monsterinsights-migration.php:54
+msgid "No monsterinsights_settings option found."
+msgstr ""
+
+#: admin/settings/settings-monsterinsights-migration.php:59
+msgid "Aggregated data"
+msgstr ""
+
+#. translators: %d: number of options
+#: admin/settings/settings-monsterinsights-migration.php:68
+#, php-format
+msgid "%d local report/cache option available (already imported)."
+msgid_plural "%d local report/cache options available (already imported)."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of options
+#: admin/settings/settings-monsterinsights-migration.php:76
+#, php-format
+msgid "%d local report/cache option ready to import."
+msgid_plural "%d local report/cache options ready to import."
+msgstr[0] ""
+msgstr[1] ""
+
+#: admin/settings/settings-monsterinsights-migration.php:88
+msgid "No MonsterInsights aggregated report options found in the database."
+msgstr ""
+
+#: admin/settings/settings-monsterinsights-migration.php:95
+msgid "Pulse Analytics will not overwrite existing GA4 credentials or link paths. Empty targets are filled from MonsterInsights. Aggregated imports are stored in Pulse Analytics snapshots and skipped on repeat runs unless you choose re-import."
+msgstr ""
+
+#: admin/settings/settings-monsterinsights-migration.php:101
+msgid "Re-import aggregated data (overwrite previously imported MonsterInsights snapshots)"
+msgstr ""
+
+#: admin/settings/settings-monsterinsights-migration.php:107
+msgid "Start Migration"
+msgstr ""
+
+#: admin/settings/settings-monsterinsights-migration.php:109
+msgid "Review Analytics Configuration"
+msgstr ""
+
+#: admin/settings/settings-monsterinsights-migration.php:114
+msgid "Last migration summary"
+msgstr ""
+
+#. translators: %s: datetime
+#: admin/settings/settings-monsterinsights-migration.php:120
+#, php-format
+msgid "Completed: %s"
+msgstr ""
+
+#: admin/settings/settings-monsterinsights-migration.php:128
+msgid "Migrated settings"
+msgstr ""
+
+#: admin/settings/settings-monsterinsights-migration.php:137
+msgid "Imported aggregated data"
+msgstr ""
+
+#: admin/settings/settings-monsterinsights-migration.php:146
+msgid "Skipped items"
+msgstr ""
+
+#: admin/settings/settings-monsterinsights-migration.php:158
+msgid "Warnings"
+msgstr ""
+
+#: includes/affiliate-link/admin/affiliate-links-report.php:23
+msgid "Loading data…"
+msgstr ""
+
+#: includes/affiliate-link/admin/affiliate-links-report.php:29
+msgid "Top Links"
+msgstr ""
+
+#: includes/affiliate-link/admin/affiliate-links-report.php:30
+msgid "Partners"
+msgstr ""
+
+#: includes/affiliate-link/admin/affiliate-links-report.php:31
+msgid "Source Pages"
+msgstr ""
+
+#: includes/affiliate-link/admin/affiliate-links-report.php:32
+msgid "Outbound"
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:36
+msgid "Affiliate Link Tracking settings saved successfully."
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:49
+msgid "Affiliate & Outbound Link Tracking"
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:52
+msgid "Configure automatic classification of affiliate and outbound link clicks across your website to report referral engagement in Google Analytics 4."
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:57
+msgid "Master Tracking"
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:61
+msgid "Enable Affiliate Link Tracking Engine"
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:64
+msgid "Activates front-end client link monitoring and click event classification."
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:69
+msgid "Affiliate Click Events"
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:73
+msgid "Fire affiliate_link_click GA4 events"
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:76
+msgid "Sends structured partner, destination domain, and affiliate campaign metadata to GA4."
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:81
+msgid "Outbound Click Events"
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:85
+msgid "Fire outbound_link_click GA4 events"
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:88
+msgid "Automatically records external links leaving your domain."
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:93
+msgid "Privacy & Consent"
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:97
+msgid "Respect User Privacy & Cookie Consent"
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:100
+msgid "Wait for user privacy / EU compliance consent before recording link telemetry."
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:105
+msgid "Affiliate URL Prefixes"
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:108
+msgid "One prefix per line, e.g. /go/, /out/, /recommend/, /recommends/"
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:112
+msgid "Affiliate Domains"
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:115
+msgid "Specific outbound domains treated strictly as affiliate links (one per line)."
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:119
+msgid "Partner Name Mappings"
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:122
+msgid "Format one per line: domain|Partner Name (e.g. amazon.com|Amazon Associates)"
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:126
+msgid "Excluded Domains"
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:129
+msgid "External domains excluded from link tracking (e.g. facebook.com, twitter.com, linkedin.com)."
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:133
+msgid "Excluded URL Prefixes"
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:136
+msgid "Internal or external URL prefixes that should be ignored during link click tracking."
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:140
+msgid "Ignored CSS Selectors"
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:143
+msgid "CSS classes or selectors for links that should be excluded (e.g. .ignore-pulse-tracking)."
+msgstr ""
+
+#: includes/affiliate-link/admin/settings-affiliate-link-tracking.php:150
+msgid "Save Affiliate Settings"
+msgstr ""
+
+#: includes/affiliate-link/class-affiliate-link-api.php:24
+msgid "Forbidden."
+msgstr ""
+
+#. translators: 1: affiliate clicks, 2: top link label
+#: includes/affiliate-link/class-affiliate-link-integrations.php:98
+#, php-format
+msgid "Affiliate link tracking recorded %1$d affiliate clicks in this period. Top link: %2$s."
+msgstr ""
+
+#: includes/affiliate-link/class-affiliate-link-module.php:109
+msgid "Loading affiliate link report…"
+msgstr ""
+
+#: includes/affiliate-link/class-affiliate-link-module.php:110
+msgid "Unable to load affiliate link data."
+msgstr ""
+
+#: includes/affiliate-link/class-affiliate-link-module.php:111
+msgid "No link clicks recorded for this period."
+msgstr ""
+
+#: includes/affiliate-link/class-affiliate-link-service.php:29
+msgid "Affiliate Link Tracking is not enabled."
+msgstr ""
+
+#: includes/affiliate-link/class-affiliate-link-service.php:35
+msgid "Invalid date range."
+msgstr ""
+
+#: includes/class-admin-ui.php:49
+#: includes/helpers.php:548
+msgid "Help & Guidance"
+msgstr ""
+
+#: includes/class-admin-ui.php:50
+#: includes/helpers.php:549
+msgid "General Settings"
+msgstr ""
+
+#: includes/class-admin-ui.php:51
+#: includes/helpers.php:550
+msgid "Analytics Configuration"
+msgstr ""
+
+#: includes/class-admin-ui.php:52
+#: includes/helpers.php:551
+msgid "Downloads & Link Paths"
+msgstr ""
+
+#: includes/class-admin-ui.php:54
+msgid "eCommerce"
+msgstr ""
+
+#: includes/class-admin-ui.php:150
+msgid "Could not write the GA4 Measurement ID to wp-config.php. Check file permissions."
+msgstr ""
+
+#: includes/class-admin-ui.php:154
+msgid "Invalid GA4 Measurement ID — it must start with G- followed by alphanumeric characters."
+msgstr ""
+
+#: includes/class-admin-ui.php:185
+msgid "Could not write OAuth credentials to wp-config.php. Make wp-config.php writable, then save again."
+msgstr ""
+
+#: includes/class-admin-ui.php:197
+msgid "Could not write the GA4 API Secret to wp-config.php. Check file permissions or add the encrypted define manually."
+msgstr ""
+
+#: includes/class-admin-ui.php:280
+msgid "Invalid GA4 Property ID — enter the numeric ID from Admin > Property Details (for example, 987654321)."
+msgstr ""
+
+#: includes/class-admin-ui.php:323
+msgid "OAuth credentials are incomplete. Enter both Client ID and Client Secret, save, then try Save & Connect again."
+msgstr ""
+
+#: includes/class-admin-ui.php:353
+#: includes/class-admin-ui.php:355
+msgid "Google Analytics connected successfully."
+msgstr ""
+
+#: includes/class-admin-ui.php:353
+msgid "Choose your GA4 property below to save the Property ID and Measurement ID."
+msgstr ""
+
+#: includes/class-admin-ui.php:359
+msgid "GA4 Property ID and Measurement ID saved from your Google account."
+msgstr ""
+
+#: includes/class-admin-ui.php:362
+msgid "GA4 property list refreshed from Google."
+msgstr ""
+
+#: includes/class-admin-ui.php:365
+msgid "Access token refreshed."
+msgstr ""
+
+#: includes/class-admin-ui.php:368
+msgid "Google Analytics disconnected."
+msgstr ""
+
+#: includes/class-admin-ui.php:371
+msgid "Settings Saved Successfully!"
+msgstr ""
+
+#: includes/class-admin-ui.php:374
+msgid "OAuth credentials saved to wp-config.php (encrypted)."
+msgstr ""
+
+#: includes/class-admin-ui.php:375
+msgid "Click Sign in with Google (or Save & Connect) to authorize your account and complete setup."
+msgstr ""
+
+#: includes/class-admin-ui.php:381
+msgid "Google OAuth Error:"
+msgstr ""
+
+#: includes/class-admin-ui.php:388
+msgid "Error:"
+msgstr ""
+
+#: includes/class-admin-ui.php:395
+msgid "GA4 property discovery:"
+msgstr ""
+
+#: includes/class-admin-ui.php:422
+msgid "Welcome to Pulse Analytics"
+msgstr ""
+
+#: includes/class-admin-ui.php:425
+msgid "Pulse Analytics is your all-in-one WordPress analytics companion. It helps you understand your website traffic, track user behavior, monitor eCommerce performance, and make data-driven decisions — all from within your WordPress dashboard. This guide will walk you through the initial setup so you can start collecting meaningful insights right away."
+msgstr ""
+
+#: includes/class-admin-ui.php:435
+msgid "Getting Started Guide"
+msgstr ""
+
+#: includes/class-admin-ui.php:440
+msgid "Check General Settings"
+msgstr ""
+
+#: includes/class-admin-ui.php:441
+msgid "Navigate to the General Settings tab and review your basic configuration. Make sure your site URL is correct, your timezone is set properly, and user roles with access to analytics are configured. These foundational settings ensure accurate data collection from the start."
+msgstr ""
+
+#: includes/class-admin-ui.php:445
+msgid "Connect Analytics"
+msgstr ""
+
+#: includes/class-admin-ui.php:446
+msgid "Go to the Analytics Configuration tab and connect your analytics provider. You can authorize your Google Analytics account or use the built-in Pulse tracking. Follow the on-screen instructions to complete the authorization flow and verify data is being received."
+msgstr ""
+
+#: includes/class-admin-ui.php:450
+msgid "Verify Connection"
+msgstr ""
+
+#: includes/class-admin-ui.php:451
+msgid "Head to the Dashboard to verify that your connection is working. You should see live visitor data within a few minutes. If data is not appearing, check Analytics Configuration to ensure your credentials are valid and the tracking code is properly installed."
+msgstr ""
+
+#: includes/class-admin-ui.php:462
+msgid "Support Resources"
+msgstr ""
+
+#: includes/class-admin-ui.php:464
+msgid "Need more help? We have got you covered. Browse our full documentation for detailed guides, reach out to our support team for personalized assistance, or jump straight into the General Settings to begin configuring your plugin."
+msgstr ""
+
+#: includes/class-admin-ui.php:467
+msgid "Read Full Documentation"
+msgstr ""
+
+#: includes/class-admin-ui.php:470
+msgid "Contact Support Team"
+msgstr ""
+
+#: includes/class-admin-ui.php:473
+msgid "Move to General Settings →"
+msgstr ""
+
+#: includes/class-admin-ui.php:497
+msgid "Site Profile & Environment"
+msgstr ""
+
+#: includes/class-admin-ui.php:500
+msgid "Pulse Analytics works on blogs, business websites, and online stores. Choose how the plugin should treat your site — commerce reports appear when a supported store plugin is detected or when you select Online store mode."
+msgstr ""
+
+#: includes/class-admin-ui.php:505
+msgid "Site type"
+msgstr ""
+
+#: includes/class-admin-ui.php:508
+msgid "Auto-detect (recommended)"
+msgstr ""
+
+#: includes/class-admin-ui.php:509
+msgid "Website / blog (traffic only)"
+msgstr ""
+
+#: includes/class-admin-ui.php:510
+msgid "Online store (commerce reports)"
+msgstr ""
+
+#. translators: %s: resolved site type label
+#: includes/class-admin-ui.php:517
+#, php-format
+msgid "Currently resolved as: %s"
+msgstr ""
+
+#: includes/class-admin-ui.php:526
+msgid "Commerce platforms"
+msgstr ""
+
+#: includes/class-admin-ui.php:539
+msgid "None detected"
+msgstr ""
+
+#: includes/class-admin-ui.php:554
+msgid "Install WooCommerce, Easy Digital Downloads, MemberPress, or GiveWP to enable revenue KPIs, eCommerce Overview, and purchase tracking."
+msgstr ""
+
+#: includes/class-admin-ui.php:559
+msgid "Site timezone"
+msgstr ""
+
+#: includes/class-admin-ui.php:570
+msgid "Used to align daily traffic and conversion reports with your WordPress timezone."
+msgstr ""
+
+#: includes/class-admin-ui.php:575
+msgid "Reporting currency"
+msgstr ""
+
+#: includes/class-admin-ui.php:580
+msgid "Detected from your active store plugin."
+msgstr ""
+
+#: includes/class-admin-ui.php:585
+msgid "ISO code used when no store plugin is active (e.g. USD, EUR, INR)."
+msgstr ""
+
+#: includes/class-admin-ui.php:591
+msgid "Start tracking"
+msgstr ""
+
+#: includes/class-admin-ui.php:600
+msgid "Inject GA4 gtag on the public site"
+msgstr ""
+
+#: includes/class-admin-ui.php:603
+msgid "When disabled, Pulse Analytics will not enqueue the Google tag (gtag.js) or related frontend tracking scripts."
+msgstr ""
+
+#: includes/class-admin-ui.php:608
+msgid "GA4 DebugView"
+msgstr ""
+
+#: includes/class-admin-ui.php:619
+msgid "Enable DebugView"
+msgstr ""
+
+#: includes/class-admin-ui.php:624
+msgid "Forced on via wp-config.php (SM_PULSE_ANALYTICS_GA4_DEBUG_MODE). Events are sent with debug_mode for GA4 Admin → DebugView."
+msgstr ""
+
+#: includes/class-admin-ui.php:626
+msgid "Send events with debug_mode so they appear in GA4 Admin → DebugView (use with the GA Debugger extension or preview)."
+msgstr ""
+
+#: includes/class-admin-ui.php:634
+msgid "Save site profile"
+msgstr ""
+
+#: includes/class-admin-ui.php:635
+msgid "Next: Analytics Configuration"
+msgstr ""
+
+#: includes/class-admin-ui.php:662
+#: includes/class-admin-ui.php:1102
+#: includes/ga4/oauth.php:320
+msgid "Inactive"
+msgstr ""
+
+#. translators: 1: measurement ID, 2: numeric property ID
+#: includes/class-admin-ui.php:719
+#, php-format
+msgid "%1$s (Property %2$s)"
+msgstr ""
+
+#: includes/class-admin-ui.php:755
+msgid "Google Analytics Status: Configured"
+msgstr ""
+
+#: includes/class-admin-ui.php:757
+msgid "Google Analytics Status: Connected — select property"
+msgstr ""
+
+#: includes/class-admin-ui.php:759
+msgid "Google Analytics Status: IDs saved — OAuth required"
+msgstr ""
+
+#. translators: %s: connection status
+#: includes/class-admin-ui.php:764
+#, php-format
+msgid "Google Analytics Status: %s"
+msgstr ""
+
+#: includes/class-admin-ui.php:765
+#: includes/class-admin-ui.php:1065
+msgid "Not Connected"
+msgstr ""
+
+#: includes/class-admin-ui.php:773
+msgid "Your Google account is connected and GA4 property settings are saved for live dashboard reports."
+msgstr ""
+
+#: includes/class-admin-ui.php:775
+msgid "Your Google account is connected. Choose your GA4 property below to save the Property ID and Measurement ID."
+msgstr ""
+
+#: includes/class-admin-ui.php:778
+msgid "Property ID and Measurement ID are saved. Sign in with Google below to activate live dashboard reports."
+msgstr ""
+
+#: includes/class-admin-ui.php:780
+msgid "Property ID and Measurement ID are saved, but Google OAuth is not active. Add OAuth credentials to wp-config.php and sign in with Google for live dashboard reports."
+msgstr ""
+
+#. translators: %s: button label
+#: includes/class-admin-ui.php:786
+#, php-format
+msgid "Add your Google Cloud OAuth credentials below, then click %s. GA4 Property ID and Measurement ID can be chosen after you connect."
+msgstr ""
+
+#: includes/class-admin-ui.php:787
+msgid "Sign in with Google"
+msgstr ""
+
+#: includes/class-admin-ui.php:800
+msgid "Select GA4 property"
+msgstr ""
+
+#: includes/class-admin-ui.php:802
+msgid "Choose the GA4 property and web stream for this site, then click Use selected property to save."
+msgstr ""
+
+#: includes/class-admin-ui.php:816
+msgid "Use selected property"
+msgstr ""
+
+#: includes/class-admin-ui.php:821
+msgid "No GA4 properties were loaded yet. Click Refresh from Google to fetch your account properties."
+msgstr ""
+
+#: includes/class-admin-ui.php:827
+msgid "Refresh from Google"
+msgstr ""
+
+#: includes/class-admin-ui.php:838
+msgid "Measurement ID Missing:"
+msgstr ""
+
+#: includes/class-admin-ui.php:838
+msgid "Choose a GA4 property above or enter a Measurement ID below."
+msgstr ""
+
+#: includes/class-admin-ui.php:852
+msgid "Google Analytics Configuration"
+msgstr ""
+
+#: includes/class-admin-ui.php:855
+msgid "Configure GA4 Measurement ID, API Secret, and Google Cloud OAuth credentials for live dashboard reporting."
+msgstr ""
+
+#: includes/class-admin-ui.php:862
+msgid "Essential GA4 Telemetry Setup"
+msgstr ""
+
+#: includes/class-admin-ui.php:866
+msgid "Configure your Measurement ID and API Secret for frontend tracking and server-side events."
+msgstr ""
+
+#: includes/class-admin-ui.php:868
+msgid "GA4 Measurement ID and API Secret fields appear after you sign in with Google."
+msgstr ""
+
+#: includes/class-admin-ui.php:875
+msgid "Selected GA4 property"
+msgstr ""
+
+#: includes/class-admin-ui.php:879
+msgid "Change property"
+msgstr ""
+
+#: includes/class-admin-ui.php:886
+msgid "GA4 Property ID"
+msgstr ""
+
+#: includes/class-admin-ui.php:890
+msgid "The numeric ID of your GA4 property (found under Admin > Property Details). Required by GA4 Data API."
+msgstr ""
+
+#: includes/class-admin-ui.php:895
+msgid "GA4 Measurement ID"
+msgstr ""
+
+#: includes/class-admin-ui.php:897
+msgid "e.g. G-ABC1234567"
+msgstr ""
+
+#: includes/class-admin-ui.php:897
+msgid "Must start with G- followed by alphanumeric characters."
+msgstr ""
+
+#. translators: %s: path in GA4 Admin
+#: includes/class-admin-ui.php:902
+#, php-format
+msgid "Your GA4 Measurement ID (starts with G-). Found in %s. Injected into frontend pages."
+msgstr ""
+
+#: includes/class-admin-ui.php:903
+msgid "GA4 Admin > Data Streams > Web Stream Details"
+msgstr ""
+
+#: includes/class-admin-ui.php:910
+msgid "Measurement Protocol API Secret"
+msgstr ""
+
+#: includes/class-admin-ui.php:913
+#: includes/class-admin-ui.php:975
+#: includes/class-admin-ui.php:993
+msgid "Saved in wp-config.php"
+msgstr ""
+
+#: includes/class-admin-ui.php:915
+msgid "To replace it, enter a new secret below, save, then update the define() in wp-config.php."
+msgstr ""
+
+#: includes/class-admin-ui.php:919
+#: includes/class-admin-ui.php:1000
+msgid "Enter new secret to rotate…"
+msgstr ""
+
+#: includes/class-admin-ui.php:919
+msgid "e.g. G9icPBGrRSKApeK0cedcYbE17g"
+msgstr ""
+
+#. translators: 1: opening strong, 2: closing strong, 3: path in GA4 admin
+#: includes/class-admin-ui.php:928
+#, php-format
+msgid "Stored in wp-config.php. Enables reliable %1$sserver-side tracking%2$s for purchases and background events. Retrieve from %3$s."
+msgstr ""
+
+#: includes/class-admin-ui.php:931
+msgid "GA4 Admin > Data Streams > Measurement Protocol API Secrets"
+msgstr ""
+
+#: includes/class-admin-ui.php:958
+msgid "Optional. Fill out your Google Cloud OAuth app credentials to fetch live Analytics reports, real-time active visitors, and traffic overview widgets inside your WordPress dashboard."
+msgstr ""
+
+#: includes/class-admin-ui.php:962
+msgid "Enter your Google Cloud Client ID and Client Secret below, then save and sign in with Google."
+msgstr ""
+
+#: includes/class-admin-ui.php:968
+msgid "Google Client ID"
+msgstr ""
+
+#: includes/class-admin-ui.php:968
+msgid "Look for OAuth 2.0 Client IDs in your Google Cloud project."
+msgstr ""
+
+#: includes/class-admin-ui.php:979
+#: includes/class-admin-ui.php:997
+msgid "Credential found in wp-config.php but could not be decrypted. Re-enter Client ID/Secret and update wp-config.php."
+msgstr ""
+
+#: includes/class-admin-ui.php:981
+msgid "Enter new Client ID to rotate…"
+msgstr ""
+
+#: includes/class-admin-ui.php:983
+msgid "OAuth 2.0 Client ID from Google Cloud Console (APIs & Services → Credentials). Saved encrypted when you submit this form."
+msgstr ""
+
+#: includes/class-admin-ui.php:988
+msgid "Google Client Secret"
+msgstr ""
+
+#: includes/class-admin-ui.php:1000
+msgid "Enter your private client secret"
+msgstr ""
+
+#: includes/class-admin-ui.php:1006
+msgid "Used to authenticate with the GA4 Data API. Saved encrypted when you submit this form."
+msgstr ""
+
+#: includes/class-admin-ui.php:1018
+msgid "Authorized Redirect URI (Copy to Google Cloud Console):"
+msgstr ""
+
+#. translators: %s: section label
+#: includes/class-admin-ui.php:1024
+#, php-format
+msgid "Add this exact URI under %s in your Google Cloud Console OAuth 2.0 Client ID settings."
+msgstr ""
+
+#: includes/class-admin-ui.php:1025
+msgid "Authorized redirect URIs"
+msgstr ""
+
+#: includes/class-admin-ui.php:1031
+msgid "Copy Redirect URI"
+msgstr ""
+
+#: includes/class-admin-ui.php:1038
+msgid "Save Analytics Configuration"
+msgstr ""
+
+#: includes/class-admin-ui.php:1042
+msgid "Save & Connect"
+msgstr ""
+
+#: includes/class-admin-ui.php:1046
+msgid "Sign in with Google →"
+msgstr ""
+
+#: includes/class-admin-ui.php:1051
+msgid "Google Analytics is connected."
+msgstr ""
+
+#: includes/class-admin-ui.php:1060
+msgid "Connected & Secure"
+msgstr ""
+
+#: includes/class-admin-ui.php:1062
+msgid "Setup incomplete"
+msgstr ""
+
+#: includes/class-admin-ui.php:1064
+msgid "OAuth required"
+msgstr ""
+
+#: includes/class-admin-ui.php:1067
+msgid "Your site is authenticated with Google Analytics and a GA4 property is configured for live dashboard reports."
+msgstr ""
+
+#: includes/class-admin-ui.php:1069
+msgid "Google account connected. Select a GA4 property and click Use selected property to finish setup."
+msgstr ""
+
+#: includes/class-admin-ui.php:1072
+msgid "GA4 IDs are saved. Sign in with Google to activate live dashboard reports."
+msgstr ""
+
+#: includes/class-admin-ui.php:1073
+msgid "GA4 IDs are saved but OAuth is inactive. Add credentials to wp-config.php and sign in with Google."
+msgstr ""
+
+#: includes/class-admin-ui.php:1074
+msgid "Save your Google Cloud OAuth credentials above, then sign in with Google."
+msgstr ""
+
+#: includes/class-admin-ui.php:1090
+msgid "Property ID"
+msgstr ""
+
+#: includes/class-admin-ui.php:1091
+msgid "Not configured"
+msgstr ""
+
+#: includes/class-admin-ui.php:1095
+msgid "Token Status"
+msgstr ""
+
+#: includes/class-admin-ui.php:1110
+msgid "Refresh Token"
+msgstr ""
+
+#: includes/class-admin-ui.php:1112
+msgid "Revoke Credentials"
+msgstr ""
+
+#: includes/class-ga-reporter.php:459
+msgid "You do not have permission to view Pulse Analytics reports."
+msgstr ""
+
+#: includes/class-ga-reporter.php:470
+msgid "You do not have permission to modify Pulse Analytics settings."
+msgstr ""
+
+#: includes/class-ga-reporter.php:1124
+#: includes/class-ga-reporter.php:1126
+#: includes/class-ga-reporter.php:1349
+#: includes/class-ga-reporter.php:1351
+#: includes/connector.php:173
+msgid "Invalid security token."
+msgstr ""
+
+#: includes/class-ga-reporter.php:1130
+#: includes/class-ga-reporter.php:1132
+#: includes/class-ga-reporter.php:1355
+#: includes/class-ga-reporter.php:1357
+#: includes/connector.php:175
+msgid "Insufficient permissions."
+msgstr ""
+
+#: includes/class-ga-reporter.php:1203
+msgid "Connect GA4 OAuth and set a numeric Property ID under Analytics settings to load live dashboard metrics."
+msgstr ""
+
+#: includes/class-monsterinsights-migration.php:210
+#: includes/connector.php:226
+#: includes/connector.php:227
+#: includes/helpers.php:490
+msgid "Pulse Analytics"
+msgstr ""
+
+#: includes/class-monsterinsights-migration.php:211
+msgid "MonsterInsights settings or aggregated report data were detected on this site."
+msgstr ""
+
+#: includes/class-monsterinsights-migration.php:212
+msgid "Import into Pulse Analytics"
+msgstr ""
+
+#: includes/class-monsterinsights-migration.php:213
+msgid "Dismiss"
+msgstr ""
+
+#: includes/class-monsterinsights-migration.php:296
+msgid "Migration already completed for this MonsterInsights data. Enable “Re-import data” to run again."
+msgstr ""
+
+#: includes/class-monsterinsights-migration.php:351
+msgid "Pulse Analytics already has a Measurement ID."
+msgstr ""
+
+#: includes/class-monsterinsights-migration.php:359
+msgid "Pulse Analytics already has a Property ID."
+msgstr ""
+
+#: includes/class-monsterinsights-migration.php:368
+msgid "Pulse Analytics already has an API Secret."
+msgstr ""
+
+#: includes/class-monsterinsights-migration.php:390
+msgid "eCommerce tracking already enabled in Pulse Analytics."
+msgstr ""
+
+#: includes/class-monsterinsights-migration.php:426
+msgid "Affiliate link paths already configured in Pulse Analytics."
+msgstr ""
+
+#: includes/class-monsterinsights-migration.php:434
+msgid "No MonsterInsights GA4 Measurement ID found — connect Google Analytics manually after migration."
+msgstr ""
+
+#: includes/class-monsterinsights-migration.php:440
+msgid "No direct Pulse Analytics equivalent — configure manually if needed."
+msgstr ""
+
+#: includes/class-monsterinsights-migration.php:503
+msgid "Empty option value."
+msgstr ""
+
+#: includes/class-monsterinsights-migration.php:512
+msgid "Already imported."
+msgstr ""
+
+#: includes/class-monsterinsights-migration.php:527
+msgid "Could not write Pulse Analytics snapshot."
+msgstr ""
+
+#: includes/class-plugins-page-integration.php:81
+#: includes/class-plugins-page-integration.php:185
+msgid "Upgrade to Pro"
+msgstr ""
+
+#. translators: %s: Plugin name
+#: includes/class-plugins-page-integration.php:128
+#, php-format
+msgid "More information about %s"
+msgstr ""
+
+#: includes/class-plugins-page-integration.php:130
+msgid "View details"
+msgstr ""
+
+#: includes/class-plugins-page-integration.php:137
+msgid "Docs"
+msgstr ""
+
+#: includes/class-plugins-page-integration.php:142
+msgid "Support"
+msgstr ""
+
+#: includes/class-site-profile.php:313
+msgid "Online store"
+msgstr ""
+
+#: includes/class-site-profile.php:314
+msgid "Website / blog"
+msgstr ""
+
+#: includes/connector.php:71
+#: includes/connector.php:88
+#: includes/connector.php:114
+#: includes/connector.php:129
+msgid "You do not have permission to perform this action"
+msgstr ""
+
+#: includes/connector.php:140
+msgid "Please select a valid GA4 property from the list."
+msgstr ""
+
+#: includes/connector.php:185
+msgid "Analytics cache cleared successfully!"
+msgstr ""
+
+#: includes/connector.php:190
+msgid "Invalid nonce"
+msgstr ""
+
+#: includes/connector.php:192
+msgid "You do not have permission to sync data."
+msgstr ""
+
+#: includes/connector.php:208
+msgid "Data synced successfully!"
+msgstr ""
+
+#: includes/connector.php:237
+#: includes/connector.php:238
+#: includes/helpers.php:450
+msgid "Audience & Links"
+msgstr ""
+
+#: includes/connector.php:255
+#: includes/connector.php:256
+#: includes/helpers.php:458
+msgid "Forms Conversion"
+msgstr ""
+
+#: includes/connector.php:264
+msgid "Pulse Analytics Settings"
+msgstr ""
+
+#: includes/connector.php:274
+msgid "Google Analytics OAuth"
+msgstr ""
+
+#: includes/connector.php:490
+msgid "Revoke Google Analytics credentials? Live dashboard reports will stop until you reconnect."
+msgstr ""
+
+#: includes/connector.php:491
+msgid "Redirect URI copied to clipboard!"
+msgstr ""
+
+#: includes/ga4/admin-api.php:38
+msgid "Connect Google Analytics first, then refresh the property list."
+msgstr ""
+
+#: includes/ga4/admin-api.php:82
+msgid "Missing OAuth access token."
+msgstr ""
+
+#: includes/ga4/admin-api.php:172
+msgid "No GA4 web properties were found on this Google account. Create a GA4 property with a web data stream, or enter IDs manually below."
+msgstr ""
+
+#. translators: 1: Google account name, 2: GA4 property name, 3: measurement ID, 4: numeric property ID
+#: includes/ga4/admin-api.php:247
+#, php-format
+msgid "%1$s — %2$s — %3$s (Property %4$s)"
+msgstr ""
+
+#: includes/ga4/admin-api.php:248
+msgid "Account"
+msgstr ""
+
+#: includes/ga4/admin-api.php:349
+msgid "Invalid GA4 Property ID."
+msgstr ""
+
+#: includes/ga4/admin-api.php:356
+msgid "Invalid GA4 Measurement ID."
+msgstr ""
+
+#: includes/ga4/admin-api.php:371
+msgid "Could not write GA4 property settings to wp-config.php. Make wp-config.php writable, then try again."
+msgstr ""
+
+#: includes/ga4/admin-api.php:487
+msgid "Google Analytics Admin API access denied. Enable the Google Analytics Admin API in your Google Cloud project, then try again."
+msgstr ""
+
+#: includes/ga4/admin-api.php:494
+msgid "Unexpected response from Google Analytics Admin API."
+msgstr ""
+
+#: includes/ga4/admin-api.php:520
+msgid "Unable to fetch GA4 properties from Google."
+msgstr ""
+
+#: includes/ga4/oauth.php:304
+msgid "Invalid OAuth client credentials. Check your Client ID and Client Secret in wp-config.php."
+msgstr ""
+
+#: includes/ga4/oauth.php:305
+msgid "Redirect URI mismatch. Add the Authorized Redirect URI shown on this page to your Google Cloud OAuth client."
+msgstr ""
+
+#: includes/ga4/oauth.php:306
+msgid "Authorization code expired or already used. Click Sign in with Google again."
+msgstr ""
+
+#: includes/ga4/oauth.php:307
+msgid "Google sign-in was cancelled or denied."
+msgstr ""
+
+#: includes/ga4/oauth.php:315
+msgid "Google OAuth connection failed. Verify your credentials and redirect URI, then try again."
+msgstr ""
+
+#: includes/ga4/oauth.php:323
+msgid "Expired — click Refresh Token"
+msgstr ""
+
+#. translators: %d: minutes until token expiry
+#: includes/ga4/oauth.php:328
+#, php-format
+msgid "Expires in %d min"
+msgstr ""
+
+#: includes/ga4/oauth.php:404
+msgid "You do not have permission to connect Google Analytics."
+msgstr ""
+
+#: includes/ga4/oauth.php:407
+msgid "Invalid OAuth state. Please try connecting again."
+msgstr ""
+
+#: includes/ga4/oauth.php:419
+msgid "OAuth client credentials are missing or unreadable from wp-config.php."
+msgstr ""
+
+#: includes/ga4/oauth.php:481
+msgid "Could not write OAuth tokens to wp-config.php. Make wp-config.php writable, then connect again."
+msgstr ""
+
+#: includes/helpers.php:421
+msgid "Last 7 Days"
+msgstr ""
+
+#: includes/helpers.php:422
+msgid "Last 30 Days"
+msgstr ""
+
+#: includes/helpers.php:423
+msgid "Last 90 Days"
+msgstr ""
+
+#: includes/helpers.php:424
+msgid "Custom Range..."
+msgstr ""
+
+#: includes/helpers.php:426
+msgid "Select custom range"
+msgstr ""
+
+#: includes/helpers.php:446
+msgid "Dashboard"
+msgstr ""
+
+#: includes/helpers.php:553
+msgid "MonsterInsights Import"
+msgstr ""
+
+#: includes/helpers.php:561
+msgid "Configure Google Analytics integration and advanced tracking options."
+msgstr ""
+
+#: includes/helpers.php:566
+msgid "Settings sections"
+msgstr ""
+
+#: includes/helpers.php:611
+msgid "Attribute store orders to UTM campaigns with searchable transaction tables."
+msgstr ""
+
+#: includes/helpers.php:612
+msgid "Create tracking URLs, manage saved campaigns, and view GA4 campaign performance."
+msgstr ""
+
+#: includes/helpers.php:615
+msgid "Microsoft Clarity click, scroll, and interaction heatmaps — without local event storage."
+msgstr ""
+
+#: includes/helpers.php:618
+msgid "Microsoft Clarity session replays and visitor journey analysis — without local recording storage."
+msgstr ""
+
+#: includes/helpers.php:628
+msgid "Track customer conversion paths from campaign click to purchase completion."
+msgstr ""
+
+#: includes/helpers.php:629
+msgid "Visualize visitor paths across pages before key conversions."
+msgstr ""
+
+#: includes/helpers.php:660
+msgid "Monitor your store's key performance metrics, real-time traffic, and commerce insights."
+msgstr ""
+
+#: includes/helpers.php:661
+msgid "Monitor traffic, engagement, and acquisition metrics for your website."
+msgstr ""
+
+#: includes/helpers.php:680
+msgid "Mobile View"
+msgstr ""
+
+#: includes/helpers.php:683
+msgid "Desktop View"
+msgstr ""
+
+#: includes/newsletter.php:47
+msgid "Stay Updated! Subscribe to our newsletter."
+msgstr ""
+
+#: assets/js/chart-tooltip-helper.js:87
+msgid "Value"
+msgstr ""
+
+#: assets/js/metrics.js:35
+#: assets/js/script.js:532
+msgid "Syncing..."
+msgstr ""
+
+#: assets/js/metrics.js:54
+msgid "GA4 Data Live"
+msgstr ""
+
+#: assets/js/metrics.js:65
+msgid "No page data found."
+msgstr ""
+
+#: assets/js/metrics.js:85
+msgid "No source data found."
+msgstr ""
+
+#: assets/js/script.js:1146
+#: assets/js/script.js:1178
+msgid "Pageviews / min"
+msgstr ""
+
+#: assets/js/script.js:1266
+#: assets/js/script.js:1292
+#: assets/js/script.js:1309
+msgid "No data found."
+msgstr ""

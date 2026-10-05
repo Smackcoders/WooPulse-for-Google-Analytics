@@ -5,12 +5,10 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -72,8 +70,15 @@
 }
 
 /* Ensure standard system fonts are used */
-#StorePulse-dashboard-v2 select,
-#StorePulse-dashboard-v2 input {
+#PulseAnalytics-dashboard-v2 {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+
+#PulseAnalytics-dashboard-v2 select,
+#PulseAnalytics-dashboard-v2 input {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif !important;
 }
 
@@ -85,36 +90,415 @@
   cursor: move;
 }
 
-.StorePulse-dashboard-toolbar {
+.PulseAnalytics-dashboard-toolbar {
   background: transparent;
   border: none;
   border-radius: 0;
   padding: 0;
 }
 
-.StorePulse-toolbar-input {
+.PulseAnalytics-toolbar-input {
+  min-height: 38px;
   height: 38px;
   border: 1px solid #d6dbe3 !important;
   border-radius: 8px !important;
   box-shadow: none !important;
   color: #1f2937;
-  line-height: 38px;
+  line-height: 1.4;
+  box-sizing: border-box;
 }
 
-.StorePulse-toolbar-input:hover,
-.StorePulse-toolbar-input:focus {
+#PulseAnalytics-dashboard-v2 select.PulseAnalytics-toolbar-input {
+  line-height: 1.4;
+  padding-top: 7px;
+  padding-bottom: 7px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.PulseAnalytics-toolbar-input:hover,
+.PulseAnalytics-toolbar-input:focus {
   border-color: #c6ced8 !important;
   box-shadow: 0 0 0 2px rgba(148, 163, 184, 0.12) !important;
 }
 
-.StorePulse-toolbar-btn {
+.PulseAnalytics-toolbar-btn {
   border: 1px solid #d6dbe3 !important;
   border-radius: 8px !important;
   box-shadow: none !important;
   background: #ffffff !important;
 }
 
-.StorePulse-toolbar-btn:hover {
+.PulseAnalytics-toolbar-btn:hover {
   background: #f8fafc !important;
   border-color: #c6ced8 !important;
+}
+
+.sp-toolbar-select {
+  padding: 7px 12px !important;
+  min-width: 180px;
+  line-height: 1.4 !important;
+}
+.sp-toolbar-select--wide {
+  padding: 7px 36px !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background: white !important;
+  min-width: 210px;
+  line-height: 1.4 !important;
+}
+.sp-toolbar-select--link {
+  min-height: 38px;
+  height: 38px;
+  line-height: 1.4;
+  padding: 0 12px;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+.PulseAnalytics-toolbar-select-wrap {
+  overflow: visible;
+}
+
+.sp-upgrade-banner {
+  background-color: #f7f9ff;
+  border-color: #e2e8f0;
+  padding: 16px 24px;
+}
+.sp-upgrade-icon-bg {
+  background-color: #ebf0ff;
+  width: 32px;
+  height: 32px;
+}
+.sp-upgrade-text { color: #6366f1; margin: 0; }
+.sp-upgrade-btn {
+  background-color: #6366f1;
+  text-decoration: none;
+}
+
+.sp-widget-accent { border-bottom: 3px solid transparent; }
+.sp-widget-accent--green { border-bottom-color: #4ade80; }
+.sp-widget-accent--blue { border-bottom-color: #60a5fa; }
+.sp-widget-accent--purple { border-bottom-color: #c084fc; }
+.sp-widget-accent--teal { border-bottom-color: #2dd4bf; }
+.sp-widget-accent--rose { border-bottom-color: #fb7185; }
+
+/* Pulse Analytics Pro Restriction & Blur Overlay */
+.pulse-analytics-pro-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.pulse-analytics-pro-container-large {
+  position: relative;
+  overflow: hidden;
+  min-height: 450px;
+}
+
+.pulse-analytics-pro-blur {
+  filter: blur(2.5px) !important;
+  -webkit-filter: blur(2.5px) !important;
+  user-select: none;
+  opacity: 0.95;
+  transition: filter 0.3s ease, opacity 0.3s ease;
+  cursor: pointer;
+}
+
+.sp-pro-gated .sp-pro-blur-target {
+  cursor: pointer;
+}
+
+#PulseAnalytics-dashboard-v2 .sp-pro-widget-overlay,
+#PulseAnalytics-dashboard-v2 .pulse-analytics-pro-overlay:not(.fixed) {
+  display: none !important;
+}
+
+.cursor-move-kpi .pulse-analytics-pro-btn {
+  font-size: 0.72rem;
+  padding: 0.28rem 0.65rem;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+  letter-spacing: 0.02em;
+}
+
+.cursor-move-kpi .pulse-analytics-pro-btn svg {
+  width: 11px;
+  height: 11px;
+}
+
+.pulse-analytics-pro-btn {
+  pointer-events: auto;
+}
+
+/* Premium Top-Right PRO Badge Pill */
+.pulse-analytics-pro-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff !important;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 2.5px 7px;
+  border-radius: 9999px;
+  text-decoration: none !important;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+
+.pulse-analytics-pro-badge-pill:hover {
+  transform: translateY(-1px) scale(1.04);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.45);
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: #ffffff !important;
+}
+
+.pulse-analytics-pro-mini-tag {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+.pulse-analytics-pro-overlay.fixed {
+  position: fixed !important;
+  inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 99999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(15, 23, 42, 0.05) !important;
+  pointer-events: none !important;
+  padding: 1.5rem !important;
+  box-sizing: border-box !important;
+}
+
+.pulse-analytics-pro-card-large {
+  position: relative !important;
+  z-index: 99999 !important;
+  pointer-events: auto !important;
+  margin: auto !important;
+  max-height: 88vh !important;
+  max-width: 32rem !important;
+  width: 92% !important;
+  overflow-y: auto !important;
+  background: #ffffff !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.35) !important;
+}
+
+/* Ensure Button text is always bright white on hover, focus, active */
+.pulse-analytics-pro-cta-btn,
+.pulse-analytics-pro-card-large a,
+.pulse-analytics-pro-card-large a:link,
+.pulse-analytics-pro-card-large a:visited,
+.pulse-analytics-pro-card-large a:hover,
+.pulse-analytics-pro-card-large a:active,
+.pulse-analytics-pro-card-large a:focus,
+.pulse-analytics-pro-card-large a:hover span,
+.pulse-analytics-pro-card-large a:focus span,
+.pulse-analytics-pro-card-large a:active span {
+  color: #ffffff !important;
+  text-decoration: none !important;
+}
+
+.pulse-analytics-pro-cta-btn:hover,
+.pulse-analytics-pro-card-large a:hover {
+  background-color: #4338ca !important;
+  color: #ffffff !important;
+  box-shadow: 0 10px 25px -3px rgba(79, 70, 229, 0.45) !important;
+  transform: translateY(-1px);
+}
+
+.pulse-analytics-pro-card-large a svg,
+.pulse-analytics-pro-card-large a:hover svg,
+.pulse-analytics-pro-card-large a:focus svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+  fill: none !important;
+}
+
+/* Dashboard PRO Popup Modal */
+#pulse-analytics-dashboard-pro-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 1rem;
+  transition: opacity 0.25s ease-out, visibility 0.25s ease-out;
+}
+
+#pulse-analytics-dashboard-pro-modal.flex {
+  display: flex !important;
+}
+
+#pulse-analytics-dashboard-pro-modal .animate-pro-modal-in {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease-out;
+}
+
+.pulse-analytics-pro-overlay-kpi {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.pulse-analytics-pro-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+  margin-bottom: 0.35rem;
+}
+
+.pulse-analytics-pro-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0.25rem 0 0.5rem 0;
+}
+
+.pulse-analytics-pro-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #6366f1;
+  color: #ffffff !important;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.45rem 1rem;
+  border-radius: 0.5rem;
+  text-decoration: none !important;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.pulse-analytics-pro-btn:hover {
+  background: #4f46e5;
+  color: #ffffff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.45);
+}
+
+/* Store Traffic Trends Screenshot Matching Styling */
+.pulse-analytics-segmented-bar {
+  display: flex;
+  background: #f1f5f9;
+  border-radius: 0.75rem 0.75rem 0 0;
+  overflow: hidden;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.pulse-analytics-segmented-tab {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1rem;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: none;
+  border-top: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pulse-analytics-segmented-tab:hover {
+  color: #1e293b;
+  background: #e2e8f0;
+}
+
+.pulse-analytics-segmented-tab.active {
+  background: #ffffff;
+  color: #3b82f6;
+  font-weight: 700;
+  border-top-color: #3b82f6;
+  border-left: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+}
+
+.pulse-analytics-metrics-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 50;
+  width: 360px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.12), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  padding: 1.25rem;
+}
+
+.pulse-analytics-btn-reset-outlined {
+  background: #ffffff;
+  border: 1px solid #3b82f6;
+  color: #2563eb;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pulse-analytics-btn-reset-outlined:hover {
+  background: #eff6ff;
+}
+
+.pulse-analytics-btn-apply-filled {
+  background: #3b82f6;
+  border: 1px solid #2563eb;
+  color: #ffffff !important;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.5rem 1.1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+}
+
+.pulse-analytics-btn-apply-filled:hover {
+  background: #2563eb;
 }

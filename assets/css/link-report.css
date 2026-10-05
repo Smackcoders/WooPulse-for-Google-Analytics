@@ -1,14 +1,10 @@
-#StorePulse-links-page {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+#PulseAnalytics-links-page,
+#PulseAnalytics-links-page * {
+    font-family: var(--w2ssyn-sb-font) !important;
 }
 
-#StorePulse-links-page,
-#StorePulse-links-page * {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-}
-
-.StorePulse-date-box input#link-date-range,
-.StorePulse-date-box input.flatpickr-input {
+.PulseAnalytics-date-box input#link-date-range,
+.PulseAnalytics-date-box input.flatpickr-input {
     border: 0 !important;
     background: transparent !important;
     box-shadow: none !important;
@@ -22,22 +18,22 @@
     font-size: 13px !important;
 }
 
-.StorePulse-empty-state-icon {
+.PulseAnalytics-empty-state-icon {
     color: #cbd5e1;
     margin-bottom: 12px;
     display: flex;
     justify-content: center;
 }
 
-#StorePulse-link-report table tbody tr:nth-child(odd) {
+#PulseAnalytics-link-report table tbody tr:nth-child(odd) {
     background-color: #f8fafc;
 }
 
-#StorePulse-link-report table tbody tr:nth-child(even) {
+#PulseAnalytics-link-report table tbody tr:nth-child(even) {
     background-color: #ffffff;
 }
 
-#StorePulse-link-report table tbody tr:hover {
+#PulseAnalytics-link-report table tbody tr:hover {
     background-color: #eff6ff;
     transition: background 0.15s;
 }
